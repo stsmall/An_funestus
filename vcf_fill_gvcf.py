@@ -37,7 +37,10 @@ def get_missing(vcfin):
                     chrom = x[0]
                     pos = int(x[1])
                     miss = ["./.:" in i for i in x]
-                    [missdict[pop_iix[i]][chrom].append(pos) for i, p in enumerate(miss) if p]
+                    try:
+                        [missdict[pop_iix[i]][chrom].append(pos) for i, p in enumerate(miss) if p]
+                    except:
+                        import ipdb; ipdb.set_trace()
     return(missdict, pop_iix)
 
 
