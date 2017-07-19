@@ -36,9 +36,10 @@ def get_missing(vcfin):
                     x = line.strip().split()
                     chrom = x[0]
                     pos = int(x[1])
-                    miss = ["./.:" in i for i in x]
+                    miss = ["./.:" in i for i in x[9:]]
                     try:
-                        [missdict[pop_iix[i]][chrom].append(pos) for i, p in enumerate(miss) if p]
+                        [missdict[pop_iix[i]][chrom].append(pos) for i,
+                         p in enumerate(miss) if p]
                     except:
                         import ipdb; ipdb.set_trace()
     return(missdict, pop_iix)
@@ -66,17 +67,17 @@ def get_gvcf(missdict, pop_iix):
                     spos = int(x[1])
                     info = x[7]
                     if "END" in info:
-                        send = info.split("=")
-                        pos = range(spos, send+1)
+                        send = int(info.split("=")[1])
+                        pos = range(spos, send + 1)
                         for p in pos:
                             if p in missdict[sample][chrom]:
-                                gt = x[pop_iix.index(sample) + 9]
-                                gvcfdict[sample][chrom].append((pos, gt))
+                                gt = x[9]
+                                gvcfdict[sample][chrom][str(p)] = gt
                     else:
                         pos = spos
                         if pos in missdict[sample][chrom]:
-                            fill = pop_iix
-                            gvcfdict[sample][chrom].append((pos, fill))
+                                gt = x[9]
+                                gvcfdict[sample][chrom][str(pos)] = gt
     return(gvcfdict)
 
 
@@ -110,14 +111,14 @@ def make_vcf(vcf, missdict, gvcfdict, pop_iix):
                         ml2 = [j for i in ml for j in i]
                         mlist = sorted(set(ml2))
                     chrom = x[0]
-                    pos = x[1]
+                    pos = int(x[1])
                     if pos in mlist:
                         # find all missing index
-                        miss_iix = [i for i, j in enumerate(x) if "./." in j]
+                        miss_iix = [i for i, j in enumerate(x[9:]) if "./." in j]
                         for m in miss_iix:
-                            sample = pop_iix[m - 9]
-                            gtfill = gvcfdict[sample][chrom][pos]
-                            x[m] = gtfill
+                            sample = pop_iix[m]
+                            gtfill = gvcfdict[sample][chrom][str(pos)]
+                            x[m + 9] = gtfill
                         fill.write("{}\n".format("\t".join(x)))
                     else:
                         fill.write(line)
