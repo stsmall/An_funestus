@@ -34,6 +34,7 @@ def get_filtered():
     """
     """
     vcf_files = glob.glob("*.snps.flt.vcf")
+    print(vcf_files)
     n = len(vcf_files)
     fltdict = defaultdict(lambda: defaultdict(list))
     # progress bar
@@ -41,7 +42,7 @@ def get_filtered():
     progvar = 0
     for prog in range(n):
         for v in vcf_files:
-            print("opening {}\n".format(v))
+            print("opening {}".format(v))
             with open(v, 'r') as vcf:
                 for line in vcf:
                     if not line.startswith("##"):
@@ -53,9 +54,9 @@ def get_filtered():
                                 chrom = x[0]
                                 pos = int(x[1])
                                 fltdict[sample][chrom].append(pos)
-            print("closing {}\n".format(v))
-        progress.update(progvar + 1)
-        progvar += 1
+            # print("closing {}".format(v))
+            progress.update(progvar + 1)
+            progvar += 1
     return(fltdict)
 
 
@@ -76,7 +77,7 @@ def get_missing(vcfin, flt, nlines):
     progvar = 0
     for prog in range(nlines):
         with open(vcfin, 'r') as vcf:
-            print("opening {}".format(vcfin))
+            print("opening {}\n".format(vcfin))
             l = 0
             for line in vcf:
                 if not line.startswith("##"):
@@ -91,9 +92,12 @@ def get_missing(vcfin, flt, nlines):
                         [missdict[pop_iix[i]][chrom].append(pos) for i,
                          p in enumerate(miss) if p]
                         if l % 10000 == 0:
-                            #print("done reading line {}\n".format(l))
-                            progress.update(progvar + 10000)
-                            progvar += 10000
+                            # print("done reading line {}\n".format(l))
+                            try:
+                                progress.update(progvar + 10000)
+                                progvar += 10000
+                            except ValueError:
+                                progress.update(nlines)
     # remove filtered sites
     print("removing filtered sites")
     for sample in missdict.keys():
