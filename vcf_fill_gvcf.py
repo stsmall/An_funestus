@@ -34,14 +34,13 @@ def get_filtered():
     """
     """
     vcf_files = glob.glob("*.snps.flt.vcf")
-    print(vcf_files)
     n = len(vcf_files)
     fltdict = defaultdict(lambda: defaultdict(list))
     # progress bar
     progress = pb.ProgressBar(widgets=_widgets, maxval=n).start()
     progvar = 0
+    print("Getting Filtered Sites\n")
     for v in vcf_files:
-        print("opening {}".format(v))
         with open(v, 'r') as vcf:
             for line in vcf:
                 if not line.startswith("##"):
@@ -74,8 +73,8 @@ def get_missing(vcfin, flt, nlines):
     # progress bar
     progress = pb.ProgressBar(widgets=_widgets, maxval=nlines).start()
     progvar = 0
+    print("Getting Missing Sites\n")
     with open(vcfin, 'r') as vcf:
-        print("opening {}\n".format(vcfin))
         l = 0
         for line in vcf:
             if not line.startswith("##"):
@@ -97,11 +96,10 @@ def get_missing(vcfin, flt, nlines):
                         except ValueError:
                             progress.update(nlines)
     # remove filtered sites
-    print("removing filtered sites")
     for sample in missdict.keys():
         for chrom in missdict[sample].keys():
             filtered = [i for i in missdict[sample][chrom] if not
-                        i[0] in flt[sample][chrom]]
+                        i in flt[sample][chrom]]
             missdict[sample][chrom] = filtered
     return(missdict, pop_iix)
 
@@ -122,9 +120,9 @@ def get_gvcf(missdict, pop_iix):
     n = len(missdict.keys())
     progress = pb.ProgressBar(widgets=_widgets, maxval=n).start()
     progvar = 0
+    print("Getting data from gVCF\n")
     for sample in missdict.keys():
         with open("{}.g.vcf".format(sample)) as gvcf:
-            print("reading sample gvcf: {}".format(sample))
             for line in gvcf:
                 if not line.startswith("#"):
                     x = line.strip().split()
