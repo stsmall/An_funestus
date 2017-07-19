@@ -30,7 +30,7 @@ def get_missing(vcfin):
     with open(vcfin, 'r') as vcfin:
         for line in vcfin:
             if not line.startswith("##"):
-                if line.startwith("#CHROM"):
+                if line.startswith("#CHROM"):
                     pop_iix = line.strip().split()[9:]
                 else:
                     x = line.strip.split()
