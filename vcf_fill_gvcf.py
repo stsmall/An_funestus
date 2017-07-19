@@ -42,7 +42,7 @@ def get_filtered():
     for prog in range(n):
         for v in vcf_files:
             with open(v, 'r') as vcf:
-                print("opening {}".format(v))
+                print("opening {}\n".format(v))
                 for line in vcf:
                     if not line.startswith("##"):
                         if line.startswith("#CHROM"):
@@ -53,9 +53,9 @@ def get_filtered():
                                 chrom = x[0]
                                 pos = int(x[1])
                                 fltdict[sample][chrom].append(pos)
-                print("closing {}".format(v))
-            progress.update(progvar + 1)
-            progvar += 1
+                print("closing {}\n".format(v))
+        progress.update(progvar + 1)
+        progvar += 1
     return(fltdict)
 
 
