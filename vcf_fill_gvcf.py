@@ -97,10 +97,16 @@ def get_missing(vcfin, flt, nlines):
                         except ValueError:
                             progress.update(nlines)
     # remove filtered sites
+    print("Removing Filtered Sites")
+    n = len(missdict.keys())
+    progress = pb.ProgressBar(widgets=_widgets, maxval=n).start()
+    progvar = 0
     for sample in missdict.keys():
         for chrom in missdict[sample].keys():
             filtered = [i for i in missdict[sample][chrom] if i not in flt[sample][chrom]]
             missdict[sample][chrom] = filtered
+        progress.update(progvar + 1)
+        progvar += 1
     return(missdict, pop_iix)
 
 
@@ -122,7 +128,7 @@ def get_gvcf(missdict, pop_iix):
     progvar = 0
     print("Getting data from gVCF\n")
     for sample in missdict.keys():
-        with open("{}.g.vcf".format(sample)) as gvcf:
+        with open("{}.g.vcf".format(sample), 'r') as gvcf:
             for line in gvcf:
                 if not line.startswith("#"):
                     x = line.strip().split()
@@ -141,7 +147,6 @@ def get_gvcf(missdict, pop_iix):
                         if pos in missdict[sample][chrom]:
                                 gt = x[9]
                                 gvcfdict[sample][chrom][str(pos)] = gt
-            print("closing sample gvcf: {}".format(sample))
         progress.update(progvar + 1)
         progvar += 1
     return(gvcfdict)
