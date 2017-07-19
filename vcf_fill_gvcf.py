@@ -35,6 +35,7 @@ def get_filtered():
     """
     vcf_files = glob.glob("*.snps.flt.vcf")
     n = len(vcf_files)
+    import ipdb;ipdb.set_trace()
     fltdict = defaultdict(lambda: defaultdict(list))
     # progress bar
     progress = pb.ProgressBar(widgets=_widgets, maxval=n).start()
