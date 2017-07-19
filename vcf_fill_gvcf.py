@@ -9,7 +9,7 @@ from collections import defaultdict
 import glob
 import argparse
 import progressbar as pb
-
+_widgets = [pb.Percentage(), pb.Bar()]
 parser = argparse.ArgumentParser()
 parser.add_argument('-v', "--vcf", type=str, required=True,
                     help='merged vcf file')
@@ -37,7 +37,7 @@ def get_filtered():
     n = len(vcf_files)
     fltdict = defaultdict(lambda: defaultdict(list))
     # progress bar
-    progress = pb.ProgressBar(widgets=_widgets, maxval = n).start()
+    progress = pb.ProgressBar(widgets=_widgets, maxval=n).start()
     progvar = 0
     for prog in range(n):
         for v in vcf_files:
@@ -72,7 +72,7 @@ def get_missing(vcfin, flt, nlines):
     """
     missdict = defaultdict(lambda: defaultdict(list))
     # progress bar
-    progress = pb.ProgressBar(widgets=_widgets, maxval = nlines).start()
+    progress = pb.ProgressBar(widgets=_widgets, maxval=nlines).start()
     progvar = 0
     for prog in range(nlines):
         with open(vcfin, 'r') as vcfin:
@@ -118,7 +118,7 @@ def get_gvcf(missdict, pop_iix):
     """
     gvcfdict = defaultdict(lambda: defaultdict(dict))
     n = len(missdict.keys())
-    progress = pb.ProgressBar(widgets=_widgets, maxval = n).start()
+    progress = pb.ProgressBar(widgets=_widgets, maxval=n).start()
     progvar = 0
     for prog in range(n):
         for sample in missdict.keys():
