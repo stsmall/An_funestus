@@ -41,8 +41,8 @@ def get_filtered():
     progvar = 0
     for prog in range(n):
         for v in vcf_files:
+            print("opening {}\n".format(v))
             with open(v, 'r') as vcf:
-                print("opening {}\n".format(v))
                 for line in vcf:
                     if not line.startswith("##"):
                         if line.startswith("#CHROM"):
@@ -53,7 +53,7 @@ def get_filtered():
                                 chrom = x[0]
                                 pos = int(x[1])
                                 fltdict[sample][chrom].append(pos)
-                print("closing {}\n".format(v))
+            print("closing {}\n".format(v))
         progress.update(progvar + 1)
         progvar += 1
     return(fltdict)
@@ -75,10 +75,10 @@ def get_missing(vcfin, flt, nlines):
     progress = pb.ProgressBar(widgets=_widgets, maxval=nlines).start()
     progvar = 0
     for prog in range(nlines):
-        with open(vcfin, 'r') as vcfin:
+        with open(vcfin, 'r') as vcf:
             print("opening {}".format(vcfin))
             l = 0
-            for line in vcfin:
+            for line in vcf:
                 if not line.startswith("##"):
                     if line.startswith("#CHROM"):
                         pop_iix = line.strip().split()[9:]
@@ -91,7 +91,7 @@ def get_missing(vcfin, flt, nlines):
                         [missdict[pop_iix[i]][chrom].append(pos) for i,
                          p in enumerate(miss) if p]
                         if l % 10000 == 0:
-                            print("done reading line {}\n".format(l))
+                            #print("done reading line {}\n".format(l))
                             progress.update(progvar + 10000)
                             progvar += 10000
     # remove filtered sites
@@ -148,7 +148,7 @@ def get_gvcf(missdict, pop_iix):
     return(gvcfdict)
 
 
-def make_vcf(vcf, missdict, gvcfdict, pop_iix, nlines):
+def make_vcf(vcfin, missdict, gvcfdict, pop_iix, nlines):
     """Takes as input the missdict since it has positions and the gvcfdict
     since it has the missing fields, and makes a new vcf
 
@@ -165,9 +165,9 @@ def make_vcf(vcf, missdict, gvcfdict, pop_iix, nlines):
     """
     chrom = ''
     l = 0
-    with open("{}.filled".format(vcf), 'w') as fill:
-        with open(vcf, 'r') as vcfin:
-            for line in vcfin:
+    with open("{}.filled".format(vcfin), 'w') as fill:
+        with open(vcfin, 'r') as vcf:
+            for line in vcf:
                 if line.startswith("##"):
                     fill.write(line)
                 elif line.startswith("#CHROM"):
