@@ -48,7 +48,7 @@ def get_filtered():
                         if line.startswith("#CHROM"):
                             sample = line.strip().split()[9]
                         else:
-                            x = line.strip.split()
+                            x = line.strip().split()
                             if x[7] != "PASS":
                                 chrom = x[0]
                                 pos = int(x[1])
