@@ -48,7 +48,7 @@ def get_filtered():
                         sample = line.strip().split()[9]
                     else:
                         x = line.strip().split()
-                        if x[7] != "PASS":
+                        if x[6] != "PASS":
                             chrom = x[0]
                             pos = int(x[1])
                             fltdict[sample][chrom].append(pos)
@@ -200,7 +200,7 @@ def make_vcf(vcfin, missdict, gvcfdict, pop_iix, nlines):
 if __name__ == "__main__":
     vcfin = args.vcf
     nlines = bufcount(vcfin)
-    flt, n = get_filtered()
+    flt = get_filtered()
     md, pop = get_missing(vcfin, flt, nlines)
     gd = get_gvcf(md, pop)
     make_vcf(vcfin, md, gd, pop, nlines)
