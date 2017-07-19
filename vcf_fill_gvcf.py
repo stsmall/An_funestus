@@ -97,9 +97,9 @@ def get_missing(vcfin, flt, nlines):
                             progress.update(nlines)
     # remove filtered sites
     for sample in missdict.keys():
+        import ipdb; ipdb.set_trace()
         for chrom in missdict[sample].keys():
-            filtered = [i for i in missdict[sample][chrom] if not
-                        i in flt[sample][chrom]]
+            filtered = [i for i in missdict[sample][chrom] if i not in flt[sample][chrom]]
             missdict[sample][chrom] = filtered
     return(missdict, pop_iix)
 
