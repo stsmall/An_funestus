@@ -40,23 +40,22 @@ def get_filtered():
     # progress bar
     progress = pb.ProgressBar(widgets=_widgets, maxval=n).start()
     progvar = 0
-    for prog in range(n):
-        for v in vcf_files:
-            print("opening {}".format(v))
-            with open(v, 'r') as vcf:
-                for line in vcf:
-                    if not line.startswith("##"):
-                        if line.startswith("#CHROM"):
-                            sample = line.strip().split()[9]
-                        else:
-                            x = line.strip().split()
-                            if x[7] != "PASS":
-                                chrom = x[0]
-                                pos = int(x[1])
-                                fltdict[sample][chrom].append(pos)
-            # print("closing {}".format(v))
-            progress.update(progvar + 1)
-            progvar += 1
+    for v in vcf_files:
+        print("opening {}".format(v))
+        with open(v, 'r') as vcf:
+            for line in vcf:
+                if not line.startswith("##"):
+                    if line.startswith("#CHROM"):
+                        sample = line.strip().split()[9]
+                    else:
+                        x = line.strip().split()
+                        if x[7] != "PASS":
+                            chrom = x[0]
+                            pos = int(x[1])
+                            fltdict[sample][chrom].append(pos)
+        # print("closing {}".format(v))
+        progress.update(progvar + 1)
+        progvar += 1
     return(fltdict)
 
 
@@ -75,29 +74,28 @@ def get_missing(vcfin, flt, nlines):
     # progress bar
     progress = pb.ProgressBar(widgets=_widgets, maxval=nlines).start()
     progvar = 0
-    for prog in range(nlines):
-        with open(vcfin, 'r') as vcf:
-            print("opening {}\n".format(vcfin))
-            l = 0
-            for line in vcf:
-                if not line.startswith("##"):
-                    if line.startswith("#CHROM"):
-                        pop_iix = line.strip().split()[9:]
-                    else:
-                        l += 1
-                        x = line.strip().split()
-                        chrom = x[0]
-                        pos = int(x[1])
-                        miss = ["./.:" in i for i in x[9:]]
-                        [missdict[pop_iix[i]][chrom].append(pos) for i,
-                         p in enumerate(miss) if p]
-                        if l % 10000 == 0:
-                            # print("done reading line {}\n".format(l))
-                            try:
-                                progress.update(progvar + 10000)
-                                progvar += 10000
-                            except ValueError:
-                                progress.update(nlines)
+    with open(vcfin, 'r') as vcf:
+        print("opening {}\n".format(vcfin))
+        l = 0
+        for line in vcf:
+            if not line.startswith("##"):
+                if line.startswith("#CHROM"):
+                    pop_iix = line.strip().split()[9:]
+                else:
+                    l += 1
+                    x = line.strip().split()
+                    chrom = x[0]
+                    pos = int(x[1])
+                    miss = ["./.:" in i for i in x[9:]]
+                    [missdict[pop_iix[i]][chrom].append(pos) for i,
+                     p in enumerate(miss) if p]
+                    if l % 10000 == 0:
+                        # print("done reading line {}\n".format(l))
+                        try:
+                            progress.update(progvar + 10000)
+                            progvar += 10000
+                        except ValueError:
+                            progress.update(nlines)
     # remove filtered sites
     print("removing filtered sites")
     for sample in missdict.keys():
@@ -124,31 +122,30 @@ def get_gvcf(missdict, pop_iix):
     n = len(missdict.keys())
     progress = pb.ProgressBar(widgets=_widgets, maxval=n).start()
     progvar = 0
-    for prog in range(n):
-        for sample in missdict.keys():
-            with open("{}.g.vcf".format(sample)) as gvcf:
-                print("reading sample gvcf: {}".format(sample))
-                for line in gvcf:
-                    if not line.startswith("#"):
-                        x = line.strip().split()
-                        chrom = x[0]
-                        spos = int(x[1])
-                        info = x[7]
-                        if "END" in info:
-                            send = int(info.split("=")[1])
-                            pos = range(spos, send + 1)
-                            for p in pos:
-                                if p in missdict[sample][chrom]:
-                                    gt = x[9]
-                                    gvcfdict[sample][chrom][str(p)] = gt
-                        else:
-                            pos = spos
-                            if pos in missdict[sample][chrom]:
-                                    gt = x[9]
-                                    gvcfdict[sample][chrom][str(pos)] = gt
-                print("closing sample gvcf: {}".format(sample))
-            progress.update(progvar + 1)
-            progvar += 1
+    for sample in missdict.keys():
+        with open("{}.g.vcf".format(sample)) as gvcf:
+            print("reading sample gvcf: {}".format(sample))
+            for line in gvcf:
+                if not line.startswith("#"):
+                    x = line.strip().split()
+                    chrom = x[0]
+                    spos = int(x[1])
+                    info = x[7]
+                    if "END" in info:
+                        send = int(info.split("=")[1])
+                        pos = range(spos, send + 1)
+                        for p in pos:
+                            if p in missdict[sample][chrom]:
+                                gt = x[9]
+                                gvcfdict[sample][chrom][str(p)] = gt
+                    else:
+                        pos = spos
+                        if pos in missdict[sample][chrom]:
+                                gt = x[9]
+                                gvcfdict[sample][chrom][str(pos)] = gt
+            print("closing sample gvcf: {}".format(sample))
+        progress.update(progvar + 1)
+        progvar += 1
     return(gvcfdict)
 
 
