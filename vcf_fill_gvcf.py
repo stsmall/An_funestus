@@ -33,7 +33,7 @@ def get_missing(vcfin):
                 if line.startswith("#CHROM"):
                     pop_iix = line.strip().split()[9:]
                 else:
-                    x = line.strip.split()
+                    x = line.strip().split()
                     chrom = x[0]
                     pos = int(x[1])
                     miss = ["./.:" in i for i in x]
