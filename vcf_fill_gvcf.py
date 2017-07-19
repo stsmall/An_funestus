@@ -55,6 +55,7 @@ def get_filtered():
         # print("closing {}".format(v))
         progress.update(progvar + 1)
         progvar += 1
+    progress.update(n)
     return(fltdict)
 
 
@@ -97,7 +98,6 @@ def get_missing(vcfin, flt, nlines):
                             progress.update(nlines)
     # remove filtered sites
     for sample in missdict.keys():
-        import ipdb; ipdb.set_trace()
         for chrom in missdict[sample].keys():
             filtered = [i for i in missdict[sample][chrom] if i not in flt[sample][chrom]]
             missdict[sample][chrom] = filtered
