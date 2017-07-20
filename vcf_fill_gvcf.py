@@ -9,6 +9,8 @@ from collections import defaultdict
 import glob
 import argparse
 import progressbar as pb
+import numpy as np
+import bisect
 _widgets = [pb.Percentage(), pb.Bar()]
 parser = argparse.ArgumentParser()
 parser.add_argument('-v', "--vcf", type=str, required=True,
@@ -21,7 +23,6 @@ def bufcount(filename):
     lines = 0
     buf_size = 1024 * 1024
     read_f = f.read  # loop optimization
-
     buf = read_f(buf_size)
     while buf:
         lines += buf.count('\n')
@@ -52,7 +53,6 @@ def get_filtered():
                             chrom = x[0]
                             pos = int(x[1])
                             fltdict[sample][chrom].append(pos)
-        # print("closing {}".format(v))
         progress.update(progvar + 1)
         progvar += 1
     progress.update(n)
@@ -97,14 +97,16 @@ def get_missing(vcfin, flt, nlines):
                         except ValueError:
                             progress.update(nlines)
     # remove filtered sites
-    print("Removing Filtered Sites")
+    print("Removing Filtered Sites\n")
     n = len(missdict.keys())
     progress = pb.ProgressBar(widgets=_widgets, maxval=n).start()
     progvar = 0
     for sample in missdict.keys():
         for chrom in missdict[sample].keys():
-            filtered = [i for i in missdict[sample][chrom] if i not in flt[sample][chrom]]
-            missdict[sample][chrom] = filtered
+            a = missdict[sample][chrom]
+            b = flt[sample][chrom]
+            filtered = list(set(a).symmetric_difference(b))
+            missdict[sample][chrom] = np.array(filtered)
         progress.update(progvar + 1)
         progvar += 1
     return(missdict, pop_iix)
@@ -126,9 +128,10 @@ def get_gvcf(missdict, pop_iix):
     n = len(missdict.keys())
     progress = pb.ProgressBar(widgets=_widgets, maxval=n).start()
     progvar = 0
-    print("Getting data from gVCF\n")
+    print("Getting data from gVCF ... this will take a while\n")
     for sample in missdict.keys():
         with open("{}.g.vcf".format(sample), 'r') as gvcf:
+            print("Opening {}.g.vcf".format(sample))
             for line in gvcf:
                 if not line.startswith("#"):
                     x = line.strip().split()
@@ -137,16 +140,14 @@ def get_gvcf(missdict, pop_iix):
                     info = x[7]
                     if "END" in info:
                         send = int(info.split("=")[1])
-                        pos = range(spos, send + 1)
-                        for p in pos:
-                            if p in missdict[sample][chrom]:
-                                gt = x[9]
-                                gvcfdict[sample][chrom][str(p)] = gt
                     else:
-                        pos = spos
-                        if pos in missdict[sample][chrom]:
-                                gt = x[9]
-                                gvcfdict[sample][chrom][str(pos)] = gt
+                        send = spos
+                    a = missdict[sample][chrom]
+                    gt_pos = a[np.where(np.logical_and(a >= spos, a <= send))]
+                    if gt_pos:
+                        gt = x[9]
+                        for p in gt_pos:
+                            gvcfdict[sample][chrom][str(p)] = gt
         progress.update(progvar + 1)
         progvar += 1
     return(gvcfdict)
@@ -169,6 +170,8 @@ def make_vcf(vcfin, missdict, gvcfdict, pop_iix, nlines):
     """
     chrom = ''
     l = 0
+    progress = pb.ProgressBar(widgets=_widgets, maxval=nlines).start()
+    progvar = 0
     with open("{}.filled".format(vcfin), 'w') as fill:
         with open(vcfin, 'r') as vcf:
             for line in vcf:
@@ -177,19 +180,24 @@ def make_vcf(vcfin, missdict, gvcfdict, pop_iix, nlines):
                 elif line.startswith("#CHROM"):
                     fill.write(line)
                 else:
+                    # progress bar
                     l += 1
                     if l % 10000 == 0:
-                        print("done reading line {}\n".format(l))
-#                        progress.update(progvar + 10000)
-#                        progvar += 10000
+                        try:
+                            progress.update(progvar + 10000)
+                            progvar += 10000
+                        except ValueError:
+                            progress.update(nlines)
+                    # fill code
                     x = line.strip().split()
                     if chrom != x[0]:
                         ml = [missdict[key][chrom] for key in missdict.keys()]
                         ml2 = [j for i in ml for j in i]
-                        mlist = sorted(set(ml2))
+                        mlist = np.array(sorted(set(ml2)))
                     chrom = x[0]
                     pos = int(x[1])
-                    if pos in mlist:
+                    # quick search for pos in array
+                    if np.where(mlist == pos)[0]:
                         # find all missing index
                         miss_iix = [i for i, j in enumerate(x[9:])
                                     if "./." in j]
