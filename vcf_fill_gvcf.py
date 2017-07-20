@@ -10,7 +10,6 @@ import glob
 import argparse
 import progressbar as pb
 import numpy as np
-import bisect
 _widgets = [pb.Percentage(), pb.Bar()]
 parser = argparse.ArgumentParser()
 parser.add_argument('-v', "--vcf", type=str, required=True,
@@ -144,7 +143,7 @@ def get_gvcf(missdict, pop_iix):
                         send = spos
                     a = missdict[sample][chrom]
                     gt_pos = a[np.where(np.logical_and(a >= spos, a <= send))]
-                    if gt_pos:
+                    if gt_pos.any():
                         gt = x[9]
                         for p in gt_pos:
                             gvcfdict[sample][chrom][str(p)] = gt
