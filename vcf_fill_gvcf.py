@@ -26,7 +26,6 @@ def bufcount(filename):
     while buf:
         lines += buf.count('\n')
         buf = read_f(buf_size)
-
     return lines
 
 
@@ -144,9 +143,12 @@ def get_gvcf(missdict, pop_iix):
                     a = missdict[sample][chrom]
                     gt_pos = a[np.where(np.logical_and(a >= spos, a <= send))]
                     if gt_pos.any():
-                        gt = x[9]
+                        gt = x[9].split(":")  # GT:DP:GQ:MIN_DP:PL
                         for p in gt_pos:
-                            gvcfdict[sample][chrom][str(p)] = gt
+                            gt2 = "{}:0,{}:{}:{}:{}".format(gt[0], gt[3],
+                                                            gt[1], gt[2],
+                                                            gt[4])
+                            gvcfdict[sample][chrom][str(p)] = gt2
         progress.update(progvar + 1)
         progvar += 1
     return(gvcfdict)
