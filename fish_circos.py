@@ -57,8 +57,8 @@ def makelinks(ddfish, outfile, infile, size=5000):
                                 f.write("{}\n".format(" ".join([x[11], x[2],
                                                                x[3], x[10],
                                                                x[0], x[1]])))
-    return(zip(sorted(set(qn), key=qn.index), sorted(set(qs), key=qs.index)),
-           zip(sorted(set(sn), key=sn.index), sorted(set(ss), key=ss.index)))
+    return(zip(sorted(set(sn), key=sn.index), sorted(set(ss), key=ss.index)),
+           zip(sorted(set(qn), key=qn.index), sorted(set(qs), key=qs.index)))
 
 
 def makechrom(outfile, aln):
@@ -66,7 +66,6 @@ def makechrom(outfile, aln):
     """
     for i, j in enumerate(outfile.split("-")):
         chromlist = aln[i]
-        import ipdb;ipdb.set_trace()
         with open("circos.{}.{}.karyotype.txt".format(j, outfile), 'w') as f:
             for n, s in chromlist:
                 f.write("chr - {} {} 0 {} black\n".format(n, n, s))
