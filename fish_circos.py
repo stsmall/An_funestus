@@ -69,8 +69,8 @@ def makechrom(outfile, aln):
 
 
 if __name__ == "__main__":
-    infish = args.fishin
+    fishin = args.infish
     outfile = args.outfile
     infile = args.infile
-    aln = makelinks(makemap(infish, args.region), outfile, infile)
+    aln = makelinks(makemap(fishin, args.region), outfile, infile)
     makechrom(outfile, aln)
