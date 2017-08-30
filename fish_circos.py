@@ -56,9 +56,9 @@ def makelinks(ddfish, outfile, infile, size=5000):
                                 qs.append(x[7])
                                 ss.append(x[6])
                                 sn.append(x[10])
-                                f.write("{}\n".format(" ".join(x[11], x[2],
+                                f.write("{}\n".format(" ".join([x[11], x[2],
                                                                x[3], x[10],
-                                                               x[0], x[1])))
+                                                               x[0], x[1]])))
     return(zip(set(qn), set(qs)), zip(set(sn), set(ss)))
 
 
