@@ -6,6 +6,7 @@ Created on Tue Aug 29 16:42:26 2017
 @author: scott
 """
 import argparse
+from collections import defaultdict
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--infish", type=str, required=True, help="")
@@ -18,7 +19,7 @@ args = parser.parse_args()
 def makemap(infish, region):
     """
     """
-    ddfish = {}
+    ddfish = defaultdict(list)
     try:
         with open(infish, 'r') as fish:
             for line in fish:
