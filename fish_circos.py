@@ -7,6 +7,7 @@ Created on Tue Aug 29 16:42:26 2017
 """
 import argparse
 from collections import defaultdict
+from collections import OrderedDict
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--infish", type=str, required=True, help="")
@@ -59,7 +60,8 @@ def makelinks(ddfish, outfile, infile, size=5000):
                                 f.write("{}\n".format(" ".join([x[11], x[2],
                                                                x[3], x[10],
                                                                x[0], x[1]])))
-    return(zip(set(qn), set(qs)), zip(set(sn), set(ss)))
+    return(zip(sorted(set(qn), key=qn.index), sorted(set(qs), key=qs.index)),
+           zip(sorted(set(sn), key=sn.index), sorted(set(ss), key=ss.index)))
 
 
 def makechrom(outfile, aln):
