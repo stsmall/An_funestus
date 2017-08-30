@@ -21,18 +21,15 @@ def makemap(infish, region):
     """
     """
     ddfish = defaultdict(list)
-    try:
-        with open(infish, 'r') as fish:
-            for line in fish:
-                x = line.strip().split(",")
-                chrom = x[3].split(":")[0]
-                sector = x[3].split(":")[1].split("-")[0]
-                if region:
-                    ddfish["{}_{}".format(chrom, sector)].append(x[1])
-                else:
-                    ddfish[chrom].append(x[1])
-    except:
-        import ipdb;ipdb.set_trace()
+    with open(infish, 'r') as fish:
+        for line in fish:
+            x = line.strip().split(",")
+            chrom = x[3].split(":")[0]
+            sector = x[3].split(":")[1].split("-")[0]
+            if region:
+                ddfish["{}_{}".format(chrom, sector)].append(x[1])
+            else:
+                ddfish[chrom].append(x[1])
     return(ddfish)
 
 
@@ -69,6 +66,7 @@ def makechrom(outfile, aln):
     """
     for i, j in enumerate(outfile.split("-")):
         chromlist = aln[i]
+        import ipdb;ipdb.set_trace()
         with open("circos.{}.{}.karyotype.txt".format(j, outfile), 'w') as f:
             for n, s in chromlist:
                 f.write("chr - {} {} 0 {} black\n".format(n, n, s))
