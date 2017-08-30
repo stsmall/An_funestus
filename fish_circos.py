@@ -66,8 +66,8 @@ def makechrom(outfile, aln):
     """
     """
     for i, j in enumerate(outfile.split("-")):
-        chromlist = aln[j]
-        with open("circos.{}.{}.karyotype.txt".format(i, outfile), 'w') as f:
+        chromlist = aln[i]
+        with open("circos.{}.{}.karyotype.txt".format(j, outfile), 'w') as f:
             for n, s in chromlist:
                 f.write("chr - {} {} 0 {} black\n".format(n, n, s))
 
