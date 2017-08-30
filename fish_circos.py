@@ -19,6 +19,7 @@ def makemap(infish, region):
     """
     """
     ddfish = {}
+    import ipdb;ipdb.set_trace()
     with open(infish, 'r') as fish:
         for line in fish:
             x = line.strip().split(",")
