@@ -19,15 +19,18 @@ def makemap(infish, region):
     """
     """
     ddfish = {}
-    with open(infish, 'r') as fish:
-        for line in fish:
-            x = line.strip().split(",")
-            chrom = x[3].split(":")[0]
-            sector = x[3].split(":")[1].split("-")[0]
-            if region:
-                ddfish["{}_{}".format(chrom, sector)].append(x[1])
-            else:
-                ddfish[chrom].append(x[1])
+    try:
+        with open(infish, 'r') as fish:
+            for line in fish:
+                x = line.strip().split(",")
+                chrom = x[3].split(":")[0]
+                sector = x[3].split(":")[1].split("-")[0]
+                if region:
+                    ddfish["{}_{}".format(chrom, sector)].append(x[1])
+                else:
+                    ddfish[chrom].append(x[1])
+    except:
+        import ipdb;ipdb.set_trace()
     return(ddfish)
 
 
