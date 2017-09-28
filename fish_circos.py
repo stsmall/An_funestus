@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Aug 29 16:42:26 2017
-
+show-coords -Trlcb
 @author: scott
 """
 import argparse
@@ -43,20 +43,33 @@ def makelinks(ddfish, outfile, infile, size=5000):
     with open("circos.{}.links.txt".format(outfile), 'w') as f:
         with open(infile, 'r') as nuc:
             for line in nuc:
-                if line.strip().split()[0].isdigit():
+                if line.startswith('['):
+                    h = line.strip().split()
+                    header = h.lstrip('[').rstrip(']')
+                else:
                     x = line.strip().split()
-                    if int(x[4]) >= size:
+                    alnlen = "LEN 1".index(header)
+                    if int(x[alnlen]) >= size:
                         for key in ddfish.keys():
-                            if x[11] in ddfish[key]:
-                                chrom = "{}_{}".format(key, x[11])
-                                x[11] = chrom
+                            if x[-1] in ddfish[key]:
+                                chrom = "{}_{}".format(key, x[-1])
+                                x[-1] = chrom
                                 qn.append(chrom)
-                                qs.append(x[7])
-                                ss.append(x[6])
-                                sn.append(x[10])
-                                f.write("{}\n".format(" ".join([x[11], x[2],
-                                                               x[3], x[10],
-                                                               x[0], x[1]])))
+                                lenq = "LEN Q".index(header)
+                                qs.append(x[lenq])
+                                lens = "LEN R".index(header)
+                                ss.append(x[lens])
+                                sn.append(x[-2])
+                                rstart = "S1".index(header)
+                                rend = "E1".index(header)
+                                qstart = "S2".index(header)
+                                qend = "E2".index(header)
+                                f.write("{}\n".format(" ".join([x[-1],
+                                                               x[qstart],
+                                                               x[qend],
+                                                               x[-2],
+                                                               x[rstart],
+                                                               x[rend]])))
     return(zip(sorted(set(sn), key=sn.index), sorted(set(ss), key=ss.index)),
            zip(sorted(set(qn), key=qn.index), sorted(set(qs), key=qs.index)))
 
