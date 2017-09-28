@@ -7,7 +7,7 @@ show-coords -Trlcb
 """
 import argparse
 from collections import defaultdict
-from collections import OrderedDict
+# from collections import OrderedDict
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--infish", type=str, required=True, help="")
@@ -31,6 +31,26 @@ def makemap(infish, region):
             else:
                 ddfish[chrom].append(x[1])
     return(ddfish)
+
+
+def addmaptoaln(infile, ddfish):
+    """
+    """
+    with open("{}.map".format(infile), 'w') as f:
+        with open(infile, 'r') as nuc:
+            for line in nuc:
+                if line.startswith('['):
+                    f.write(line)
+                else:
+                    x = line.strip().split()
+                    for key in ddfish.keys():
+                        if x[-1] in ddfish[key]:
+                            chrom = "{}_{}".format(key, x[-1])
+                            x[-1] = chrom
+                            f.write("{}\n".format("\t".join(x)))
+                        else:
+                            f.write(line)
+    return(None)
 
 
 def makelinks(ddfish, outfile, infile, size=5000):
@@ -88,5 +108,7 @@ if __name__ == "__main__":
     fishin = args.infish
     outfile = args.outfile
     infile = args.infile
-    aln = makelinks(makemap(fishin, args.region), outfile, infile)
+    ddfish = makemap(fishin, args.region)
+    addmaptoaln(infile, ddfish)
+    aln = makelinks(ddfish, outfile, infile)
     makechrom(outfile, aln)
