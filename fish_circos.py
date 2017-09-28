@@ -96,24 +96,22 @@ def makelinks(ddfish, outfile, infile, size=5000):
                                 if x[-1] in ddfish[key]:
                                     chrom = "{}_{}".format(key, x[-1])
                                     x[-1] = chrom
-                                    qn.append(chrom)
-                                    lenq = header.index("LEN Q")
-                                    qs.append(x[lenq])
-                                    lens = header.index("LEN R")
-                                    ss.append(x[lens])
-                                    sn.append(x[-2])
-                                    rstart = header.index("S1")
-                                    rend = header.index("E1")
-                                    qstart = header.index("S2")
-                                    qend = header.index("E2")
-                                    f.write("{}\n".format(
-                                            " ".join([x[-1], x[qstart],
-                                                      x[qend], x[-2],
-                                                      x[rstart],
-                                                      x[rend]])))
                                     break
-                        else:
-                            f.write("{}\n".format(line))
+                        qn.append(chrom)
+                        lenq = header.index("LEN Q")
+                        qs.append(x[lenq])
+                        lens = header.index("LEN R")
+                        ss.append(x[lens])
+                        sn.append(x[-2])
+                        rstart = header.index("S1")
+                        rend = header.index("E1")
+                        qstart = header.index("S2")
+                        qend = header.index("E2")
+                        f.write("{}\n".format(
+                                " ".join([x[-1], x[qstart],
+                                          x[qend], x[-2],
+                                          x[rstart],
+                                          x[rend]])))
     return(zip(sorted(set(sn), key=sn.index), sorted(set(ss), key=ss.index)),
            zip(sorted(set(qn), key=qn.index), sorted(set(qs), key=qs.index)))
 
