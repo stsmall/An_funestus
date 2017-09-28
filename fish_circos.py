@@ -43,6 +43,7 @@ def addmaptoaln(infile, ddfish):
                     f.write(line)
                 else:
                     x = line.strip().split()
+                    import ipdb;ipdb.set_trace()
                     for key in ddfish.keys():
                         if x[-1] in ddfish[key]:
                             chrom = "{}_{}".format(key, x[-1])
