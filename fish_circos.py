@@ -64,8 +64,7 @@ def addmaptoaln(infile, ddfish):
                             chrom = "{}_{}".format(key, x[-1])
                             x[-1] = chrom
                             f.write("{}\n".format("\t".join(x)))
-                        else:
-                            f.write("{}\n".format(line))
+                            break
                 else:
                     f.write("{}\n".format(line))
     return(None)
@@ -83,7 +82,8 @@ def makelinks(ddfish, outfile, infile, size=5000):
             with open(infile, 'r') as nuc:
                 for line in nonblank_lines(nuc):
                     if line.startswith('['):
-                        h = line.strip().split()
+                        h = line.strip().split("\t")
+                        print(h)
                         header = makeheader(h)
                     elif line.strip().split()[0].isdigit():
                         x = line.strip().split()
