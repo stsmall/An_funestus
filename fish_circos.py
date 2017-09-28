@@ -59,12 +59,15 @@ def addmaptoaln(infile, ddfish):
                     f.write("{}\n".format(line))
                 elif line.strip().split()[0].isdigit():
                     x = line.strip().split()
-                    for key in ddfish.keys():
-                        if x[-1] in ddfish[key]:
-                            chrom = "{}_{}".format(key, x[-1])
-                            x[-1] = chrom
-                            f.write("{}\n".format("\t".join(x)))
-                            break
+                    if any([x[-1] in k for k in ddfish.values()]):
+                        for key in ddfish.keys():
+                            if x[-1] in ddfish[key]:
+                                chrom = "{}_{}".format(key, x[-1])
+                                x[-1] = chrom
+                                f.write("{}\n".format("\t".join(x)))
+                                break
+                    else:
+                        f.write("{}\n".format(line))
                 else:
                     f.write("{}\n".format(line))
     return(None)
@@ -89,26 +92,29 @@ def makelinks(ddfish, outfile, infile, size=5000):
                         x = line.strip().split()
                         alnlen = "LEN 1".index(header)
                         if int(x[alnlen]) >= size:
-                            for key in ddfish.keys():
-                                if x[-1] in ddfish[key]:
-                                    chrom = "{}_{}".format(key, x[-1])
-                                    x[-1] = chrom
-                                    qn.append(chrom)
-                                    lenq = "LEN Q".index(header)
-                                    qs.append(x[lenq])
-                                    lens = "LEN R".index(header)
-                                    ss.append(x[lens])
-                                    sn.append(x[-2])
-                                    rstart = "S1".index(header)
-                                    rend = "E1".index(header)
-                                    qstart = "S2".index(header)
-                                    qend = "E2".index(header)
-                                    f.write("{}\n".format(" ".join([x[-1],
-                                                                   x[qstart],
-                                                                   x[qend],
-                                                                   x[-2],
-                                                                   x[rstart],
-                                                                   x[rend]])))
+                            if any([x[-1] in k for k in ddfish.values()]):
+                                for key in ddfish.keys():
+                                    if x[-1] in ddfish[key]:
+                                        chrom = "{}_{}".format(key, x[-1])
+                                        x[-1] = chrom
+                                        qn.append(chrom)
+                                        lenq = "LEN Q".index(header)
+                                        qs.append(x[lenq])
+                                        lens = "LEN R".index(header)
+                                        ss.append(x[lens])
+                                        sn.append(x[-2])
+                                        rstart = "S1".index(header)
+                                        rend = "E1".index(header)
+                                        qstart = "S2".index(header)
+                                        qend = "E2".index(header)
+                                        f.write("{}\n".format(
+                                                " ".join([x[-1], x[qstart],
+                                                          x[qend], x[-2],
+                                                          x[rstart],
+                                                          x[rend]])))
+                                        break
+                            else:
+                                f.write("{}\n".format(line))
     except:
         import ipdb;ipdb.set_trace()
     return(zip(sorted(set(sn), key=sn.index), sorted(set(ss), key=ss.index)),
