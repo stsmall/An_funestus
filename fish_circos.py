@@ -26,6 +26,13 @@ def nonblank_lines(f):
             yield line
 
 
+def makeheader(h):
+    """
+    """
+    header = [i.lstrip('[').rstrip(']') for i in h]
+    return(header)
+
+
 def makemap(infish, region):
     """
     """
@@ -76,7 +83,7 @@ def makelinks(ddfish, outfile, infile, size=5000):
             for line in nonblank_lines(nuc):
                 if line.startswith('['):
                     h = line.strip().split()
-                    header = h.lstrip('[').rstrip(']')
+                    header = makeheader(h)
                 elif line.strip().split()[0].isdigit():
                     x = line.strip().split()
                     alnlen = "LEN 1".index(header)
