@@ -89,7 +89,7 @@ def makelinks(ddfish, outfile, infile, size=5000):
                     header = makeheader(h)
                 elif line.strip().split()[0].isdigit():
                     x = line.strip().split()
-                    alnlen = "LEN 1".index(header)
+                    alnlen = header.index("LEN 1")
                     if int(x[alnlen]) >= size:
                         if any([x[-1] in k for k in ddfish.values()]):
                             for key in ddfish.keys():
