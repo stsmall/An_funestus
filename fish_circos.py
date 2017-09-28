@@ -41,9 +41,8 @@ def addmaptoaln(infile, ddfish):
             for line in nuc:
                 if line.startswith('['):
                     f.write(line)
-                else:
+                elif line.strip().split()[0].isdigit():
                     x = line.strip().split()
-                    import ipdb;ipdb.set_trace()
                     for key in ddfish.keys():
                         if x[-1] in ddfish[key]:
                             chrom = "{}_{}".format(key, x[-1])
@@ -51,6 +50,8 @@ def addmaptoaln(infile, ddfish):
                             f.write("{}\n".format("\t".join(x)))
                         else:
                             f.write(line)
+                else:
+                    f.write(line)
     return(None)
 
 
@@ -67,7 +68,7 @@ def makelinks(ddfish, outfile, infile, size=5000):
                 if line.startswith('['):
                     h = line.strip().split()
                     header = h.lstrip('[').rstrip(']')
-                else:
+                elif line.strip().split()[0].isdigit():
                     x = line.strip().split()
                     alnlen = "LEN 1".index(header)
                     if int(x[alnlen]) >= size:
