@@ -17,6 +17,15 @@ parser.add_argument("--region", action="store_true", help="")
 args = parser.parse_args()
 
 
+def nonblank_lines(f):
+    """
+    """
+    for l in f:
+        line = l.rstrip()
+        if line:
+            yield line
+
+
 def makemap(infish, region):
     """
     """
@@ -38,7 +47,7 @@ def addmaptoaln(infile, ddfish):
     """
     with open("{}.map".format(infile), 'w') as f:
         with open(infile, 'r') as nuc:
-            for line in nuc:
+            for line in nonblank_lines(nuc):
                 if line.startswith('['):
                     f.write(line)
                 elif line.strip().split()[0].isdigit():
@@ -64,7 +73,7 @@ def makelinks(ddfish, outfile, infile, size=5000):
     sn = []
     with open("circos.{}.links.txt".format(outfile), 'w') as f:
         with open(infile, 'r') as nuc:
-            for line in nuc:
+            for line in nonblank_lines(nuc):
                 if line.startswith('['):
                     h = line.strip().split()
                     header = h.lstrip('[').rstrip(']')
