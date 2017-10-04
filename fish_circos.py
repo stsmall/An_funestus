@@ -14,6 +14,7 @@ parser.add_argument("--infish", type=str, required=True, help="")
 parser.add_argument("--outfile", type=str, required=True, help="to-from")
 parser.add_argument("--infile", type=str, required=True, help="")
 parser.add_argument("--region", action="store_true", help="")
+parser.add_argument("--pacbio", action="store_true", help="")
 args = parser.parse_args()
 
 
@@ -33,19 +34,30 @@ def makeheader(h):
     return(header)
 
 
-def makemap(infish, region):
+def makemap(infish, region, pacbio):
     """
     """
     ddfish = defaultdict(list)
-    with open(infish, 'r') as fish:
-        for line in fish:
-            x = line.strip().split(",")
-            chrom = x[3].split(":")[0]
-            sector = x[3].split(":")[1].split("-")[0]
-            if region:
-                ddfish["{}_{}".format(chrom, sector)].append(x[1])
-            else:
-                ddfish[chrom].append(x[1])
+    if not pacbio:
+        with open(infish, 'r') as fish:
+            for line in fish:
+                x = line.strip().split(",")
+                chrom = x[3].split(":")[0]
+                sector = x[3].split(":")[1].split("-")[0]
+                if region:
+                    ddfish["{}_{}".format(chrom, sector)].append(x[1])
+                else:
+                    ddfish[chrom].append(x[1])
+    else:
+        with open(infish, 'r') as fish:
+            for line in fish:
+                x = line.strip().split()
+                chrom = x[1].split("_")[0]
+                sector = x[1].split("_")[1]
+                if region:
+                    ddfish["{}_{}".format(chrom, sector)].append(x[0])
+                else:
+                    ddfish[chrom].append(x[0])
     return(ddfish)
 
 
@@ -130,7 +142,7 @@ if __name__ == "__main__":
     fishin = args.infish
     outfile = args.outfile
     infile = args.infile
-    ddfish = makemap(fishin, args.region)
+    ddfish = makemap(fishin, args.region, args.pacbio)
     addmaptoaln(infile, ddfish)
     aln = makelinks(ddfish, outfile, infile)
     makechrom(outfile, aln)
