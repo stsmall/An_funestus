@@ -15,6 +15,7 @@ parser.add_argument("--outfile", type=str, required=True, help="to-from")
 parser.add_argument("--infile", type=str, required=True, help="")
 parser.add_argument("--region", action="store_true", help="")
 parser.add_argument("--pacbio", action="store_true", help="")
+parser.add_argument("--map", action="store_true", help="")
 args = parser.parse_args()
 
 
@@ -144,5 +145,6 @@ if __name__ == "__main__":
     infile = args.infile
     ddfish = makemap(fishin, args.region, args.pacbio)
     addmaptoaln(infile, ddfish)
-    aln = makelinks(ddfish, outfile, infile)
-    makechrom(outfile, aln)
+    if not map:
+        aln = makelinks(ddfish, outfile, infile)
+        makechrom(outfile, aln)
