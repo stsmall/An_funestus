@@ -110,7 +110,7 @@ def makelinks(ddfish, outfile, infile, size=5000):
                                     chrom = "{}_{}".format(key, x[-1])
                                     x[-1] = chrom
                                     break
-                        qn.append(x-1)
+                        qn.append(x[-1])
                         lenq = header.index("LEN Q")
                         qs.append(x[lenq])
                         lens = header.index("LEN R")
