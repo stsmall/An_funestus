@@ -15,7 +15,7 @@ parser.add_argument("--outfile", type=str, required=True, help="to-from")
 parser.add_argument("--infile", type=str, required=True, help="")
 parser.add_argument("--region", action="store_true", help="")
 parser.add_argument("--pacbio", action="store_true", help="")
-parser.add_argument("--map", action="store_true", help="")
+parser.add_argument("--mapping", action="store_true", help="")
 args = parser.parse_args()
 
 
@@ -110,7 +110,7 @@ def makelinks(ddfish, outfile, infile, size=5000):
                                     chrom = "{}_{}".format(key, x[-1])
                                     x[-1] = chrom
                                     break
-                        qn.append(chrom)
+                        qn.append(x-1)
                         lenq = header.index("LEN Q")
                         qs.append(x[lenq])
                         lens = header.index("LEN R")
@@ -145,6 +145,6 @@ if __name__ == "__main__":
     infile = args.infile
     ddfish = makemap(fishin, args.region, args.pacbio)
     addmaptoaln(infile, ddfish)
-    if not map:
+    if not args.mapping:
         aln = makelinks(ddfish, outfile, infile)
         makechrom(outfile, aln)
