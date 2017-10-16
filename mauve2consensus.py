@@ -15,6 +15,7 @@ either alone
 """
 from Bio import AlignIO
 from pyfaidx import Fasta
+import numpy as np
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('-f', "--fasta", type=str, required=True,
@@ -28,32 +29,39 @@ parser.add_argument('-x', "--xmfa", type=str, required=True,
 args = parser.parse_args()
 
 
-def makesense(seq1, seq2):
+def makesense(alnarr, header):
     """
     """
     print("make sense")
     gap = 0
     gapfill = 0
+    gapfillmask = 0
     sense = ""
+    seq1 = alnarr[0]
+    seq2 = alnarr[1]
+    if alnarr.shape[0] > 2:
+        seq3 = alnarr[2]
+    else:
+        seq3 = False
     for i, base in enumerate(seq1):
-        print(i)
-        try:
-            base1 = base.upper()
-            base2 = seq2[i].upper()
-            if base1 == "N":
-                gap += 1
-                if base2 != "-" and base2 != "N":
-                    sense += base2  # fill N with base from other seq
-                    gapfill += 1
-                else:
-                    sense += base1  # leave it as N
-            elif base1 == "-":
-                pass  # no point in keeping alignment gaps
+        base1 = base.upper()
+        base2 = seq2[i].upper()
+        if seq3:
+            base3 = seq3[i].lower()
+        if base1 == "N":
+            gap += 1
+            if base2 != "-" and base2 != "N":
+                sense += base2  # fill N with base from other seq
+                gapfill += 1
             else:
-                sense += base1  # keep other bases
-        except IndexError:
-            import ipdb; ipdb.set_trace()
-    print("gaps filled: {}".format(gap - gapfill))
+                if seq3:
+                    sense += base3
+                    gapfillmask += 1
+        elif base1 == "-":
+            pass  # no point in keeping alignment gaps
+        else:
+            sense += base1  # keep other bases
+    print("gaps filled: {}, {}".format(gap - gapfill), gapfillmask)
     return(sense)
 
 
@@ -65,19 +73,17 @@ def parsexmfa(xmfa, r1, r2):
     consensusdict = {}
     alignment = AlignIO.parse(open(xmfa), "mauve")
     for aln in alignment:  # each alignment block
+        header = []
         if len(aln) > 1:
             for record in aln:
-                header = record.id
-                if r1 in header:
+                header.append(record.id)
+                if r1 in record.id:
                     pos = record.id.split("/")[1]
                     pos = pos.replace("-", ":")
-                    seq1 = record.seq
-                elif r2 in header:
-                    seq2 = record.seq
-                else:
-                    pass
-            sense = makesense(seq1, seq2)
-            consensusdict[pos] = sense
+            if r1 in header:
+                alignarr = np.array([list(rec) for rec in aln], np.character)
+                sense = makesense(alignarr)
+                consensusdict[pos] = sense
     return(consensusdict)
 
 
