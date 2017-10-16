@@ -31,23 +31,28 @@ args = parser.parse_args()
 def makesense(seq1, seq2):
     """
     """
+    print("make sense")
     gap = 0
     gapfill = 0
     sense = ""
     for i, base in enumerate(seq1):
-        base1 = base.upper()
-        base2 = seq2[i].upper()
-        if base1 == "N":
-            gap += 1
-            if base2 != "-" and base2 != "N":
-                sense += base2  # fill N with base from other seq
-                gapfill += 1
+        print(i)
+        try:
+            base1 = base.upper()
+            base2 = seq2[i].upper()
+            if base1 == "N":
+                gap += 1
+                if base2 != "-" and base2 != "N":
+                    sense += base2  # fill N with base from other seq
+                    gapfill += 1
+                else:
+                    sense += base1  # leave it as N
+            elif base1 == "-":
+                pass  # no point in keeping alignment gaps
             else:
-                sense += base1  # leave it as N
-        elif base1 == "-":
-            pass  # no point in keeping alignment gaps
-        else:
-            sense += base1  # keep other bases
+                sense += base1  # keep other bases
+        except IndexError:
+            import ipdb; ipdb.set_trace()
     print("gaps filled: {}".format(gap - gapfill))
     return(sense)
 
@@ -94,3 +99,5 @@ if __name__ == "__main__":
     r1 = args.ref1
     r2 = args.ref2
     xmfa = args.xmfa
+    condict = parsexmfa(xmfa, r1, r2)
+    fillgaps(condict, fasta)
