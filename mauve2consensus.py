@@ -124,14 +124,13 @@ def fillgaps(consensusdict, fasta):
     """
     """
     print("filling consensus...")
-    import ipdb;ipdb.set_trace()
     fastascaf = Fasta(fasta, mutable=True)
     for chrom in fastascaf.keys():
         for s in consensusdict.keys():
             t1 = int(s.split(":")[0])
             t2 = int(s.split(":")[1])
             assert (t2 - t1) == len(fastascaf[chrom][t1:t2].seq)
-            fastascaf[chrom][int(s)] = consensusdict[s]
+            fastascaf[chrom][t1:t2] = consensusdict[s]
     return(None)
 
 
