@@ -37,20 +37,17 @@ def makesense(seq1, seq2):
     for i, base in enumerate(seq1):
         base1 = base.upper()
         base2 = seq2[i].upper()
-        if base1 == base2:
-            sense += base1
-        else:
-            if base1 == "N" and base2 == "N":
-                sense += base1
-            elif base1 == "-":
-                gap += 1
-                if base2 == "-":
-                    sense += base1
-                else:
-                    sense += base2
-                    gapfill += 1
+        if base1 == "N":
+            gap += 1
+            if base2 != "-" and base2 != "N":
+                sense += base2  # fill N with base from other seq
+                gapfill += 1
             else:
-                sense += base1
+                sense += base1  # leave it as N
+        elif base1 == "-":
+            pass  # no point in keeping alignment gaps
+        else:
+            sense += base1  # keep other bases
     print("gaps filled: {}".format(gap - gapfill))
     return(sense)
 
@@ -86,10 +83,9 @@ def fillgaps(consensusdict, fasta):
     for chrom in fastascaf.keys():
         for s in consensusdict.keys():
             t1 = int(s.split(":")[0])
-            t2 = t1 + 10
-            print(fastascaf[chrom][t1:t2].seq)
+            t2 = int(s.split(":")[1])
+            assert (t2 - t1) == len(fastascaf[chrom][t1:t2].seq)
             fastascaf[chrom][int(s)] = consensusdict[s]
-            print(fastascaf[chrom][t1:t2].seq)
     return(None)
 
 
