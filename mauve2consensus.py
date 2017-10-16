@@ -24,72 +24,107 @@ parser.add_argument('-r1', "--ref1", type=str, required=True,
                     help='aligned ref 1')
 parser.add_argument('-r2', "--ref2", type=str, required=True,
                     help='aligned ref 2')
+parser.add_argument('-r', "--ref", type=str, required=True,
+                    help='aligned ref')
 parser.add_argument('-x', "--xmfa", type=str, required=True,
                     help='mauve xmfa')
 args = parser.parse_args()
 
 
-def makesense(alnarr, header):
+def makesense(alnarr, header, r1, r2, ref):
     """
     """
-    print("make sense")
+    print("making sense...")
     gap = 0
     gapfill = 0
     gapfillmask = 0
     sense = ""
-    seq1 = alnarr[0]
-    seq2 = alnarr[1]
-    if alnarr.shape[0] > 2:
-        seq3 = alnarr[2]
-    else:
-        seq3 = False
-    for i, base in enumerate(seq1):
-        base1 = base.upper()
-        base2 = seq2[i].upper()
-        if seq3:
-            base3 = seq3[i].lower()
-        if base1 == "N":
-            gap += 1
-            if base2 != "-" and base2 != "N":
-                sense += base2  # fill N with base from other seq
-                gapfill += 1
-            else:
-                if seq3:
+    h = [hd.split(".")[0] for hd in header]
+    seq = h.index(r1)
+    seq1 = alnarr[seq]
+    seq1 = np.char.upper(seq1)
+    if len(header) == 3:
+        alt = h.index(r2)
+        seq2 = alnarr[alt]
+        seq2 = np.char.upper(seq2)
+        seq3 = alnarr[h.index(ref)]
+        seq3 = np.char.lower(seq3)
+        for i, base in enumerate(seq1):
+            base1 = base
+            base2 = seq2[i]
+            base3 = seq3[i]
+            if base1 == "N":
+                gap += 1
+                if base2 != "-" and base2 != "N":
+                    sense += base2  # fill N with base from other seq
+                    gapfill += 1
+                elif base3 != "-" and base2 != "N":
                     sense += base3
                     gapfillmask += 1
-        elif base1 == "-":
-            pass  # no point in keeping alignment gaps
+                else:
+                    sense += base1
+            elif base1 != "-":
+                sense += base1  # keep other bases
+            else:
+                pass
+    if len(header) == 2:
+        if r2 in h:
+            alt = h.index(r2)
+            seq2 = alnarr[alt]
+            seq2 = np.char.upper(seq2)
         else:
-            sense += base1  # keep other bases
-    print("gaps filled: {}, {}".format(gap - gapfill), gapfillmask)
-    return(sense)
+            seq2 = alnarr[h.index(ref)]
+            seq2 = np.char.lower(seq2)
+        for i, base in enumerate(seq1):
+            base1 = base
+            base2 = seq2[i]
+            if base1 == "N":
+                gap += 1
+                if base2 != "-" and base2 != "N":
+                    sense += base2  # fill N with base from other seq
+                    gapfill += 1
+                else:
+                    sense += base1
+            elif base1 != "-":
+                sense += base1  # keep other bases
+            else:
+                pass  # no point in keeping alignment gaps
+    fill = gap - gapfill
+    print("gaps filled: {}, {}".format(fill, gapfillmask))
+    return(sense, fill)
 
 
-def parsexmfa(xmfa, r1, r2):
+def parsexmfa(xmfa, r1, r2, ref):
     """
     """
+    print("parsing...")
     r1 = r1
     r2 = r2
     consensusdict = {}
+    gapfill = 0
     alignment = AlignIO.parse(open(xmfa), "mauve")
     for aln in alignment:  # each alignment block
         header = []
         if len(aln) > 1:
             for record in aln:
                 header.append(record.id)
-                if r1 in record.id:
-                    pos = record.id.split("/")[1]
+            for rec in header:
+                if r1 in rec:
+                    pos = rec.split("/")[1]
                     pos = pos.replace("-", ":")
-            if r1 in header:
-                alignarr = np.array([list(rec) for rec in aln], np.character)
-                sense = makesense(alignarr)
-                consensusdict[pos] = sense
+                    alignarr = np.array([list(r) for r in aln], np.character)
+                    sense, fill = makesense(alignarr, header, r1, r2, ref)
+                    gapfill += fill
+                    consensusdict[pos] = sense
+    print("total gaps filled:{}".format(gapfill))
     return(consensusdict)
 
 
 def fillgaps(consensusdict, fasta):
     """
     """
+    print("filling consensus...")
+    import ipdb;ipdb.set_trace()
     fastascaf = Fasta(fasta, mutable=True)
     for chrom in fastascaf.keys():
         for s in consensusdict.keys():
@@ -104,6 +139,7 @@ if __name__ == "__main__":
     fasta = args.fasta
     r1 = args.ref1
     r2 = args.ref2
+    ref = args.ref
     xmfa = args.xmfa
-    condict = parsexmfa(xmfa, r1, r2)
+    condict = parsexmfa(xmfa, r1, r2, ref)
     fillgaps(condict, fasta)
