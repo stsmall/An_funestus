@@ -131,10 +131,10 @@ def fillgaps(consensusdict, fasta):
             t1 = int(suc.split(":")[0])
             t2 = int(suc.split(":")[1])
             assert (t2 - t1) == len(fastascaf[chrom][t1:t2].seq)
-            print(consensusdict[suc])
-            print(fastascaf[chrom][t1:t2].seq)
+#            print(consensusdict[suc])
+#            print(fastascaf[chrom][t1:t2].seq)
             fastascaf[chrom][t1:t2] = consensusdict[suc]
-            print(fastascaf[chrom][t1:t2].seq)
+#            print(fastascaf[chrom][t1:t2].seq)
     return(None)
 
 
