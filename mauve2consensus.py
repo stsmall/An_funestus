@@ -89,9 +89,8 @@ def makesense(alnarr, header, r1, r2, ref):
                 sense += base1  # keep other bases
             else:
                 pass  # no point in keeping alignment gaps
-    fill = gap - gapfill
-    print("gaps filled: {}, {}".format(fill, gapfillmask))
-    return(sense, fill)
+    print("gaps filled: {}".format(gapfill + gapfillmask))
+    return(sense, gap, (gapfill + gapfillmask))
 
 
 def parsexmfa(xmfa, r1, r2, ref):
@@ -102,6 +101,7 @@ def parsexmfa(xmfa, r1, r2, ref):
     r2 = r2
     consensusdict = {}
     gapfill = 0
+    totalgaps = 0
     alignment = AlignIO.parse(open(xmfa), "mauve")
     for aln in alignment:  # each alignment block
         header = []
@@ -113,10 +113,11 @@ def parsexmfa(xmfa, r1, r2, ref):
                     pos = rec.split("/")[1]
                     pos = pos.replace("-", ":")
                     alignarr = np.array([list(r) for r in aln], np.character)
-                    sense, fill = makesense(alignarr, header, r1, r2, ref)
+                    sense, gap, fill = makesense(alignarr, header, r1, r2, ref)
                     gapfill += fill
+                    totalgaps += gap
                     consensusdict[pos] = sense
-    print("total gaps filled:{}".format(gapfill))
+    print("total gaps: {}\n total gaps filled: {}".format(totalgaps, gapfill))
     return(consensusdict)
 
 
@@ -126,11 +127,14 @@ def fillgaps(consensusdict, fasta):
     print("filling consensus...")
     fastascaf = Fasta(fasta, mutable=True)
     for chrom in fastascaf.keys():
-        for s in consensusdict.keys():
-            t1 = int(s.split(":")[0])
-            t2 = int(s.split(":")[1])
+        for suc in consensusdict.keys():
+            t1 = int(suc.split(":")[0])
+            t2 = int(suc.split(":")[1])
             assert (t2 - t1) == len(fastascaf[chrom][t1:t2].seq)
-            fastascaf[chrom][t1:t2] = consensusdict[s]
+            print(consensusdict[suc])
+            print(fastascaf[chrom][t1:t2].seq)
+            fastascaf[chrom][t1:t2] = consensusdict[suc]
+            print(fastascaf[chrom][t1:t2].seq)
     return(None)
 
 
