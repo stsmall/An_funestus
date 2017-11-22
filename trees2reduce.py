@@ -27,13 +27,28 @@ parser.add_argument("--topology", action="store_true",
                     "length information")
 parser.add_argument("--pairwise", action="store_true", help="output a large"
                     "pairwise matrix of Robinson-Foulds distances")
+parser.add_arguement('-g', "--groups", nargs='+', help="list of groups to"
+                     "check for monophyly in the trees")
+parser.add_arguement("--nodeheights", nargs='+', help="calculate node heights"
+                     "for a quartet")
 args = parser.parse_args()
 
-# TODO: check monophyly
+# TODO: check monophyly for list of groups
+# TODO: calculate node heights for specific topologies
 
 
-def removebl(treelist):
-    """Remove branch length info from set of newick trees
+def removebl(newick_tree):
+    """Remove branch length info from set of newick trees. This simplifies the
+    comparisons when searching for non-monophyletic trees
+
+    Parameters
+    ------
+    newick_tree: string, single tree in newick format
+
+    Returns
+    -----
+    newick_tree: string, single tree in newick format with no branch length
+        info
     """
     print("removing branch lengths ... ")
     # use regex to replace branch lengths by empty
@@ -42,14 +57,25 @@ def removebl(treelist):
     return(topolist)
 
 
-def loadtrees(trees, topo, outgroup):
-    """
+def loadtrees(newickfile, topo, outgroup):
+    """Reads and stores phylogenetic trees from a file
+
+    Parameters
+    ------
+    newickfile: file, file of newick trees, 1 per line
+    topo: bool, use only the topology and not branch information
+    outgroup: string, outgroup species
+
+    Returns
+    ------
+    treelist: obj, ete3 object of trees
+
     """
     print("loading trees...")
     treelist = []
     if topo:
         topolist = []
-        with open(trees, 'r') as t:
+        with open(newickfile, 'r') as t:
             for line in t:
                 topolist.append(line.strip())
         topolist = removebl(topolist)
@@ -59,18 +85,30 @@ def loadtrees(trees, topo, outgroup):
                 t1.set_outgroup(outgroup)
             treelist.append(t1)
     else:
-        with open(trees, 'r') as t:
+        with open(newickfile, 'r') as t:
             for line in t:
-                t1 = Tree(line)
-                if outgroup:
-                    t1.set_outgroup(outgroup)
-                treelist.append(t1)
+                if not line.startswith("NA"):
+                    t1 = Tree(line)
+                    if outgroup:
+                        t1.set_outgroup(outgroup)
+                    treelist.append(t1)
     return(treelist)
 
 
-def topofreq(treelist, threshold):
+def topofreq(trees, rfthresh):
     """reduce the symmetric topologies in a set of newick trees using ete3.
-    Count the frequency of each topology.
+    Count the frequency of each topology. Return a set of unique topologies
+
+    Parameters
+    ------
+    trees: obj, ete3 obj from loadtrees
+    rfthresh: float, threshold where trees with a R-F distance less than this
+        are considered identical and collapsed
+
+    Returns
+    ------
+    utrees: list, list of unique trees
+
     """
     print("reducing trees...")
     uniqfreq = {}
@@ -113,9 +151,14 @@ def topofreq(treelist, threshold):
     return(uniqtrees)
 
 
-def pwdistance(uniqtrees):
+def pwdistance(utrees):
     """Calculate a large pairwise matrix of robinson-foulds distances between
     newick trees.
+
+    Parameters
+    ------
+    utrees: list, topologies stored as a string
+
     """
     print("calculating pairwise distances")
     pwmat = np.zeros([len(uniqtrees), len(uniqtrees)])
@@ -127,7 +170,20 @@ def pwdistance(uniqtrees):
 
 
 def refdistance(trees, reftree, coords, outgroup):
-    """
+    """Calculates the RF distance between a reference topology and set of trees
+    in windows along a chromosome
+
+    Parameters
+    ------
+    trees: obj, obj from loadtrees
+    reftree: string, reference topology to check distance against
+    coords: list, list of genome coordinats for each tree
+    outgroup: string, name of outgroup
+
+    Returns
+    ------
+    file
+
     """
     print("getting RF distances from ref")
     reftree = Tree(reftree)
@@ -156,13 +212,50 @@ def refdistance(trees, reftree, coords, outgroup):
     return(None)
 
 
-def checkmonophylyofref(trees, reftree):
+def checkmonophylyofref(utrees, groups, write_trees=False, print_trees=False):
+    """Checks that a given group is monophyletic in a topology. Returns counts
+    where this group was and was not monophyletic
+
+    Parameters
+    ------
+    utrees: list, topologies stored as a string
+    groups: list, groups to check for monophyly
+    write_trees: bool, return trees that are not monophyletic
+    print_trees: bool, print trees that are not monophyletic
+
+    Returns
+    ------
+    None
+
     """
-    """
+    #removebl
+
 #    t1.check_monophyly()
 #    t1.get_monophyletic()
 #    set_feature(groups) #VAN = (ANVANF776, ANVANF779)
     return(None)
+
+
+def calculate_nodeheights(trees, topos, windows):
+    """Calculates the node heights in a set of trees.
+
+    Parameters
+    ------
+    trees: ete3 object, returned from function loadtrees
+    topos: list, list of topologies to calculate node heights
+    windows: list, genome coordinates for which the trees were made
+
+    Returns
+    ------
+    T1_T2: file, writes values of T1 and T2 for the topologies to a file for
+           each tree.
+    t1_avg: float, average value of T1 for topology
+    t2_avg: float, average value of T2 for topology
+
+    """
+    #loadtrees
+
+
 
 
 if __name__ == "__main__":
