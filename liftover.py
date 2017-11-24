@@ -11,7 +11,9 @@ python liftover.py -v FOO.vcf -o FOO.vcf.new -t FOO.coordinate
     -create liftover by passing bed to MafFilter
 4) sort by chrom and coordinate sort -k5,5 -k7,7n
 5) optional: include bedfile of all positions
-     bedtools getfasta -fi FASTA -bed pos.bed -bedOut > FOO.bed
+     fai2bed.py
+     bedtools getfasta -fi FASTA -bed pos.bed -tab -bedOut > FOO.bed
+     # getfasta seems to return the wrong seq if it is not 50,80,100 line char
 6) optional: convert freebayes format to gatk format using fb2gatk.py
 print fx.__doc__
 @author: stsmall
@@ -88,7 +90,7 @@ def loadVCF(vcfRef, refBed):
             for line in bed:
                 x = line.split()
                 chrom = x[0]
-                pos = x[1]
+                pos = x[2]
                 ra = x[3]
                 try:
                     ra, rr = refdict[chrom][pos]
@@ -425,7 +427,8 @@ def liftover(vcfFile, transdict, refdict, outStream):
                     outStream.write("{}\n".format("\t".join(x)))
                 except KeyError:
                     tx.write("{}\t{}\n".format(transdict[x[0]][x[1]]))
-                    import ipdb; ipdb.set_trace()
+                    # import ipdb; ipdb.set_trace(
+                    2402781	2 402 782)
     # t.close()
     tx.close()
     print("Mismatch Reference Allele {} times".format(miss))

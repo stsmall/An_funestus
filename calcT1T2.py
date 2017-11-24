@@ -12,6 +12,7 @@ from __future__ import division
 import numpy as np
 from ete3 import Tree
 import argparse
+from collections import defaultdict
 parser = argparse.ArgumentParser()
 parser.add_argument('-t', "--treefile", type=str,
                     help="treefile in newick, 1 per line")
@@ -29,25 +30,60 @@ parser.add_arguement("--nodes", action="store_true",
 args = parser.parse_args()
 
 
-def loadvcf(vcfile, quart):
+def loadvcf(vcFile, quart):
     """Creates a dictionary object from a vcffile only including species in the
     given quartet.
     """
-    return(vcfdict)
-
-
-def calcT1(vcfdict, ABBB, BABB):
-    """Calculates the divergence between (1,2),3.
-    """
-    t1 = ""
-    return(t1)
+    qdict = defaultdict(dict)
+    with open(vcfFile, 'r') as vcf:
+        for line in vcf:
+            if line.startswith("#CHROM"):
+                sample = line.strip().split()
+                q_ix = []
+                for q in quart:
+                    q_ix.append([i for i, x in enumerate(sample) if q in x])
+            elif not line.startwith("##"):
+                x = line.strip().split()
+                chrom = x[0]
+                pos = x[1]
+                count_list = []
+                for q in q_ix:
+                    ref = 0
+                    alt = 0
+                    for s in q:
+                        gt = x[s].split(":")[0]
+                        ref += gt.count("0")
+                        alt += gt.count("1")
+                    count_list.append([ref, alt])
+                qdict[chrom][pos] = (count_list)
+    return(qdict)
 
 
 def calcT2(vcfdict, quartet, size):
-    """Calculates the divergence between (1,2).
+    """Calculates the divergence between (1,2) as:
+        T2 = (1/N) * ((n_ABAA + n_BAAA) / 2).
+      Calculates the divergence between (1,2),3 as:
+        T1 = (1/N) * (T2 + n_BBAA)
+
+    Parameters
+    ------
+    vcfdict: dict, obj from loadvcf
+    quartet: list, list of groups
+    size: int, sliding window size
+
+    Returns
+    ------
+
+
     """
     t1list = []
     t2list = []
+    for chrom in vcfdict.keys():
+        n_ABAA = 0
+        n_BAAA = 0
+        n_BBAA = 0
+        for pos in vcfdict[chrom].keys:
+
 
     return(t1list, t2list)
 
@@ -77,11 +113,11 @@ def nodeHeights(treedict, quart, windows):
 
 if __name__ == "__main__":
     if args.nodes and not args.treefile:
-        raise ValueError("to calc node height need a tree file")
+        raise ValueError("to calc node heights need a tree file")
     vcfFile = args.vcffile
     quart = args.groups
     trees = args.treefile
-    vcfdict = loadvcf(vcfFile)
-    t1, t2 = calcT2(vcfdict, quart, args.size)
+    qdict = loadvcf(vcfFile, quart)
+    t1, t2 = calcT2(qdict, quart, args.size)
     treelist = loadtrees(trees)
     nh1, nh2 = nodeHeights(treelist, quart, args.windows)
