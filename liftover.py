@@ -25,7 +25,7 @@ parser.add_argument('-v1', "--vcfFile", type=str, action="store",
                     required=True, help="name of infile")
 parser.add_argument('-v2', "--vcfRef", type=str, action="store", required=True,
                     help="name of reference vcf")
-parser.add_argument('-b', "--refBed", type=str, action="store",
+parser.add_argument('-b', "--refBed", type=str, action="store", required=False,
                     help="if all sites not in VCFref then pass bedfile")
 parser.add_argument('-o', "--outFile", type=str, action="store",
                     help="name of outfile")
@@ -119,12 +119,12 @@ def loadTransfer(transfersFile):
             x = line.strip().split()
             chrom = x[0]
             orient = x[1]
-            pos_s = x[2]
-            # pos_e = x[3]
+            # pos_s = x[2]
+            pos_e = x[3]
             newchrom = x[4]
             newpos_s = x[6]
-            # newpos_e = x[7]
-            transdict[chrom][pos_s] = (newchrom, newpos_s, orient)
+            newpos_e = x[7]
+            transdict[chrom][pos_e] = (newchrom, newpos_s, orient)
     return(transdict)
 
 
@@ -395,8 +395,8 @@ def liftover(vcfFile, transdict, refdict, outStream):
     """
     miss = 0
     print("executing liftover ...")
-    tx = open("NonmatchCarryOver.bed", 'w')
-    t = open("nonmatchingref.out", 'w')
+    tx = open("UnalignedCarryOver.bed", 'w')
+    # t = open("nonmatchingref.out", 'w')
     with open(vcfFile, 'r') as vcf:
         for line in vcf:
             if not line.startswith("#"):
@@ -413,22 +413,22 @@ def liftover(vcfFile, transdict, refdict, outStream):
                         # print("After: {} -- {}".format(ra, ref_a))
                     else:
                         pass
-                    if x[3] not in ref_a:
-                        t.write("BEFORE\t{}\t{}\t{}\n".format(ref_a, alt_a, x))
+                    if x[3] != ref_a:
+                        # t.write("BEFORE\t{}\t{}\t{}\n".format(ref_a, alt_a, x))
                         miss += 1
                         x, alt_a = reorientGT(x, ref_a, alt_a)
-                        t.write("AFTER\t{}\t{}\t{}\n".format(ref_a, alt_a, x))
-                        tx.write("{}\t{}\n".format(x[0], x[1]))
+                        # t.write("AFTER\t{}\t{}\t{}\n".format(ref_a, alt_a, x))
                     x[0] = newchrom
                     x[1] = newpos
                     x[3] = ref_a
                     x[4] = alt_a
                     outStream.write("{}\n".format("\t".join(x)))
                 except KeyError:
-                    # import ipdb;ipdb.set_trace()
-                    continue
-    t.close()
-    print("{}".format(miss))
+                    tx.write("{}\t{}\n".format(transdict[x[0]][x[1]]))
+                    import ipdb; ipdb.set_trace()
+    # t.close()
+    tx.close()
+    print("Mismatch Reference Allele {} times".format(miss))
     return(outStream)
 
 

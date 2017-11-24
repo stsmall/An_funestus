@@ -25,7 +25,7 @@ def makebed(faifile):
         xstart = 0
         f = open("{}.bed".format(chrom), 'w')
         while xstart <= int(fdict[chrom]):
-            f.write("X\t{}\t{}\n".format(xstart, xstart + 1))
+            f.write("{}\t{}\t{}\n".format(chrom, xstart, xstart + 1))
             xstart += 1
         f.close()
     return(None)
