@@ -25,8 +25,8 @@ parser.add_argument('-s', "--size", type=int, default=0,
                     help="size of window for T1, T2 calculations")
 parser.add_argument('-w', "--windows", type=str,
                     help="coordinates for each tree")
-parser.add_arguement("--nodes", action="store_true",
-                     help="calculate node heights for a given quartet")
+parser.add_argument("--nodes", action="store_true",
+                    help="calculate node heights for a given quartet")
 args = parser.parse_args()
 
 
@@ -34,6 +34,7 @@ def loadvcf(vcFile, quart):
     """Creates a dictionary object from a vcffile only including species in the
     given quartet.
     """
+    print("loading vcf file...")
     qdict = defaultdict(dict)
     with open(vcfFile, 'r') as vcf:
         for line in vcf:
@@ -42,21 +43,50 @@ def loadvcf(vcFile, quart):
                 q_ix = []
                 for q in quart:
                     q_ix.append([i for i, x in enumerate(sample) if q in x])
-            elif not line.startwith("##"):
+            elif not line.startswith("##"):
                 x = line.strip().split()
                 chrom = x[0]
                 pos = x[1]
                 count_list = []
                 for q in q_ix:
-                    ref = 0
-                    alt = 0
+                    ref = 0  # check for missing
+                    alt = 0  # check for missing
                     for s in q:
                         gt = x[s].split(":")[0]
                         ref += gt.count("0")
                         alt += gt.count("1")
+                    if ref == 0 and alt == 0:
+                        ref = -1
+                        alt = -1
                     count_list.append([ref, alt])
                 qdict[chrom][pos] = (count_list)
     return(qdict)
+
+
+def t1t2slidingwindow(t1t2dict, size):
+    """
+    """
+    f = open("t1t2windowed.out", 'w')
+    start = 1
+    end = size
+    for chrom in t1t2dict.keys():
+        for pos in t1t2dict[chrom].keys():
+            # ordereddict
+            divergence = []
+            if pos > end:
+                div = np.array(divergence)
+                sites = len(divergence)
+                # calc t2
+                t2_inner = sum(np.sum(div, axis=0)[0:2]) / 2
+                t2 = t2_inner / sites
+                # calc t1
+                t1 = t2_inner + np.sum(div, axis=0)[2] / sites
+                mid = (end - start) / 2
+                f.write("{}\t{}\t{}\t{}\t{}\n".format(start, end, mid, t1, t2))
+            else:
+                divergence.append(t1t2dict[chrom][pos])
+    f.close()
+    return(None)
 
 
 def calcT2(vcfdict, quartet, size):
@@ -73,24 +103,53 @@ def calcT2(vcfdict, quartet, size):
 
     Returns
     ------
-
+    t1dict: dict, chrom : pos : t1
+    t2dict: dict, chrom : pos : t2
 
     """
-    t1list = []
-    t2list = []
+    print("calculating divergence times for quartet: {}...".format(quartet))
+    p1, p2, p3, p4 = quartet
+    t1t2dict = defaultdict(dict)
+    t1dict = defaultdict(list)
+    t2dict = defaultdict(list)
     for chrom in vcfdict.keys():
         n_ABAA = 0
         n_BAAA = 0
         n_BBAA = 0
-        for pos in vcfdict[chrom].keys:
-
-
-    return(t1list, t2list)
+        callable_pos = 0
+        for pos in vcfdict[chrom].keys():
+            m = np.array(vcfdict[chrom][pos])
+            if -1 not in m:
+                callable_pos += 1
+                count_anc = np.sum(m, axis=0)[0]
+                count_der = np.sum(m, axis=0)[1]
+                if ((m[0, 0] == count_anc) and (m[0, 1] == 0)) or ((m[0, 1] == count_der) and (m[0, 0] == 0)):
+                    n_BAAA += 1
+                elif ((m[1, 0] == count_anc) and (m[1, 1] == 0)) or ((m[1, 1] == count_der) and (m[1, 0] == 0)):
+                    n_ABAA += 1
+                elif ((sum(m[0:2, 0]) == count_anc) and (sum(m[0:2, 1]) == 0)) or ((sum(m[0:2, 1]) == count_der) and (sum(m[0:2, 1]) == 0)):
+                    n_BBAA += 1
+                else:
+                    pass
+                t1t2dict[chrom][pos] = (n_BAAA, n_ABAA, n_BBAA)
+        if callable_pos > 0:
+            # import ipdb;ipdb.set_trace()
+            t2_inner = (n_ABAA + n_BAAA) / 2
+            t2 = t2_inner / callable_pos
+            t1 = (t2_inner + n_BBAA) / callable_pos
+            print("{}\t({},{}),{} : {}\t({},{}) : {}".format(chrom, p1, p2, p3,
+                                                             t1, p1, p2, t2))
+            t1dict[chrom].append(t1)
+            t2dict[chrom].append(t2)
+    if size != 0:
+        t1t2slidingwindow(t1t2dict, size)
+    return(t1dict, t2dict)
 
 
 def loadtrees(treefile):
     """Loads trees from a treefile into an ete3 object
     """
+    print("loading tree file...")
 
 
 def nodeHeights(treedict, quart, windows):
@@ -109,6 +168,7 @@ def nodeHeights(treedict, quart, windows):
     t1_avg: float, average value of T1 for topology
     t2_avg: float, average value of T2 for topology
     """
+    print("calculating node heights for quartets: {}".format(quart))
 
 
 if __name__ == "__main__":
@@ -116,8 +176,9 @@ if __name__ == "__main__":
         raise ValueError("to calc node heights need a tree file")
     vcfFile = args.vcffile
     quart = args.groups
-    trees = args.treefile
     qdict = loadvcf(vcfFile, quart)
     t1, t2 = calcT2(qdict, quart, args.size)
-    treelist = loadtrees(trees)
-    nh1, nh2 = nodeHeights(treelist, quart, args.windows)
+    if args.treefile:
+        treelist = loadtrees(args.treefile)
+        if args.nodes:
+            nh1, nh2 = nodeHeights(treelist, quart, args.windows)
