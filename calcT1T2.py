@@ -10,10 +10,11 @@ from __future__ import print_function
 from __future__ import division
 # from IPython.display import HTML
 import numpy as np
-from ete3 import Tree
+from ete3 import PhyloTree
 import argparse
 from collections import defaultdict
 from collections import OrderedDict
+from itertools import combinations
 parser = argparse.ArgumentParser()
 parser.add_argument('-t', "--treefile", type=str,
                     help="treefile in newick, 1 per line")
@@ -61,6 +62,8 @@ def loadvcf(vcFile, quart):
                         alt = -1
                     count_list.append([ref, alt])
                 qdict[chrom][pos] = (count_list)
+#    qnames = []
+#    qnames.append([sample[i] for q in q_ix for i in q])
     return(qdict)
 
 
@@ -102,7 +105,7 @@ def t1t2slidingwindow(t1t2dict, size):
     return(None)
 
 
-def calcT2(vcfdict, quartet, size):
+def calcT1T2(vcfdict, quartet, size):
     """Calculates the divergence between (1,2) as:
         T2 = (1/N) * ((n_ABAA + n_BAAA) / 2).
       Calculates the divergence between (1,2),3 as:
@@ -162,7 +165,42 @@ def calcT2(vcfdict, quartet, size):
     return(t1dict, t2dict)
 
 
-def loadtrees(treefile, outgroup):
+def cMono(tree, taxon):
+    """Checks if samples are monophyletic in tree
+    """
+    return(tree.check_monophyly(values=[taxon], target_attr="species")[0])
+
+
+def getMonophyletic(treelist, quart, winarray):
+    """
+    """
+    p1, p2, p3, p4 = quart
+    mtreelist = []
+    for i, t in enumerate(treelist):
+        if cMono(t, p1) and cMono(t, p2) and cMono(t, p3) and cMono(t, p4):
+            Out = t.get_common_ancestor(t.search_nodes(species=quart[-1]))
+            t.set_outgroup(Out)
+            mtreelist.append(t)
+        else:
+            winarray[i] = False
+#            t2 = t.collapse_lineage_specific_expansions()
+#            print(t2)
+#            for node in t.split_by_dupes():
+#                print(node)
+#            ntrees, ndups, sptrees = t.get_speciation_trees()
+#            for spt in sptrees:
+#                print(spt)
+
+    return(mtreelist, winarray)
+
+
+def supportFilt(mtreelist, winarray):
+    """
+    """
+    return(mtreelist, winarray)
+
+
+def loadtrees(treefile, quart, winlist, winarray, nodes):
     """Reads and stores phylogenetic trees from a file
 
     Parameters
@@ -177,16 +215,25 @@ def loadtrees(treefile, outgroup):
     """
     print("loading trees...")
     treelist = []
-    with open(treefile, 'r') as t:
-        for line in t:
+    with open(treefile, 'r') as newick:
+        for line in newick:
             if not line.startswith("NA"):
-                t1 = Tree(line)
-                t1.set_outgroup(outgroup)
-                treelist.append(t1)
-    return(treelist)
+                t = PhyloTree(line)
+                t.set_species_naming_function(lambda node: node.name.split(".")[0])
+                treelist.append(t)
+    if not winlist:
+        winarray = np.ones(len(treelist), dtype=bool)
+    mtreelist, winarray = getMonophyletic(treelist, quart, winarray)
+    btreelist, winarray = supportFilt(mtreelist, quart, winarray)
+    if nodes:
+        nh1, nh2 = nodeHeights(btreelist, quart)
+    else:
+        nh1 = []
+        nh2 = []
+    return(treelist, winarray, nh1, nh2)
 
 
-def nodeHeights(treedict, quart, windows):
+def nodeHeights(mtreelist, quart):
     """Calculates the node heights in a set of trees.
 
     Parameters
@@ -197,12 +244,43 @@ def nodeHeights(treedict, quart, windows):
 
     Returns
     ------
-    T1_T2: file, writes values of T1 and T2 for the topologies to a file for
-           each tree.
-    t1_avg: float, average value of T1 for topology
-    t2_avg: float, average value of T2 for topology
+    nh1: float, average value of T1 for topology
+    nh2: float, average value of T2 for topology
     """
     print("calculating node heights for quartets: {}".format(quart))
+    nh1 = []
+    nh2 = []
+    for t in mtreelist:
+        P1 = t.search_nodes(species=quart[0])
+        P2 = t.search_nodes(species=quart[1])
+        P3 = t.search_nodes(species=quart[2])
+        for p1, p2 in combinations(P1, P2, 2):
+            nh2.append(t.get_distance(p1, p2))
+        for p1, p3 in combinations(P1, P3, 2):
+            nh1.append(t.get_distance(p1, p3))
+        for p2, p3 in combinations(P2, P3, 2):
+            nh1.append(t.get_distance(p2, p3))
+    print("T1: {}, T2: {}".format(np.mean(np.array(nh1)), np.mean(np.array(nh2))))
+    return(nh1, nh2)
+
+
+def parseWin(windows):
+    """
+    """
+    winlist = []
+    with open(windows, 'r') as win:
+        for line in win:
+            x = line.strip().split()
+            winlist.append("{}-{}".format(x[1], x[2]))
+    winarray = np.ones(len(winlist), dtype=bool)
+    return(winlist, winarray)
+
+
+def outputTrees(treelist, winlist, winarray, nh1, nh2):
+    """
+    """
+    # mask winlist and treelist using winarray T/F
+    return(None)
 
 
 if __name__ == "__main__":
@@ -211,8 +289,13 @@ if __name__ == "__main__":
     vcfFile = args.vcffile
     quart = args.groups
     qdict = loadvcf(vcfFile, quart)
-    t1, t2 = calcT2(qdict, quart, args.size)
+    t1, t2 = calcT1T2(qdict, quart, args.size)
+    if args.windows:
+        winlist, winarray = parseWin(args.windows)
+    else:
+        winlist = []
+        winarray = []
     if args.treefile:
-        treelist = loadtrees(args.treefile, quart[-1])
-        if args.nodes:
-            nh1, nh2 = nodeHeights(treelist, quart, args.windows)
+        treelist, winarray, nh1, nh2 = loadtrees(args.treefile, quart, winlist,
+                                                 winarray, args.nodes)
+        outputTrees(treelist, winlist, winarray, nh1, nh2)
