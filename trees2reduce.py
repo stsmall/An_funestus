@@ -127,9 +127,9 @@ def topofreq(trees, rfthresh):
                     import ipdb;ipdb.set_trace()
             rflist.append(rf[0])
         rfarray = np.array(rflist)
-        uniqfreq[tree1] = np.count_nonzero(rfarray <= threshold) + 1
+        uniqfreq[tree1] = np.count_nonzero(rfarray <= rfthresh) + 1
         # shorten the list
-        symtrees = rfarray > threshold
+        symtrees = rfarray > rfthresh
         treearray = treearray[symtrees]
         print(len(treearray))
     print("writing output files...")
@@ -228,34 +228,12 @@ def checkmonophylyofref(utrees, groups, write_trees=False, print_trees=False):
     None
 
     """
-    #removebl
+    # removebl
 
 #    t1.check_monophyly()
 #    t1.get_monophyletic()
 #    set_feature(groups) #VAN = (ANVANF776, ANVANF779)
     return(None)
-
-
-def calculate_nodeheights(trees, topos, windows):
-    """Calculates the node heights in a set of trees.
-
-    Parameters
-    ------
-    trees: ete3 object, returned from function loadtrees
-    topos: list, list of topologies to calculate node heights
-    windows: list, genome coordinates for which the trees were made
-
-    Returns
-    ------
-    T1_T2: file, writes values of T1 and T2 for the topologies to a file for
-           each tree.
-    t1_avg: float, average value of T1 for topology
-    t2_avg: float, average value of T2 for topology
-
-    """
-    #loadtrees
-
-
 
 
 if __name__ == "__main__":

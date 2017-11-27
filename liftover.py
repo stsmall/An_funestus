@@ -125,7 +125,7 @@ def loadTransfer(transfersFile):
             pos_e = x[3]
             newchrom = x[4]
             newpos_s = x[6]
-            newpos_e = x[7]
+            # newpos_e = x[7]
             transdict[chrom][pos_e] = (newchrom, newpos_s, orient)
     return(transdict)
 
@@ -169,7 +169,7 @@ def reverseComplement(base):
     return(base)
 
 
-def vcfformat(gt, tri, invariant=False):
+def vcfformat(gt, tri=False, invariant=False):
     """Reformat genotype field from 1 sample column in a vcf to orient with
     any repolarization of the reference and alternate alleles
 
@@ -183,35 +183,44 @@ def vcfformat(gt, tri, invariant=False):
     ------
     gt: list, modified list of genotype information
     """
-#    if invariant:
-#        # will bcftools merge error on different fields lengths?
-#        ad = gt[1]
-#        dp = gt[2]
-#        gq = gt[3]
-#        pl = "100,100,0"
-#        gt = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
-#    elif tri:
-#        # TODO: triallelic
+    if invariant:
+        if len(gt) < 4:
+            # GT:AD:DP from UnifiedGenotyper
+            ad = gt[1]
+            dp = gt[2]
+            gq = '99'
+            pl = "500,500,0"
+        else:
+            # GT:AD:DP:RGQ from HaplotypeCaller
+            ad = gt[1]
+            dp = gt[2]
+            gq = gt[3]
+            pl = "500,500,0"
+        gt = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
+    elif tri:
+        pass
+        # TODO: triallelic
+        # possible error on incorrect number of PL sites
 #        nalts = gt[1].count(",")
 #        if nalts == 2:
 #            # normal triallelic
 #        elif nalts == 3:
-#            # check this
-#        gt = ":".join(gt)
-#    else:
-#        ad = gt[1]
-#        dp = gt[2]
-#        gq = gt[3]
-#        pl = gt[-1]
-#        # reverse AD
-#        ad1, ad2 = ad.split(",")
-#        ad = "{},{}".format(ad2, ad1)
-#        # reverse PL
-#        pl1, pl2, pl3 = pl.split(",")
-#        pl = "{},{},{}".format(pl3, pl2, pl1)
-#    # rebuild genotype
-#        gt = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
-    gt = ':'.join(gt)
+#            # all 4 bases
+        gt = ":".join(gt)
+    else:
+        # GT:AD:DP:GQ:PL
+        ad = gt[1]
+        dp = gt[2]
+        gq = gt[3]
+        pl = gt[-1]
+        # reverse AD
+        ad1, ad2 = ad.split(",")
+        ad = "{},{}".format(ad2, ad1)
+        # reverse PL
+        pl1, pl2, pl3 = pl.split(",")
+        pl = "{},{},{}".format(pl3, pl2, pl1)
+    # rebuild genotype
+        gt = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
     return(gt)
 
 
@@ -232,12 +241,13 @@ def reorientGT(x, ref_a, alt_a):
     alt_a: modified alternate allele for the new vcf
 
     """
+    # TODO: Condense to an algorithm rather than 'if' statements
     if "." in x[4]:
         # this site is invariant, so a fixed difference between genomes
         for i, sample in enumerate(x[9:]):
             gt = sample.split(":")
             gt[0] = gt[0].replace("0", "1")  # change all 0s to 1s
-            geno = vcfformat(gt, False, invariant=True)  # change gt columns
+            geno = vcfformat(gt, invariant=True)  # change gt columns
             x[i + 9] = geno
         alt_a = x[3]
     elif (x[3] in alt_a) and (ref_a in x[4]):
@@ -260,7 +270,7 @@ def reorientGT(x, ref_a, alt_a):
                             gt[0] = "0/2"
                         elif "0/2" in gt[0]:
                             gt[0] = "1/2"
-                    geno = vcfformat(gt, True)
+                    geno = vcfformat(gt, tri=True)
                     x[i + 9] = geno
             elif r == 1:
                 # ref allele is 2nd alt allele
@@ -275,7 +285,7 @@ def reorientGT(x, ref_a, alt_a):
                             gt[0] = "0/1"
                         elif "0/2" in gt[0]:
                             gt[0] = "1/2"
-                    geno = vcfformat(gt, True)
+                    geno = vcfformat(gt, tri=True)
                     x[i + 9] = geno
         else:
             # simply switch the genotypes to re-orient
@@ -285,7 +295,7 @@ def reorientGT(x, ref_a, alt_a):
                     gt[0] = '1/1'
                 elif "1/1" in gt[0]:
                     gt[0] = '0/0'
-                geno = vcfformat(gt, False)
+                geno = vcfformat(gt)
                 x[i + 9] = geno
     elif (x[3] in alt_a) and (ref_a not in x[4]):
         # the case where the ancestral allele does not appear in the vcf
@@ -295,7 +305,7 @@ def reorientGT(x, ref_a, alt_a):
                 # change all 0 to 3
                 gt = sample.split(":")
                 gt[0] = gt[0].replace("0", "3")
-                geno = vcfformat(gt, True)
+                geno = vcfformat(gt, tri=True)
                 x[i + 9] = geno
             alt_a = "{},{}".format(x[4], x[3])
         else:
@@ -305,7 +315,7 @@ def reorientGT(x, ref_a, alt_a):
                 gt = sample.split(":")
                 gt[0] = gt[0].replace("1", "2")
                 gt[0] = gt[0].replace("0", "1")
-                geno = vcfformat(gt, False)
+                geno = vcfformat(gt)
                 x[i + 9] = geno
             alt_a = "{},{}".format(x[3], x[4])
     elif (x[3] not in alt_a) and (ref_a in x[4]):
@@ -327,7 +337,7 @@ def reorientGT(x, ref_a, alt_a):
                             gt[0] = '1/2'
                         elif '1/2' in gt[0]:
                             gt[0] = '0/2'
-                    geno = vcfformat(gt, True)
+                    geno = vcfformat(gt, tri=True)
                     x[i + 9] = geno
                 alt_a = "{},{}".format(x[3], x[4][1])
             elif r == 1:
@@ -344,7 +354,7 @@ def reorientGT(x, ref_a, alt_a):
                             gt[0] = '1/2'
                         elif '1/2' in gt[0]:
                             gt[0] = '0/1'
-                    geno = vcfformat(gt, True)
+                    geno = vcfformat(gt, tri=True)
                     x[i + 9] = geno
                 alt_a = "{},{}".format(x[4][0], x[3])
         else:
@@ -355,7 +365,7 @@ def reorientGT(x, ref_a, alt_a):
                     gt[0] = '1/1'
                 elif '1/1' in gt[0]:
                     gt[0] = '0/0'
-                geno = vcfformat(gt, False)
+                geno = vcfformat(gt)
                 x[i + 9] = geno
             alt_a = x[3]
     else:
@@ -364,7 +374,7 @@ def reorientGT(x, ref_a, alt_a):
             for i, sample in enumerate(x[9:]):
                 gt = sample.split(":")
                 gt[0] = gt[0].replace("0", "2")
-                geno = vcfformat(gt, True)
+                geno = vcfformat(gt, tri=True)
                 x[i + 9] = geno
             alt_a = "{},{}".format(x[4], x[3])
         elif (x[3] not in ref_a) and (x[3] not in alt_a) and (ref_a not in x[4]):
@@ -372,7 +382,7 @@ def reorientGT(x, ref_a, alt_a):
                 gt = sample.split(":")
                 gt[0] = gt[0].replace("1", "2")
                 gt[0] = gt[0].replace("0", "1")
-                geno = vcfformat(gt, True)
+                geno = vcfformat(gt, tri=True)
                 x[i + 9] = geno
             alt_a = "{},{}".format(x[4], x[3])
         else:
@@ -413,22 +423,35 @@ def liftover(vcfFile, transdict, refdict, outStream):
                         x[3] = reverseComplement(x[3])
                         x[4] = reverseComplement(x[4])
                         # print("After: {} -- {}".format(ra, ref_a))
-                    else:
-                        pass
                     if x[3] != ref_a:
                         # t.write("BEFORE\t{}\t{}\t{}\n".format(ref_a, alt_a, x))
                         miss += 1
                         x, alt_a = reorientGT(x, ref_a, alt_a)
                         # t.write("AFTER\t{}\t{}\t{}\n".format(ref_a, alt_a, x))
-                    x[0] = newchrom
+                    elif "." in x[4]:
+                        for i, sample in enumerate(x[9:]):
+                            gt = sample.split(":")
+                            if len(gt) < 4:
+                                # GT:AD:DP from UnifiedGenotyper
+                                ad = gt[1]
+                                dp = gt[2]
+                                gq = '99'
+                                pl = "0,500,500"
+                            else:
+                                # GT:AD:DP:RGQ from HaplotypeCaller
+                                ad = gt[1]
+                                dp = gt[2]
+                                gq = gt[3]
+                                pl = "0,500,500"
+                            geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq,
+                                                           pl)
+                            x[i + 9] = geno
                     x[1] = newpos
                     x[3] = ref_a
                     x[4] = alt_a
                     outStream.write("{}\n".format("\t".join(x)))
                 except KeyError:
                     tx.write("{}\t{}\n".format(transdict[x[0]][x[1]]))
-                    # import ipdb; ipdb.set_trace(
-                    2402781	2 402 782)
     # t.close()
     tx.close()
     print("Mismatch Reference Allele {} times".format(miss))

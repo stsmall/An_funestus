@@ -8,11 +8,12 @@ Calculates the T1 and T2 divergence times in a quartet
 """
 from __future__ import print_function
 from __future__ import division
-
+# from IPython.display import HTML
 import numpy as np
 from ete3 import Tree
 import argparse
 from collections import defaultdict
+from collections import OrderedDict
 parser = argparse.ArgumentParser()
 parser.add_argument('-t', "--treefile", type=str,
                     help="treefile in newick, 1 per line")
@@ -69,22 +70,34 @@ def t1t2slidingwindow(t1t2dict, size):
     f = open("t1t2windowed.out", 'w')
     start = 1
     end = size
+    f.write("chrom\tstart\tend\tmid\tt1\tt2\n")
     for chrom in t1t2dict.keys():
-        for pos in t1t2dict[chrom].keys():
-            # ordereddict
-            divergence = []
+        posdict = OrderedDict(sorted(t1t2dict[chrom].items()))
+        divergence = []
+        for pos in posdict.keys():
             if pos > end:
-                div = np.array(divergence)
-                sites = len(divergence)
-                # calc t2
-                t2_inner = sum(np.sum(div, axis=0)[0:2]) / 2
-                t2 = t2_inner / sites
-                # calc t1
-                t1 = t2_inner + np.sum(div, axis=0)[2] / sites
-                mid = (end - start) / 2
-                f.write("{}\t{}\t{}\t{}\t{}\n".format(start, end, mid, t1, t2))
+                try:
+                    div = np.array(divergence)
+                    sites = len(divergence)
+                    # calc t2
+                    t2_inner = sum(np.sum(div, axis=0)[0:2]) / 2
+                    t2 = t2_inner / sites
+                    # calc t1
+                    t1 = (t2_inner + np.sum(div, axis=0)[2]) / sites
+                    mid = (end - start) / 2
+                    f.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(chrom, start,
+                                                              end, mid, t1,
+                                                              t2))
+                    divergence = []
+                    start = end
+                    end = end + size
+                except IndexError:
+                    f.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(chrom, start,
+                                                              end, mid, 0, 0))
+                    start = end
+                    end = end + size
             else:
-                divergence.append(t1t2dict[chrom][pos])
+                divergence.append(posdict[pos])
     f.close()
     return(None)
 
@@ -120,20 +133,23 @@ def calcT2(vcfdict, quartet, size):
         for pos in vcfdict[chrom].keys():
             m = np.array(vcfdict[chrom][pos])
             if -1 not in m:
+                window = [0, 0, 0]
                 callable_pos += 1
                 count_anc = np.sum(m, axis=0)[0]
                 count_der = np.sum(m, axis=0)[1]
                 if ((m[0, 0] == count_anc) and (m[0, 1] == 0)) or ((m[0, 1] == count_der) and (m[0, 0] == 0)):
                     n_BAAA += 1
+                    window[0] = 1
                 elif ((m[1, 0] == count_anc) and (m[1, 1] == 0)) or ((m[1, 1] == count_der) and (m[1, 0] == 0)):
                     n_ABAA += 1
-                elif ((sum(m[0:2, 0]) == count_anc) and (sum(m[0:2, 1]) == 0)) or ((sum(m[0:2, 1]) == count_der) and (sum(m[0:2, 1]) == 0)):
+                    window[1] = 1
+                elif ((sum(m[0:2, 0]) == count_anc) and (sum(m[0:2, 1]) == 0)) or ((sum(m[0:2, 1]) == count_der) and (sum(m[0:2, 0]) == 0)):
                     n_BBAA += 1
+                    window[2] = 1
                 else:
                     pass
-                t1t2dict[chrom][pos] = (n_BAAA, n_ABAA, n_BBAA)
+                t1t2dict[chrom][int(pos)] = tuple(window)
         if callable_pos > 0:
-            # import ipdb;ipdb.set_trace()
             t2_inner = (n_ABAA + n_BAAA) / 2
             t2 = t2_inner / callable_pos
             t1 = (t2_inner + n_BBAA) / callable_pos
@@ -146,10 +162,28 @@ def calcT2(vcfdict, quartet, size):
     return(t1dict, t2dict)
 
 
-def loadtrees(treefile):
-    """Loads trees from a treefile into an ete3 object
+def loadtrees(treefile, outgroup):
+    """Reads and stores phylogenetic trees from a file
+
+    Parameters
+    ------
+    treefile: file, file of newick trees, 1 per line
+    outgroup: str, last entry from quartet
+
+    Returns
+    ------
+    treelist: obj, ete3 object of trees
+
     """
-    print("loading tree file...")
+    print("loading trees...")
+    treelist = []
+    with open(treefile, 'r') as t:
+        for line in t:
+            if not line.startswith("NA"):
+                t1 = Tree(line)
+                t1.set_outgroup(outgroup)
+                treelist.append(t1)
+    return(treelist)
 
 
 def nodeHeights(treedict, quart, windows):
@@ -179,6 +213,6 @@ if __name__ == "__main__":
     qdict = loadvcf(vcfFile, quart)
     t1, t2 = calcT2(qdict, quart, args.size)
     if args.treefile:
-        treelist = loadtrees(args.treefile)
+        treelist = loadtrees(args.treefile, quart[-1])
         if args.nodes:
             nh1, nh2 = nodeHeights(treelist, quart, args.windows)
