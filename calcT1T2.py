@@ -18,21 +18,23 @@ from itertools import combinations
 parser = argparse.ArgumentParser()
 parser.add_argument('-t', "--treefile", type=str,
                     help="treefile in newick, 1 per line")
-parser.add_argument('-v', "--vcffile", type=str, required=True,
+parser.add_argument('-v', "--vcfFile", type=str,
                     help="vcf file of variants")
-parser.add_argument('-g', "--groups", nargs='+',
-                    help="quartet of species to calculate, assumes form: P1 P2"
-                    "P3 O")
+parser.add_argument('-g', "--groups", nargs='+', required=True,
+                    help="quartet of species to calculate, assumes form: "
+                    "P1 P2 P3 O")
 parser.add_argument('-s', "--size", type=int, default=0,
                     help="size of window for T1, T2 calculations")
 parser.add_argument('-w', "--windows", type=str,
                     help="coordinates for each tree")
+parser.add_argument("--dlm", type=str, default=".",
+                    help="delimeter denoting species")
 parser.add_argument("--nodes", action="store_true",
                     help="calculate node heights for a given quartet")
 args = parser.parse_args()
 
 
-def loadvcf(vcFile, quart):
+def loadvcf(vcFile, quart, dlm):
     """Creates a dictionary object from a vcffile only including species in the
     given quartet.
     """
@@ -44,7 +46,7 @@ def loadvcf(vcFile, quart):
                 sample = line.strip().split()
                 q_ix = []
                 for q in quart:
-                    q_ix.append([i for i, x in enumerate(sample) if q in x])
+                    q_ix.append([i for i, x in enumerate(sample) if q == x.split(dlm)[0]])
             elif not line.startswith("##"):
                 x = line.strip().split()
                 chrom = x[0]
@@ -140,6 +142,9 @@ def calcT1T2(vcfdict, quartet, size):
                 callable_pos += 1
                 count_anc = np.sum(m, axis=0)[0]
                 count_der = np.sum(m, axis=0)[1]
+                count_check = np.sum(m, axis=1)
+                if any(count_check > 2):
+                    import ipdb;ipdb.set_trace()
                 if ((m[0, 0] == count_anc) and (m[0, 1] == 0)) or ((m[0, 1] == count_der) and (m[0, 0] == 0)):
                     n_BAAA += 1
                     window[0] = 1
@@ -152,6 +157,8 @@ def calcT1T2(vcfdict, quartet, size):
                 else:
                     pass
                 t1t2dict[chrom][int(pos)] = tuple(window)
+        print("BAAA:{}\tABAA:{}\tBBAA:{}\tN:{}\n".format(n_BAAA, n_ABAA,
+                                                         n_BBAA, callable_pos))
         if callable_pos > 0:
             t2_inner = (n_ABAA + n_BAAA) / 2
             t2 = t2_inner / callable_pos
@@ -190,17 +197,17 @@ def getMonophyletic(treelist, quart, winarray):
 #            ntrees, ndups, sptrees = t.get_speciation_trees()
 #            for spt in sptrees:
 #                print(spt)
-
+    import ipdb;ipdb.set_trace()
     return(mtreelist, winarray)
 
 
-def supportFilt(mtreelist, winarray):
+def supportFilt(mtreelist, quart, winarray):
     """
     """
     return(mtreelist, winarray)
 
 
-def loadtrees(treefile, quart, winlist, winarray, nodes):
+def loadtrees(treefile, quart, winlist, winarray, nodes, dlm):
     """Reads and stores phylogenetic trees from a file
 
     Parameters
@@ -219,7 +226,7 @@ def loadtrees(treefile, quart, winlist, winarray, nodes):
         for line in newick:
             if not line.startswith("NA"):
                 t = PhyloTree(line)
-                t.set_species_naming_function(lambda node: node.name.split(".")[0])
+                t.set_species_naming_function(lambda node: node.name.split(dlm)[0])
                 treelist.append(t)
     if not winlist:
         winarray = np.ones(len(treelist), dtype=bool)
@@ -269,6 +276,7 @@ def parseWin(windows):
     """
     winlist = []
     with open(windows, 'r') as win:
+        win.next()
         for line in win:
             x = line.strip().split()
             winlist.append("{}-{}".format(x[1], x[2]))
@@ -284,12 +292,15 @@ def outputTrees(treelist, winlist, winarray, nh1, nh2):
 
 
 if __name__ == "__main__":
+    if not args.treefile and not args.vcfFile:
+        raise ValueError("must supply either vcf or treefile")
     if args.nodes and not args.treefile:
         raise ValueError("to calc node heights need a tree file")
-    vcfFile = args.vcffile
     quart = args.groups
-    qdict = loadvcf(vcfFile, quart)
-    t1, t2 = calcT1T2(qdict, quart, args.size)
+    vcfFile = args.vcfFile
+    if vcfFile:
+        qdict = loadvcf(vcfFile, quart, args.dlm)
+        t1, t2 = calcT1T2(qdict, quart, args.size)
     if args.windows:
         winlist, winarray = parseWin(args.windows)
     else:
@@ -297,5 +308,6 @@ if __name__ == "__main__":
         winarray = []
     if args.treefile:
         treelist, winarray, nh1, nh2 = loadtrees(args.treefile, quart, winlist,
-                                                 winarray, args.nodes)
+                                                 winarray, args.nodes,
+                                                 args.dlm)
         outputTrees(treelist, winlist, winarray, nh1, nh2)
