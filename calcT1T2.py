@@ -140,9 +140,7 @@ def calcT1T2(vcfdict, quartet, size):
                 callable_pos += 1
                 count_anc = np.sum(m, axis=0)[0]
                 count_der = np.sum(m, axis=0)[1]
-                count_check = np.sum(m, axis=1)
-                if any(count_check > 2):
-                    import ipdb;ipdb.set_trace()
+                # count_check = np.sum(m, axis=1)
                 if ((m[0, 0] == count_anc) and (m[0, 1] == 0)) or ((m[0, 1] == count_der) and (m[0, 0] == 0)):
                     n_BAAA += 1
                     window[0] = 1
