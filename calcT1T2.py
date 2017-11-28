@@ -20,9 +20,9 @@ parser.add_argument('-t', "--treefile", type=str,
                     help="treefile in newick, 1 per line")
 parser.add_argument('-v', "--vcfFile", type=str,
                     help="vcf file of variants")
-parser.add_argument('-g', "--groups", nargs='+', required=True,
-                    help="quartet of species to calculate, assumes form: "
-                    "P1 P2 P3 O")
+parser.add_argument('-g', "--groups", nargs='+',
+                    required=True, help="quartet of species to calculate,"
+                    " assumes form: P1 P2 P3. can be given multiple times")
 parser.add_argument('-s', "--size", type=int, default=0,
                     help="size of window for T1, T2 calculations")
 parser.add_argument('-w', "--windows", type=str,
@@ -64,8 +64,6 @@ def loadvcf(vcFile, quart, dlm):
                         alt = -1
                     count_list.append([ref, alt])
                 qdict[chrom][pos] = (count_list)
-#    qnames = []
-#    qnames.append([sample[i] for q in q_ix for i in q])
     return(qdict)
 
 
@@ -197,7 +195,6 @@ def getMonophyletic(treelist, quart, winarray):
 #            ntrees, ndups, sptrees = t.get_speciation_trees()
 #            for spt in sptrees:
 #                print(spt)
-    import ipdb;ipdb.set_trace()
     return(mtreelist, winarray)
 
 
