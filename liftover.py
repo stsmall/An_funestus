@@ -209,7 +209,7 @@ def vcfformat(gt, formats, tri=False, invariant=False):
             pl = gt[formats.index('PL')]
             gt = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
         else:
-            ":".join(gt)
+            gt = ":".join(gt)
         # TODO: triallelic
         # 0/0, 0/1, 1/1, 0/2, 1/2, 2/2
         # possible error on incorrect number of PL sites
@@ -454,17 +454,17 @@ def liftover(vcfFile, transdict, refdict, outStream):
                     elif "." in x[4]:
                         for i, sample in enumerate(x[9:]):
                             gt = sample.split(":")
-                            if len(gt) < 4:
+                            if 'RQG' in x[8]:
+                                # GT:AD:DP:RQG from HaplotypeCaller
+                                ad = gt[1]
+                                dp = gt[2]
+                                gq = gt[3]
+                                pl = "0,500,500"
+                            else:
                                 # GT:AD:DP from UnifiedGenotyper
                                 ad = gt[1]
                                 dp = gt[2]
                                 gq = '99'
-                                pl = "0,500,500"
-                            else:
-                                # GT:AD:DP:RGQ from HaplotypeCaller
-                                ad = gt[1]
-                                dp = gt[2]
-                                gq = gt[3]
                                 pl = "0,500,500"
                             geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq,
                                                            pl)
