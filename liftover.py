@@ -185,18 +185,21 @@ def vcfformat(gt, formats, tri=False, invariant=False):
     """
     formats = formats.split(':')
     if invariant:
-        if 'RGQ' in formats:
-            # GT:AD:DP:RGQ from HaplotypeCaller
-            ad = gt[1]
-            dp = gt[2]
-            gq = gt[3]
-            pl = "500,500,0"
-        else:
-            # GT:AD:DP from UnifiedGenotyper
-            ad = gt[1]
-            dp = gt[2]
-            gq = '99'
-            pl = "500,500,0"
+        try:
+            if 'RGQ' in formats:
+                # GT:AD:DP:RGQ from HaplotypeCaller
+                ad = gt[1]
+                dp = gt[2]
+                gq = gt[3]
+                pl = "500,500,0"
+            else:
+                # GT:AD:DP from UnifiedGenotyper
+                ad = gt[1]
+                dp = gt[2]
+                gq = '99'
+                pl = "500,500,0"
+        except IndexError:
+            import ipdb;ipdb.set_trace()
         gt = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
     elif tri:
         pass
