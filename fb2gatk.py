@@ -28,7 +28,10 @@ def vcfformat(geno):
     raw_pl = [-10 * float(i) for i in gl]
     norm_pl = min(raw_pl)
     pl = [i - norm_pl for i in raw_pl]
-    gt = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, ",".join(pl))
+    try:
+        gt = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, ",".join(pl))
+    except TypeError:
+        import ipdb;ipdb.set_trace()
     return(gt)
 
 

@@ -61,25 +61,22 @@ def loadvcf(vcFile, quart, dlm):
     return(qdict)
 
 
-def t1t2slidingwindow(t1t2dict, size, dfoil, ntaxa):
+def DfoilTble(t1t2dict, size, ntaxa):
     """
     """
-    if dfoil:
-        ntaxa = 4
-        if ntaxa is 4:
-            headers = ['AAAA', 'AABA', 'ABAA', 'ABBA',
-                       'BAAA', 'BABA', 'BBAA', 'BBBA']
-        elif ntaxa is 5:
-            headers = ['AAAAA', 'AAABA', 'AABAA', 'AABBA',
-                       'ABAAA', 'ABABA', 'ABBAA', 'ABBBA',
-                       'BAAAA', 'BAABA', 'BABAA', 'BABBA',
-                       'BBAAA', 'BBABA', 'BBBAA', 'BBBBA']
-        d = open("dfoil.tbl", 'w')
-        d.write("#chrom\tposition\t{}\n".format('\t'.join(headers)))
-    f = open("t1t2windowed.out", 'w')
+    ntaxa = 4
+    if ntaxa is 4:
+        headers = ['AAAA', 'AABA', 'ABAA', 'ABBA',
+                   'BAAA', 'BABA', 'BBAA', 'BBBA']
+    elif ntaxa is 5:
+        headers = ['AAAAA', 'AAABA', 'AABAA', 'AABBA',
+                   'ABAAA', 'ABABA', 'ABBAA', 'ABBBA',
+                   'BAAAA', 'BAABA', 'BABAA', 'BABBA',
+                   'BBAAA', 'BBABA', 'BBBAA', 'BBBBA']
+    d = open("dfoil.tbl", 'w')
+    d.write("#chrom\tstart\tend\tsites\t{}\n".format('\t'.join(headers)))
     start = 1
     end = size
-    f.write("chrom\tstart\tend\tmid\tt1\tt2\n")
     for chrom in t1t2dict.keys():
         posdict = OrderedDict(sorted(t1t2dict[chrom].items()))
         divergence = []
@@ -90,34 +87,21 @@ def t1t2slidingwindow(t1t2dict, size, dfoil, ntaxa):
                     div = np.array(divergence)
                     sites = len(divergence)
                     div_sum = np.sum(div)
-                    # calc t2
-                    t2_inner = (div_sum[2] + div_sum[4]) / 2
-                    t2 = t2_inner / sites
-                    # calc t1
-                    t1 = (t2_inner + div_sum[6]) / sites
-                    mid = (end - start) / 2
-                    f.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(chrom, start,
-                                                              end, mid, t1,
-                                                              t2))
-                    if dfoil:
-                        d.write("{}\t{}\t{}\t{}\t{}\n".format(chrom, start, end, mid, '\t'.join(div_sum)))
+                    d.write("{}\t{}\t{}\t{}\t{}\n".format(chrom, start, end, sites, '\t'.join(div_sum)))
                     divergence = []
                     start = end
                     end = end + size
                 except IndexError:
-                    f.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(chrom, start,
-                                                              end, mid, 0, 0))
-                    if dfoil:
-                        d.write("{}\t{}\t{}\t{}\t{}\n".format(chrom, start, end, mid, '\t'.join(div_sum)))
+                    d.write("{}\t{}\t{}\t{}\t{}\n".format(chrom, start, end, sites, '\t'.join(div_sum)))
                     start = end
                     end = end + size
             else:
                 divergence.append(posdict[pos])
-    f.close()
+    d.close
     return(None)
 
 
-def calcT1T2(vcfdict, quartet, size, dfoil):
+def foil4(vcfdict, quartet):
     """Calculates the divergence between (1,2) as:
         T2 = (1/N) * ((n_ABAA + n_BAAA) / 2).
       Calculates the divergence between (1,2),3 as:
@@ -138,8 +122,131 @@ def calcT1T2(vcfdict, quartet, size, dfoil):
     print("calculating divergence times for quartet: {}...".format(quartet))
     p1, p2, p3, p4 = quartet
     t1t2dict = defaultdict(dict)
-    t1dict = defaultdict(list)
-    t2dict = defaultdict(list)
+    for chrom in vcfdict.keys():
+        n_AAAA = 0  #
+        n_AABA = 0  #
+        n_ABAA = 0
+        n_ABBA = 0  #
+        n_BAAA = 0
+        n_BABA = 0  #
+        n_BBAA = 0
+        n_BBBA = 0  #
+        callable_pos = 0
+        for pos in vcfdict[chrom].keys():
+            m = np.array(vcfdict[chrom][pos])
+            if -1 not in m:
+                window = [0, 0, 0, 0, 0, 0, 0, 0]
+                # AAAA, AABA, ABAA, ABBA, BAAA, BABA, BBAA, BBBA
+                callable_pos += 1
+                count = np.where(m == 0)
+                count_sum = sum(count[1])
+                count_len = len(count[1])
+                if count_len == 4:
+                    if (count_sum == 0 or count_sum == 4):
+                        n_AAAA += 1
+                        window[0] = 1
+                    elif (count_sum == 1 or count_sum == 3):
+                        if count_sum == 1:
+                            # find the 1
+                            iix = np.where(count[1] == 1)[0]
+                            if 2 in iix:
+                                n_AABA += 1
+                                window[1] = 1
+                            elif 1 in iix:
+                                n_ABAA += 1
+                                window[2] = 1
+                            elif 0 in iix:
+                                n_BAAA += 1
+                                window[4] = 1
+                            else:
+                                n_BBBA += 1
+                                window[7] = 1
+                        elif count_sum == 3:
+                            # find the 0
+                            iix = np.where(count[1] == 0)[0]
+                            if 2 in iix:
+                                n_AABA += 1
+                                window[1] = 1
+                            elif 1 in iix:
+                                n_ABAA += 1
+                                window[2] = 1
+                            elif 0 in iix:
+                                n_BAAA += 1
+                                window[4] = 1
+                            elif 3 in iix:
+                                n_BBBA += 1
+                                window[7] = 1
+                    elif count_sum == 2:
+                        # two zeros
+                        iix = np.where(count[1] == 0)[0]
+                        if 0 in iix and 2 in iix:
+                            n_BABA += 1
+                            window[5] = 1
+                        elif 0 in iix and 1 in iix:
+                            n_BBAA += 1
+                            window[6] = 1
+                        elif 1 in iix and 2 in iix:
+                            n_ABBA += 1
+                            window[3] = 1
+                    else:
+                        raise ValueError("pattern not recognized")
+                        # import ipdb;ipdb.set_trace()
+                t1t2dict[chrom][int(pos)] = tuple(window)
+        if callable_pos > 0:
+            # P1 P2 P3 O; BAAA, ABAA, BBAA
+            t2_inner = (n_ABAA + n_BAAA) / 2
+            t2 = t2_inner / callable_pos
+            t1 = (t2_inner + n_BBAA) / callable_pos
+            print("BAAA:{}\tABAA:{}\tBBAA:{}\tN:{}".format(n_BAAA, n_ABAA,
+                                                           n_BBAA,
+                                                           callable_pos))
+            print("{}\t({},{}),{} : {}\t({},{}) : {}\n".format(chrom, p1, p2,
+                                                               p3, t1, p1, p2,
+                                                               t2))
+            # P1 P3 P2 O; BAAA AABA BABA
+            t2_inner = (n_BAAA + n_AABA) / 2
+            t2a = t2_inner / callable_pos
+            t1a = (t2_inner + n_BABA) / callable_pos
+            print("BAAA:{}\tABAA:{}\tBBAA:{}\tN:{}".format(n_BAAA, n_AABA,
+                                                           n_BABA,
+                                                           callable_pos))
+            print("{}\t({},{}),{} : {}\t({},{}) : {}\n".format(chrom, p1, p3,
+                                                               p2, t1a, p1, p3,
+                                                               t2a))
+            # P2 P3 P1 O; ABAA AABA ABBA
+            t2_inner = (n_ABAA + n_AABA) / 2
+            t2b = t2_inner / callable_pos
+            t1b = (t2_inner + n_ABBA) / callable_pos
+            print("BAAA:{}\tABAA:{}\tBBAA:{}\tN:{}".format(n_ABAA, n_AABA,
+                                                           n_ABBA,
+                                                           callable_pos))
+            print("{}\t({},{}),{} : {}\t({},{}) : {}\n".format(chrom, p2, p3,
+                                                               p1, t1b, p2, p3,
+                                                               t2b))
+    return(t1t2dict)
+
+
+def foil5(vcfdict, quartet, size, dfoil):
+    """Calculates the divergence between (1,2) as:
+        T2 = (1/N) * ((n_ABAA + n_BAAA) / 2).
+      Calculates the divergence between (1,2),3 as:
+        T1 = (1/N) * (T2 + n_BBAA)
+
+    Parameters
+    ------
+    vcfdict: dict, obj from loadvcf
+    quartet: list, list of groups
+    size: int, sliding window size
+
+    Returns
+    ------
+    t1dict: dict, chrom : pos : t1
+    t2dict: dict, chrom : pos : t2
+
+    """
+    print("calculating divergence times for quartet: {}...".format(quartet))
+    p1, p2, p3, p4 = quartet
+    t1t2dict = defaultdict(dict)
     for chrom in vcfdict.keys():
         n_AAAA = 0  #
         n_AABA = 0  #
@@ -219,47 +326,15 @@ def calcT1T2(vcfdict, quartet, size, dfoil):
 #        print("BABA:{}".format(n_BABA))
 #        print("BBAA:{}".format(n_BBAA))
 #        print("BBBA:{}".format(n_BBBA))
-
-        if callable_pos > 0:
-            # P1 P2 P3 O; BAAA, ABAA, BBAA
-            t2_inner = (n_ABAA + n_BAAA) / 2
-            t2 = t2_inner / callable_pos
-            t1 = (t2_inner + n_BBAA) / callable_pos
-            print("BAAA:{}\tABAA:{}\tBBAA:{}\tN:{}".format(n_BAAA, n_ABAA,
-                                                           n_BBAA,
-                                                           callable_pos))
-            print("{}\t({},{}),{} : {}\t({},{}) : {}\n".format(chrom, p1, p2,
-                                                               p3, t1, p1, p2,
-                                                               t2))
-            # P1 P3 P2 O; BAAA AABA BABA
-            t2_inner = (n_BAAA + n_AABA) / 2
-            t2a = t2_inner / callable_pos
-            t1a = (t2_inner + n_BABA) / callable_pos
-            print("BAAA:{}\tABAA:{}\tBBAA:{}\tN:{}".format(n_BAAA, n_AABA,
-                                                           n_BABA,
-                                                           callable_pos))
-            print("{}\t({},{}),{} : {}\t({},{}) : {}\n".format(chrom, p1, p3,
-                                                               p2, t1a, p1, p3,
-                                                               t2a))
-            # P2 P3 P1 O; ABAA AABA ABBA
-            t2_inner = (n_ABAA + n_AABA) / 2
-            t2b = t2_inner / callable_pos
-            t1b = (t2_inner + n_ABBA) / callable_pos
-            print("BAAA:{}\tABAA:{}\tBBAA:{}\tN:{}".format(n_ABAA, n_AABA,
-                                                           n_ABBA,
-                                                           callable_pos))
-            print("{}\t({},{}),{} : {}\t({},{}) : {}\n".format(chrom, p2, p3,
-                                                               p1, t1b, p2, p3,
-                                                               t2b))
-            t1dict[chrom].append(t1)
-            t2dict[chrom].append(t2)
-    if size != 0:
-        t1t2slidingwindow(t1t2dict, size, dfoil, len(quartet))
-    return(t1dict, t2dict)
+    return(t1t2dict)
 
 
 if __name__ == "__main__":
     quart = args.groups
     vcfFile = args.vcfFile
     qdict = loadvcf(vcfFile, quart, args.dlm)
-    t1, t2 = calcT1T2(qdict, quart, args.size, args.dfoil)
+    if len(quart) == 5:
+        t1t2dict = foil5(qdict, quart)
+    else:
+        t1t2dict = foil4(qdict, quart)
+    DfoilTble(t1t2dict, args.size, len(quart))
