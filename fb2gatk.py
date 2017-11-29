@@ -26,11 +26,14 @@ def vcfformat(geno):
         dp = gt[2]
         gq = gt[1]
         gl = gt[-1].split(",")  # from GL to PL
-        raw_pl = [-10 * float(i) for i in gl]
-        norm_pl = min(raw_pl)
-        pl = [i - norm_pl for i in raw_pl]
-        plstr = map(str, pl)
-        gt = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, ",".join(plstr))
+        if "./." in gt[0]:
+            gt = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, gt[-1])
+        else:
+            raw_pl = [-10 * float(i) for i in gl]
+            norm_pl = min(raw_pl)
+            pl = [i - norm_pl for i in raw_pl]
+            plstr = map(str, pl)
+            gt = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, ",".join(plstr))
     except ValueError:
         import ipdb;ipdb.set_trace()
     return(gt)
