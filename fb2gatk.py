@@ -49,11 +49,11 @@ def loadvcf(vcfFile):
                 outstream.write(line)
             else:
                 x = line.strip().split()
+                import ipdb;ipdb.set_trace()
                 for i, sample in enumerate(x[9:]):
                     geno = vcfformat(sample)
                     x[i] = geno
                 x[8] = "GT:AD:DP:GQ:PL"
-                import ipdb;ipdb.set_trace()
                 outstream.write("{}\n".format("\t".join(x)))
     outstream.close()
     return(None)
