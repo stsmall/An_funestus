@@ -213,50 +213,59 @@ def vcfformat(gt, formats, tri=False, invariant=False):
                 pl = "500,500,0"
             gt = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
         except ValueError:
+            print("{}:{}".format(formats, gt))
             gt = "./.:.:.:.:."
     elif tri:
-        if 'PGT' in formats or 'PID' in formats:
-            ad = gt[formats.index('AD')]
-            dp = gt[formats.index('DP')]
-            gq = gt[formats.index('GQ')]
-            pl = gt[formats.index('PL')]
-            gt = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
-        else:
-            gt = ":".join(gt)
-        # TODO: triallelic
-        # 0/0, 0/1, 1/1, 0/2, 1/2, 2/2
-        # possible error on incorrect number of PL sites
-#        nalts = gt[1].count(",")
-#        if nalts == 2:
-#            # normal triallelic
-#        elif nalts == 3:
-#            # all 4 bases
+        try:
+            if 'PGT' in formats or 'PID' in formats:
+                ad = gt[formats.index('AD')]
+                dp = gt[formats.index('DP')]
+                gq = gt[formats.index('GQ')]
+                pl = gt[formats.index('PL')]
+                gt = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
+            else:
+                gt = ":".join(gt)
+            # TODO: triallelic
+            # 0/0, 0/1, 1/1, 0/2, 1/2, 2/2
+            # possible error on incorrect number of PL sites
+    #        nalts = gt[1].count(",")
+    #        if nalts == 2:
+    #            # normal triallelic
+    #        elif nalts == 3:
+    #            # all 4 bases
+        except ValueError:
+            print("{}:{}".format(formats, gt))
+            gt = "./.:.:.:.:."
     else:
-        if 'PGT' in formats or 'PID' in formats:
-            ad = gt[formats.index('AD')]
-            dp = gt[formats.index('DP')]
-            gq = gt[formats.index('GQ')]
-            pl = gt[formats.index('PL')]
-            # reverse AD
-            ad1, ad2 = ad.split(",")
-            ad = "{},{}".format(ad2, ad1)
-            # reverse PL
-            pl1, pl2, pl3 = pl.split(",")
-            pl = "{},{},{}".format(pl3, pl2, pl1)
-        else:
-            # GT:AD:DP:GQ:PL
-            ad = gt[formats.index('AD')]
-            dp = gt[formats.index('DP')]
-            gq = gt[formats.index('GQ')]
-            pl = gt[formats.index('PL')]
-            # reverse AD
-            ad1, ad2 = ad.split(",")
-            ad = "{},{}".format(ad2, ad1)
-            # reverse PL
-            pl1, pl2, pl3 = pl.split(",")
-            pl = "{},{},{}".format(pl3, pl2, pl1)
-    # rebuild genotype
-        gt = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
+        try:
+            if 'PGT' in formats or 'PID' in formats:
+                ad = gt[formats.index('AD')]
+                dp = gt[formats.index('DP')]
+                gq = gt[formats.index('GQ')]
+                pl = gt[formats.index('PL')]
+                # reverse AD
+                ad1, ad2 = ad.split(",")
+                ad = "{},{}".format(ad2, ad1)
+                # reverse PL
+                pl1, pl2, pl3 = pl.split(",")
+                pl = "{},{},{}".format(pl3, pl2, pl1)
+            else:
+                # GT:AD:DP:GQ:PL
+                ad = gt[formats.index('AD')]
+                dp = gt[formats.index('DP')]
+                gq = gt[formats.index('GQ')]
+                pl = gt[formats.index('PL')]
+                # reverse AD
+                ad1, ad2 = ad.split(",")
+                ad = "{},{}".format(ad2, ad1)
+                # reverse PL
+                pl1, pl2, pl3 = pl.split(",")
+                pl = "{},{},{}".format(pl3, pl2, pl1)
+        # rebuild genotype
+            gt = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
+        except ValueError:
+            print("{}:{}".format(formats, gt))
+            gt = "./.:.:.:.:."
     return(gt)
 
 
