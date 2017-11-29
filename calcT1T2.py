@@ -124,6 +124,29 @@ def t1t2slidingwindow(t1t2dict, size, dfoil):
     return(None)
 
 
+def jackknife(x):
+    """
+    """
+
+    vals = np.empty(x.shape, dtype=float)
+    x = np.ma.asarray(x)
+    x.mask = np.zeros(x.shape, dtype=bool)
+    for i in range(x.size):
+        x.mask[i] = True
+        vals[i] = np.mean(x)
+        x.mask[i] = False
+    n = x.size
+    try:
+        sv = ((n - 1) / n) * np.sum((vals - vals.mean()) ** 2)
+    except ZeroDivisionError:
+        se = 0.0000000001
+    se = np.sqrt(sv)
+    m = np.mean(vals)
+    z = m / se
+    # here the forumula is actually m - 0 / se, 0 is expected value
+    return(m, se, z, vals)
+
+
 def calcT1T2(vcfdict, quartet, size, dfoil):
     """Calculates the divergence between (1,2) as:
         T2 = (1/N) * ((n_ABAA + n_BAAA) / 2).
@@ -232,18 +255,18 @@ def calcT1T2(vcfdict, quartet, size, dfoil):
             t1 = (t2_inner + n_BBAA) / callable_pos
             print("{}\t({},{}),{} : {}\t({},{}) : {}".format(chrom, p1, p2, p3,
                                                              t1, p1, p2, t2))
-            # P1 P3 P2 O; BAAA AABA BABA
-            t2_inner = (n_BAAA + n_AABA) / 2
-            t2a = t2_inner / callable_pos
-            t1a = (t2_inner + n_BABA) / callable_pos
-            print("{}\t({},{}),{} : {}\t({},{}) : {}".format(chrom, p1, p3, p2,
-                                                             t1a, p1, p3, t2a))
-            # P2 P3 P1 O; ABAA AABA ABBA
-            t2_inner = (n_ABAA + n_AABA) / 2
-            t2b = t2_inner / callable_pos
-            t1b = (t2_inner + n_ABBA) / callable_pos
-            print("{}\t({},{}),{} : {}\t({},{}) : {}".format(chrom, p2, p3, p1,
-                                                             t1b, p2, p3, t2b))
+#            # P1 P3 P2 O; BAAA AABA BABA
+#            t2_inner = (n_BAAA + n_AABA) / 2
+#            t2a = t2_inner / callable_pos
+#            t1a = (t2_inner + n_BABA) / callable_pos
+#            print("{}\t({},{}),{} : {}\t({},{}) : {}".format(chrom, p1, p3, p2,
+#                                                             t1a, p1, p3, t2a))
+#            # P2 P3 P1 O; ABAA AABA ABBA
+#            t2_inner = (n_ABAA + n_AABA) / 2
+#            t2b = t2_inner / callable_pos
+#            t1b = (t2_inner + n_ABBA) / callable_pos
+#            print("{}\t({},{}),{} : {}\t({},{}) : {}".format(chrom, p2, p3, p1,
+#                                                             t1b, p2, p3, t2b))
             t1dict[chrom].append(t1)
             t2dict[chrom].append(t2)
     if size != 0:
