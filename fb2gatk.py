@@ -35,7 +35,7 @@ def vcfformat(geno):
 def loadvcf(vcfFile):
     """
     """
-    outstream = open("{}.out".format(vcfFile))
+    outstream = open("{}.out".format(vcfFile), 'w')
     with open(vcfFile, 'r') as vcf:
         for line in vcf:
             if line.startswith("#"):
