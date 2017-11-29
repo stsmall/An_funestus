@@ -27,7 +27,7 @@ def vcfformat(geno):
     gl = gt[-1].split(",")  # from GL to PL
     raw_pl = [-10 * float(i) for i in gl]
     norm_pl = min(raw_pl)
-    pl = [i - norm_pl for i in raw_pl]
+    pl = map(str, [i - norm_pl for i in raw_pl])
     try:
         gt = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, ",".join(pl))
     except TypeError:
