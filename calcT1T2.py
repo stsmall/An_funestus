@@ -255,18 +255,27 @@ def calcT1T2(vcfdict, quartet, size, dfoil):
             t2_inner = (n_ABAA + n_BAAA) / 2
             t2 = t2_inner / callable_pos
             t1 = (t2_inner + n_BBAA) / callable_pos
+            print("BAAA:{}\tABAA:{}\tBBAA:{}\tN:{}\n".format(n_BAAA, n_ABAA,
+                                                             n_BBAA,
+                                                             callable_pos))
             print("{}\t({},{}),{} : {}\t({},{}) : {}".format(chrom, p1, p2, p3,
                                                              t1, p1, p2, t2))
             # P1 P3 P2 O; BAAA AABA BABA
             t2_inner = (n_BAAA + n_AABA) / 2
             t2a = t2_inner / callable_pos
             t1a = (t2_inner + n_BABA) / callable_pos
+            print("BAAA:{}\tABAA:{}\tBBAA:{}\tN:{}\n".format(n_BAAA, n_AABA,
+                                                             n_BABA,
+                                                             callable_pos))
             print("{}\t({},{}),{} : {}\t({},{}) : {}".format(chrom, p1, p3, p2,
                                                              t1a, p1, p3, t2a))
             # P2 P3 P1 O; ABAA AABA ABBA
             t2_inner = (n_ABAA + n_AABA) / 2
             t2b = t2_inner / callable_pos
             t1b = (t2_inner + n_ABBA) / callable_pos
+            print("BAAA:{}\tABAA:{}\tBBAA:{}\tN:{}\n".format(n_ABAA, n_AABA,
+                                                             n_ABBA,
+                                                             callable_pos))
             print("{}\t({},{}),{} : {}\t({},{}) : {}".format(chrom, p2, p3, p1,
                                                              t1b, p2, p3, t2b))
             t1dict[chrom].append(t1)
