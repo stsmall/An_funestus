@@ -26,7 +26,7 @@ def vcfformat(geno):
         dp = gt[2]
         gq = gt[1]
         gl = gt[-1].split(",")  # from GL to PL
-        if "./." in gt[0]:
+        if "." in gt[0]:
             gt = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, gt[-1])
         else:
             raw_pl = [-10 * float(i) for i in gl]
@@ -42,7 +42,7 @@ def vcfformat(geno):
 def loadvcf(vcfFile):
     """
     """
-    outstream = open("{}.out".format(vcfFile), 'w')
+    outstream = open("{}.gatk".format(vcfFile), 'w')
     with open(vcfFile, 'r') as vcf:
         for line in vcf:
             if line.startswith("#"):
