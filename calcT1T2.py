@@ -165,30 +165,36 @@ def foil4(vcfdict, quartet):
                         if 2 in iix:
                             n_AABA += 1
                             window[1] = 1
+
                         elif 1 in iix:
                             n_ABAA += 1
                             window[2] = 1
+
                         elif 0 in iix:
                             n_BAAA += 1
                             window[4] = 1
+
                         else:
                             n_BBBA += 1
                             window[7] = 1
+
                     elif count_sum == 2:
                         # two zeros
                         iix = np.where(count[1] == 0)[0]
                         if 0 in iix and 2 in iix:
                             n_BABA += 1
                             window[5] = 1
+
                         elif 0 in iix and 1 in iix:
                             n_BBAA += 1
                             window[6] = 1
+
                         elif 1 in iix and 2 in iix:
                             n_ABBA += 1
                             window[3] = 1
+
                     else:
                         raise ValueError("pattern not recognized")
-                        # import ipdb;ipdb.set_trace()
                 t1t2dict[chrom][int(pos)] = tuple(window)
         if callable_pos > 0:
             # P1 P2 P3 O; BAAA, ABAA, BBAA
@@ -280,21 +286,21 @@ def foil5(vcfdict, quartet):
                             iix = np.where(count[1] == 1)[0]
                         else:
                             iix = np.where(count[1] == 0)[0]
-                            if 0 in iix:
-                                n_BAAAA += 1
-                                window[header.index('BAAAA')] = 1
-                            elif 1 in iix:
-                                n_ABAAA += 1
-                                window[header.index('ABAAA')] = 1
-                            elif 2 in iix:
-                                n_AABAA += 1
-                                window[header.index('AABAA')] = 1
-                            elif 3 in iix:
-                                n_AAABA += 1
-                                window[header.index('AAABA')] = 1
-                            else:
-                                n_BBBBA += 1
-                                window[header.index('BBBBA')] = 1
+                        if 0 in iix:
+                            n_BAAAA += 1
+                            window[header.index('BAAAA')] = 1
+                        elif 1 in iix:
+                            n_ABAAA += 1
+                            window[header.index('ABAAA')] = 1
+                        elif 2 in iix:
+                            n_AABAA += 1
+                            window[header.index('AABAA')] = 1
+                        elif 3 in iix:
+                            n_AAABA += 1
+                            window[header.index('AAABA')] = 1
+                        else:
+                            n_BBBBA += 1
+                            window[header.index('BBBBA')] = 1
                     elif (count_sum == 2) or (count_sum == 3):
                         # AABBA, ABABA, ABBAA, BAABA, BABAA, BBAAA
                         iix = np.where(count[1] == 0)[0]
