@@ -31,7 +31,7 @@ def vcfformat(geno):
         pl = [i - norm_pl for i in raw_pl]
         plstr = map(str, pl)
         gt = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, ",".join(plstr))
-    except TypeError:
+    except ValueError:
         import ipdb;ipdb.set_trace()
     return(gt)
 
