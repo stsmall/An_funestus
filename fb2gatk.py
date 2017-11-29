@@ -19,17 +19,17 @@ def vcfformat(geno):
     GT:GQ:DP:AD:RO:QR:AO:QA:GL 0/1:99:40:19,11:19:622:11:399:-2.8296,0,-24.7889
     GT:AD:DP:GQ:PL 0/0:994,0:994:99:0,120,1800
     """
-    gt = geno.split(":")
-    # transfer is fb format, ref is GATK
-    ad = gt[3]
-    dp = gt[2]
-    gq = gt[1]
-    gl = gt[-1].split(",")  # from GL to PL
-    raw_pl = [-10 * float(i) for i in gl]
-    norm_pl = min(raw_pl)
-    pl = [i - norm_pl for i in raw_pl]
-    plstr = map(str, pl)
     try:
+        gt = geno.split(":")
+        # transfer is fb format, ref is GATK
+        ad = gt[3]
+        dp = gt[2]
+        gq = gt[1]
+        gl = gt[-1].split(",")  # from GL to PL
+        raw_pl = [-10 * float(i) for i in gl]
+        norm_pl = min(raw_pl)
+        pl = [i - norm_pl for i in raw_pl]
+        plstr = map(str, pl)
         gt = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, ",".join(plstr))
     except TypeError:
         import ipdb;ipdb.set_trace()
