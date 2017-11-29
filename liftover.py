@@ -52,7 +52,7 @@ def headerVCF(vcfRef, outStream):
     print("writing header ...")
     with open(vcfRef, 'r') as vcf:
         for line in vcf:
-            if line.startswith('#'):
+            if line.startswith('##'):
                 outStream.write(line)
                 continue
             else:
@@ -88,12 +88,12 @@ def loadVCF(vcfRef, refBed):
     if refBed:
         with open(refBed, 'r') as bed:
             for line in bed:
-                x = line.split()
+                x = line.strip().split()
                 chrom = x[0]
                 pos = x[2]
                 ra = x[3]
                 try:
-                    ra, rr = refdict[chrom][pos]
+                    refdict[chrom][pos]
                 except KeyError:
                     refdict[chrom][pos] = (ra, ".")
     return(refdict)
@@ -200,6 +200,7 @@ def vcfformat(gt, tri=False, invariant=False):
     elif tri:
         pass
         # TODO: triallelic
+        # 0/0, 0/1, 1/1, 0/2, 1/2, 2/2
         # possible error on incorrect number of PL sites
 #        nalts = gt[1].count(",")
 #        if nalts == 2:
@@ -451,6 +452,7 @@ def liftover(vcfFile, transdict, refdict, outStream):
                     x[4] = alt_a
                     outStream.write("{}\n".format("\t".join(x)))
                 except KeyError:
+                    import ipdb; ipdb.set_trace()
                     tx.write("{}\t{}\n".format(transdict[x[0]][x[1]]))
     # t.close()
     tx.close()

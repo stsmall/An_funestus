@@ -17,6 +17,7 @@ args = parser.parse_args()
 def vcfformat(geno):
     """
     GT:GQ:DP:AD:RO:QR:AO:QA:GL 0/1:99:40:19,11:19:622:11:399:-2.8296,0,-24.7889
+
     GT:AD:DP:GQ:PL 0/0:994,0:994:99:0,120,1800
     """
     try:
@@ -29,7 +30,7 @@ def vcfformat(geno):
         if "." in gt[0]:
             gt = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, gt[-1])
         else:
-            raw_pl = [-10 * float(i) for i in gl]
+      q       raw_pl = [-10 * float(i) for i in gl]
             norm_pl = min(raw_pl)
             pl = [int(i - norm_pl) for i in raw_pl]
             plstr = map(str, pl)
@@ -49,12 +50,10 @@ def loadvcf(vcfFile):
                 outstream.write(line)
             else:
                 x = line.strip().split()
-                print("{}".format(x[-1]))
                 for sample in range(9, len(x)):
                     geno = vcfformat(x[sample])
                     x[sample] = geno
                 x[8] = "GT:AD:DP:GQ:PL"
-                print("{}\n".format(x[-1]))
                 outstream.write("{}\n".format("\t".join(x)))
     outstream.close()
     return(None)
