@@ -188,54 +188,56 @@ def calcT1T2(vcfdict, quartet, size, dfoil):
                 callable_pos += 1
                 count = np.where(m == 0)
                 count_sum = sum(count[1])
-                if count_sum == 0 or count_sum == 4:
-                    n_AAAA += 1
-                    window[0] = 1
-                elif count_sum == 1 or count_sum == 3:
-                    if count_sum == 1:
-                        # find the 1
-                        iix = np.where(count[1] == 1)[0]
-                        if 2 in iix:
-                            n_AABA += 1
-                            window[1] = 1
-                        elif 1 in iix:
-                            n_ABAA += 1
-                            window[2] = 1
-                        elif 0 in iix:
-                            n_BAAA += 1
-                            window[4] = 1
-                        else:
-                            n_BBBA += 1
-                            window[7] = 1
-                    elif count_sum == 3:
-                        # find the 0
+                count_len = len(count[1])
+                if count_len == 4:
+                    if (count_sum == 0 or count_sum == 4):
+                        n_AAAA += 1
+                        window[0] = 1
+                    elif (count_sum == 1 or count_sum == 3):
+                        if count_sum == 1:
+                            # find the 1
+                            iix = np.where(count[1] == 1)[0]
+                            if 2 in iix:
+                                n_AABA += 1
+                                window[1] = 1
+                            elif 1 in iix:
+                                n_ABAA += 1
+                                window[2] = 1
+                            elif 0 in iix:
+                                n_BAAA += 1
+                                window[4] = 1
+                            else:
+                                n_BBBA += 1
+                                window[7] = 1
+                        elif count_sum == 3:
+                            # find the 0
+                            iix = np.where(count[1] == 0)[0]
+                            if 2 in iix:
+                                n_AABA += 1
+                                window[1] = 1
+                            elif 1 in iix:
+                                n_ABAA += 1
+                                window[2] = 1
+                            elif 0 in iix:
+                                n_BAAA += 1
+                                window[4] = 1
+                            elif 3 in iix:
+                                n_BBBA += 1
+                                window[7] = 1
+                    elif count_sum == 2:
+                        # two zeros
                         iix = np.where(count[1] == 0)[0]
-                        if 2 in iix:
-                            n_AABA += 1
-                            window[1] = 1
-                        elif 1 in iix:
-                            n_ABAA += 1
-                            window[2] = 1
-                        elif 0 in iix:
-                            n_BAAA += 1
-                            window[4] = 1
-                        elif 3 in iix:
-                            n_BBBA += 1
-                            window[7] = 1
-                elif count_sum == 2:
-                    # two zeros
-                    iix = np.where(count[1] == 0)[0]
-                    if 0 in iix and 2 in iix:
-                        n_BABA += 1
-                        window[5] = 1
-                    elif 0 in iix and 1 in iix:
-                        n_BBAA += 1
-                        window[6] = 1
-                    elif 1 in iix and 2 in iix:
-                        n_ABBA += 1
-                        window[3] = 1
-                else:
-                    import ipdb;ipdb.set_trace()
+                        if 0 in iix and 2 in iix:
+                            n_BABA += 1
+                            window[5] = 1
+                        elif 0 in iix and 1 in iix:
+                            n_BBAA += 1
+                            window[6] = 1
+                        elif 1 in iix and 2 in iix:
+                            n_ABBA += 1
+                            window[3] = 1
+                    else:
+                        import ipdb;ipdb.set_trace()
                 t1t2dict[chrom][int(pos)] = tuple(window)
         print("BAAA:{}\tABAA:{}\tBBAA:{}\tN:{}\n".format(n_BAAA, n_ABAA,
                                                          n_BBAA, callable_pos))
