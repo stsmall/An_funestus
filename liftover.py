@@ -473,7 +473,10 @@ def liftover(vcfFile, transdict, refdict, outStream):
                     x[3] = ref_a
                     x[4] = alt_a
                     x[8] = "GT:AD:DP:GQ:PL"
-                    outStream.write("{}\n".format("\t".join(x)))
+                    try:
+                        outStream.write("{}\n".format("\t".join(x)))
+                    except TypeError:
+                        import ipdb;ipdb.set_trace()
                 except KeyError:
                     tx.write("{}\t{}\n".format(x[0], x[1]))
     # t.close()
