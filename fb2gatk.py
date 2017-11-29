@@ -50,7 +50,7 @@ def loadvcf(vcfFile):
             else:
                 x = line.strip().split()
                 print("{}\n".format(x[-1]))
-                for sample in range(9, len(x) + 1):
+                for sample in range(9, len(x)):
                     geno = vcfformat(x[sample])
                     x[sample] = geno
                 x[8] = "GT:AD:DP:GQ:PL"
