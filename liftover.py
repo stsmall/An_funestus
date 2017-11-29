@@ -452,8 +452,7 @@ def liftover(vcfFile, transdict, refdict, outStream):
                     x[4] = alt_a
                     outStream.write("{}\n".format("\t".join(x)))
                 except KeyError:
-                    import ipdb; ipdb.set_trace()
-                    tx.write("{}\t{}\n".format(transdict[x[0]][x[1]]))
+                    tx.write("{}\t{}\n".format(x[0], x[1]))
     # t.close()
     tx.close()
     print("Mismatch Reference Allele {} times".format(miss))
