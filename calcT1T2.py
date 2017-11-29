@@ -31,6 +31,8 @@ parser.add_argument("--dlm", type=str, default=".",
                     help="delimeter denoting species")
 parser.add_argument("--nodes", action="store_true",
                     help="calculate node heights for a given quartet")
+parser.add_argument("--dfoil", action="store_true",
+                    help="returns table for dfoil")
 args = parser.parse_args()
 
 
@@ -67,9 +69,22 @@ def loadvcf(vcFile, quart, dlm):
     return(qdict)
 
 
-def t1t2slidingwindow(t1t2dict, size):
+def t1t2slidingwindow(t1t2dict, size, dfoil):
     """
     """
+    if dfoil:
+        #    ntaxa = len(taxa)
+        ntaxa = 4
+        if ntaxa is 4:
+            headers = ['AAAA', 'AABA', 'ABAA', 'ABBA',
+                       'BAAA', 'BABA', 'BBAA', 'BBBA']
+        elif ntaxa is 5:
+            headers = ['AAAAA', 'AAABA', 'AABAA', 'AABBA',
+                       'ABAAA', 'ABABA', 'ABBAA', 'ABBBA',
+                       'BAAAA', 'BAABA', 'BABAA', 'BABBA',
+                       'BBAAA', 'BBABA', 'BBBAA', 'BBBBA']
+        d = open("dfoil.tbl", 'w')
+        d.write("#chrom\tposition\t{}\n".format('\t'.join(headers)))
     f = open("t1t2windowed.out", 'w')
     start = 1
     end = size
@@ -91,12 +106,16 @@ def t1t2slidingwindow(t1t2dict, size):
                     f.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(chrom, start,
                                                               end, mid, t1,
                                                               t2))
+                    if dfoil:
+                        d.write()
                     divergence = []
                     start = end
                     end = end + size
                 except IndexError:
                     f.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(chrom, start,
                                                               end, mid, 0, 0))
+                    if dfoil:
+                        d.write()
                     start = end
                     end = end + size
             else:
@@ -105,7 +124,7 @@ def t1t2slidingwindow(t1t2dict, size):
     return(None)
 
 
-def calcT1T2(vcfdict, quartet, size):
+def calcT1T2(vcfdict, quartet, size, dfoil):
     """Calculates the divergence between (1,2) as:
         T2 = (1/N) * ((n_ABAA + n_BAAA) / 2).
       Calculates the divergence between (1,2),3 as:
@@ -129,42 +148,106 @@ def calcT1T2(vcfdict, quartet, size):
     t1dict = defaultdict(list)
     t2dict = defaultdict(list)
     for chrom in vcfdict.keys():
+        n_AAAA = 0  #
+        n_AABA = 0  #
         n_ABAA = 0
+        n_ABBA = 0  #
         n_BAAA = 0
+        n_BABA = 0  #
         n_BBAA = 0
+        n_BBBA = 0  #
         callable_pos = 0
         for pos in vcfdict[chrom].keys():
             m = np.array(vcfdict[chrom][pos])
             if -1 not in m:
-                window = [0, 0, 0]
+                window = [0, 0, 0, 0, 0, 0, 0, 0]
+                # AAAA, AABA, ABAA, ABBA, BAAA, BABA, BBAA, BBBA
                 callable_pos += 1
-                count_anc = np.sum(m, axis=0)[0]
-                count_der = np.sum(m, axis=0)[1]
-                # count_check = np.sum(m, axis=1)
-                if ((m[0, 0] == count_anc) and (m[0, 1] == 0)) or ((m[0, 1] == count_der) and (m[0, 0] == 0)):
-                    n_BAAA += 1
+                count = np.where(m == 0)
+                count_sum = sum(count[1])
+                if count_sum == 0 or count_sum == 4:
+                    n_AAAA += 1
                     window[0] = 1
-                elif ((m[1, 0] == count_anc) and (m[1, 1] == 0)) or ((m[1, 1] == count_der) and (m[1, 0] == 0)):
-                    n_ABAA += 1
-                    window[1] = 1
-                elif ((sum(m[0:2, 0]) == count_anc) and (sum(m[0:2, 1]) == 0)) or ((sum(m[0:2, 1]) == count_der) and (sum(m[0:2, 0]) == 0)):
-                    n_BBAA += 1
-                    window[2] = 1
+                elif count_sum == 1 or count_sum == 3:
+                    if count_sum == 1:
+                        # find the 1
+                        iix = np.where(count[1] == 1)[0]
+                        if 2 in iix:
+                            n_AABA += 1
+                            window[1] = 1
+                        elif 1 in iix:
+                            n_ABAA += 1
+                            window[2] = 1
+                        elif 0 in iix:
+                            n_BAAA += 1
+                            window[4] = 1
+                        else:
+                            n_BBBA += 1
+                            window[7] = 1
+                    elif count_sum == 3:
+                        # find the 0
+                        iix = np.where(count[1] == 0)[0]
+                        if 2 in iix:
+                            n_AABA += 1
+                            window[1] = 1
+                        elif 1 in iix:
+                            n_ABAA += 1
+                            window[2] = 1
+                        elif 0 in iix:
+                            n_BAAA += 1
+                            window[4] = 1
+                        elif 3 in iix:
+                            n_BBBA += 1
+                            window[7] = 1
+                elif count_sum == 2:
+                    # two zeros
+                    iix = np.where(count[1] == 0)[0]
+                    if 0 in iix and 2 in iix:
+                        n_BABA += 1
+                        window[5] = 1
+                    elif 0 in iix and 1 in iix:
+                        n_BBAA += 1
+                        window[6] = 1
+                    elif 1 in iix and 2 in iix:
+                        n_ABBA += 1
+                        window[3] = 1
                 else:
-                    pass
+                    import ipdb;ipdb.set_trace()
                 t1t2dict[chrom][int(pos)] = tuple(window)
         print("BAAA:{}\tABAA:{}\tBBAA:{}\tN:{}\n".format(n_BAAA, n_ABAA,
                                                          n_BBAA, callable_pos))
+        print("AAAA:{}".format(n_AAAA))
+        print("AABA:{}".format(n_AABA))
+        print("ABAA:{}".format(n_ABAA))
+        print("ABBA:{}".format(n_ABBA))
+        print("BAAA:{}".format(n_BAAA))
+        print("BABA:{}".format(n_BABA))
+        print("BBAA:{}".format(n_BBAA))
+        print("BBBA:{}".format(n_BBBA))
+
         if callable_pos > 0:
+            # P1 P2 P3 O; BAAA, ABAA, BBAA
             t2_inner = (n_ABAA + n_BAAA) / 2
             t2 = t2_inner / callable_pos
             t1 = (t2_inner + n_BBAA) / callable_pos
             print("{}\t({},{}),{} : {}\t({},{}) : {}".format(chrom, p1, p2, p3,
                                                              t1, p1, p2, t2))
+            # P1 P3 P2 O; BAAA AABA BABA
+            t2_inner = (n_BAAA + n_AABA) / 2
+            t2a = t2_inner / callable_pos
+            t1a = (t2_inner + n_BABA) / callable_pos
+            print("{}\t({},{}),{} : {}\t({},{}) : {}".format(chrom, p1, p3, p2,
+                                                             t1a, p1, p3, t2a))
+            # P2 P3 P1 O; ABAA AABA ABBA
+            t2_inner = (n_ABAA + n_AABA) / 2
+            t2b = t2_inner / callable_pos
+            t1b = (t2_inner + n_ABBA) / callable_pos
+            print("{}\t({},{}),{} : {}\t({},{}) : {}".format(chrom, p2, p3, p1,
+                                                             t1b, p2, p3, t2b))
             t1dict[chrom].append(t1)
             t2dict[chrom].append(t2)
     if size != 0:
-        t1t2slidingwindow(t1t2dict, size)
+        t1t2slidingwindow(t1t2dict, size, dfoil)
     return(t1dict, t2dict)
 
 
@@ -262,7 +345,8 @@ def nodeHeights(mtreelist, quart):
             nh1.append(t.get_distance(p1, p3))
         for p2, p3 in combinations(P2, P3, 2):
             nh1.append(t.get_distance(p2, p3))
-    print("T1: {}, T2: {}".format(np.mean(np.array(nh1)), np.mean(np.array(nh2))))
+    print("T1: {}, T2: {}".format(np.mean(np.array(nh1)),
+                                  np.mean(np.array(nh2))))
     return(nh1, nh2)
 
 
@@ -295,7 +379,7 @@ if __name__ == "__main__":
     vcfFile = args.vcfFile
     if vcfFile:
         qdict = loadvcf(vcfFile, quart, args.dlm)
-        t1, t2 = calcT1T2(qdict, quart, args.size)
+        t1, t2 = calcT1T2(qdict, quart, args.size, args.dfoil)
     if args.windows:
         winlist, winarray = parseWin(args.windows)
     else:
