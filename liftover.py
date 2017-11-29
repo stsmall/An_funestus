@@ -183,24 +183,37 @@ def vcfformat(gt, formats, tri=False, invariant=False):
     ------
     gt: list, modified list of genotype information
     """
+
+    """
+    GT
+    GT:AD
+    GT:AD:DP
+    GT:AD:DP:GQ:PGT:PID:PL
+    GT:AD:DP:GQ:PL
+    GT:AD:DP:RGQ
+    GT:AD:PGT:PID
+    GT:AD:PGT:PID:RGQ
+    GT:AD:RGQ
+    GT:DP:RGQ
+     """
     formats = formats.split(':')
     if invariant:
         try:
             if 'RGQ' in formats:
                 # GT:AD:DP:RGQ from HaplotypeCaller
-                ad = gt[1]
-                dp = gt[2]
-                gq = gt[3]
+                ad = gt[formats.index('AD')]
+                dp = gt[formats.index('DP')]
+                gq = gt[formats.index('RGQ')]
                 pl = "500,500,0"
             else:
                 # GT:AD:DP from UnifiedGenotyper
-                ad = gt[1]
-                dp = gt[2]
+                ad = gt[formats.index('AD')]
+                dp = gt[formats.index('DP')]
                 gq = '99'
                 pl = "500,500,0"
+            gt = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
         except IndexError:
-            import ipdb;ipdb.set_trace()
-        gt = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
+            gt = "./.:.:.:.:."
     elif tri:
         if 'PGT' in formats or 'PID' in formats:
             ad = gt[formats.index('AD')]
@@ -232,10 +245,10 @@ def vcfformat(gt, formats, tri=False, invariant=False):
             pl = "{},{},{}".format(pl3, pl2, pl1)
         else:
             # GT:AD:DP:GQ:PL
-            ad = gt[1]
-            dp = gt[2]
-            gq = gt[3]
-            pl = gt[-1]
+            ad = gt[formats.index('AD')]
+            dp = gt[formats.index('DP')]
+            gq = gt[formats.index('GQ')]
+            pl = gt[formats.index('PL')]
             # reverse AD
             ad1, ad2 = ad.split(",")
             ad = "{},{}".format(ad2, ad1)
