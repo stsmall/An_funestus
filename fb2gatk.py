@@ -53,6 +53,7 @@ def loadvcf(vcfFile):
                     geno = vcfformat(sample)
                     x[i] = geno
                 x[8] = "GT:AD:DP:GQ:PL"
+                import ipdb;ipdb.set_trace()
                 outstream.write("{}\n".format("\t".join(x)))
     outstream.close()
     return(None)
