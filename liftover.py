@@ -207,6 +207,9 @@ def vcfformat(gt, formats, tri=False, invariant=False):
             dp = gt[formats.index('DP')]
             gq = gt[formats.index('GQ')]
             pl = gt[formats.index('PL')]
+            gt = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
+        else:
+            ":".join(gt)
         # TODO: triallelic
         # 0/0, 0/1, 1/1, 0/2, 1/2, 2/2
         # possible error on incorrect number of PL sites
@@ -215,7 +218,6 @@ def vcfformat(gt, formats, tri=False, invariant=False):
 #            # normal triallelic
 #        elif nalts == 3:
 #            # all 4 bases
-        gt = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
     else:
         if 'PGT' in formats or 'PID' in formats:
             ad = gt[formats.index('AD')]
