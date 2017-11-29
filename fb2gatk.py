@@ -49,12 +49,12 @@ def loadvcf(vcfFile):
                 outstream.write(line)
             else:
                 x = line.strip().split()
-                print("{}\n".format(x[-1]))
+                print("{}".format(x[-1]))
                 for sample in range(9, len(x)):
                     geno = vcfformat(x[sample])
                     x[sample] = geno
                 x[8] = "GT:AD:DP:GQ:PL"
-                print("{}".format(x[-1]))
+                print("{}\n".format(x[-1]))
                 outstream.write("{}\n".format("\t".join(x)))
     outstream.close()
     return(None)
