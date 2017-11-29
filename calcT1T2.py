@@ -64,7 +64,6 @@ def loadvcf(vcFile, quart, dlm):
 def DfoilTble(t1t2dict, size, ntaxa):
     """
     """
-    ntaxa = 4
     if ntaxa is 4:
         headers = ['AAAA', 'AABA', 'ABAA', 'ABBA',
                    'BAAA', 'BABA', 'BBAA', 'BBBA']
@@ -74,29 +73,43 @@ def DfoilTble(t1t2dict, size, ntaxa):
                    'BAAAA', 'BAABA', 'BABAA', 'BABBA',
                    'BBAAA', 'BBABA', 'BBBAA', 'BBBBA']
     d = open("dfoil.tbl", 'w')
-    d.write("#chrom\tstart\tend\tsites\t{}\n".format('\t'.join(headers)))
-    start = 1
-    end = size
-    for chrom in t1t2dict.keys():
-        posdict = OrderedDict(sorted(t1t2dict[chrom].items()))
-        divergence = []
-        for pos in posdict.keys():
-            if pos > end:
-                try:
-                    # AAAA, AABA, ABAA, ABBA, BAAA, BABA, BBAA, BBBA
-                    div = np.array(divergence)
-                    sites = len(divergence)
-                    div_sum = np.sum(div)
-                    d.write("{}\t{}\t{}\t{}\t{}\n".format(chrom, start, end, sites, '\t'.join(div_sum)))
-                    divergence = []
-                    start = end
-                    end = end + size
-                except IndexError:
-                    d.write("{}\t{}\t{}\t{}\t{}\n".format(chrom, start, end, sites, '\t'.join(div_sum)))
-                    start = end
-                    end = end + size
-            else:
+    if size == 0:
+        d.write("#chrom\tsites\t{}\n".format('\t'.join(headers)))
+        for chrom in t1t2dict.keys():
+            posdict = OrderedDict(sorted(t1t2dict[chrom].items()))
+            divergence = []
+            for pos in posdict.keys():
                 divergence.append(posdict[pos])
+            div = np.array(divergence)
+            sites = len(divergence)
+            div_sum = np.sum(div, axis=0)
+            divstr = map(str, div_sum)
+            d.write("{}\t{}\t{}\n".format(chrom, sites, '\t'.join(divstr)))
+    else:
+        d.write("#chrom\tstart\tend\tsites\t{}\n".format('\t'.join(headers)))
+        start = 1
+        end = size
+        for chrom in t1t2dict.keys():
+            posdict = OrderedDict(sorted(t1t2dict[chrom].items()))
+            divergence = []
+            for pos in posdict.keys():
+                if pos > end:
+                    try:
+                        # AAAA, AABA, ABAA, ABBA, BAAA, BABA, BBAA, BBBA
+                        div = np.array(divergence)
+                        sites = len(divergence)
+                        div_sum = np.sum(div, axis=0)
+                        divstr = map(str, div_sum)
+                        d.write("{}\t{}\t{}\t{}\t{}\n".format(chrom, start, end, sites, '\t'.join(divstr)))
+                        divergence = []
+                        start = end
+                        end = end + size
+                    except IndexError:
+                        d.write("{}\t{}\t{}\t{}\t{}0\n".format(chrom, start, end, sites, '0\t'*15))
+                        start = end
+                        end = end + size
+                else:
+                    divergence.append(posdict[pos])
     d.close
     return(None)
 
@@ -111,12 +124,10 @@ def foil4(vcfdict, quartet):
     ------
     vcfdict: dict, obj from loadvcf
     quartet: list, list of groups
-    size: int, sliding window size
 
     Returns
     ------
-    t1dict: dict, chrom : pos : t1
-    t2dict: dict, chrom : pos : t2
+    t1t2dict: dict, chrom : pos : (counts)
 
     """
     print("calculating divergence times for quartet: {}...".format(quartet))
@@ -149,33 +160,20 @@ def foil4(vcfdict, quartet):
                         if count_sum == 1:
                             # find the 1
                             iix = np.where(count[1] == 1)[0]
-                            if 2 in iix:
-                                n_AABA += 1
-                                window[1] = 1
-                            elif 1 in iix:
-                                n_ABAA += 1
-                                window[2] = 1
-                            elif 0 in iix:
-                                n_BAAA += 1
-                                window[4] = 1
-                            else:
-                                n_BBBA += 1
-                                window[7] = 1
-                        elif count_sum == 3:
-                            # find the 0
+                        else:
                             iix = np.where(count[1] == 0)[0]
-                            if 2 in iix:
-                                n_AABA += 1
-                                window[1] = 1
-                            elif 1 in iix:
-                                n_ABAA += 1
-                                window[2] = 1
-                            elif 0 in iix:
-                                n_BAAA += 1
-                                window[4] = 1
-                            elif 3 in iix:
-                                n_BBBA += 1
-                                window[7] = 1
+                        if 2 in iix:
+                            n_AABA += 1
+                            window[1] = 1
+                        elif 1 in iix:
+                            n_ABAA += 1
+                            window[2] = 1
+                        elif 0 in iix:
+                            n_BAAA += 1
+                            window[4] = 1
+                        else:
+                            n_BBBA += 1
+                            window[7] = 1
                     elif count_sum == 2:
                         # two zeros
                         iix = np.where(count[1] == 0)[0]
@@ -226,106 +224,115 @@ def foil4(vcfdict, quartet):
     return(t1t2dict)
 
 
-def foil5(vcfdict, quartet, size, dfoil):
-    """Calculates the divergence between (1,2) as:
-        T2 = (1/N) * ((n_ABAA + n_BAAA) / 2).
-      Calculates the divergence between (1,2),3 as:
-        T1 = (1/N) * (T2 + n_BBAA)
+def foil5(vcfdict, quartet):
+    """Count pattern in VCF for DFOIL
 
     Parameters
     ------
     vcfdict: dict, obj from loadvcf
     quartet: list, list of groups
-    size: int, sliding window size
 
     Returns
     ------
-    t1dict: dict, chrom : pos : t1
-    t2dict: dict, chrom : pos : t2
+    t1t2dict: dict, chrom : pos : (counts)
 
     """
     print("calculating divergence times for quartet: {}...".format(quartet))
-    p1, p2, p3, p4 = quartet
     t1t2dict = defaultdict(dict)
     for chrom in vcfdict.keys():
-        n_AAAA = 0  #
-        n_AABA = 0  #
-        n_ABAA = 0
-        n_ABBA = 0  #
-        n_BAAA = 0
-        n_BABA = 0  #
-        n_BBAA = 0
-        n_BBBA = 0  #
+        n_AAAAA = 0
+        n_AAABA = 0
+        n_AABAA = 0
+        n_AABBA = 0
+        n_ABAAA = 0
+        n_ABABA = 0
+        n_ABBAA = 0
+        n_ABBBA = 0
+        n_BAAAA = 0
+        n_BAABA = 0
+        n_BABAA = 0
+        n_BABBA = 0
+        n_BBAAA = 0
+        n_BBABA = 0
+        n_BBBAA = 0
+        n_BBBBA = 0
         callable_pos = 0
         for pos in vcfdict[chrom].keys():
             m = np.array(vcfdict[chrom][pos])
             if -1 not in m:
-                window = [0, 0, 0, 0, 0, 0, 0, 0]
-                # AAAA, AABA, ABAA, ABBA, BAAA, BABA, BBAA, BBBA
+                window = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                 callable_pos += 1
                 count = np.where(m == 0)
                 count_sum = sum(count[1])
                 count_len = len(count[1])
-                if count_len == 4:
-                    if (count_sum == 0 or count_sum == 4):
-                        n_AAAA += 1
-                        window[0] = 1
-                    elif (count_sum == 1 or count_sum == 3):
+                header = ['AAAAA', 'AAABA', 'AABAA', 'AABBA',
+                          'ABAAA', 'ABABA', 'ABBAA', 'ABBBA',
+                          'BAAAA', 'BAABA', 'BABAA', 'BABBA',
+                          'BBAAA', 'BBABA', 'BBBAA', 'BBBBA']
+                if count_len == 5:
+                    if (count_sum == 0 or count_sum == 5):
+                        # 'AAAAA'
+                        n_AAAAA += 1
+                        window[header.index('AAAAA')] = 1
+                    elif (count_sum == 1 or count_sum == 4):
+                        # AAABA, AABAA, ABAAA, BAAAA, BBBBA
                         if count_sum == 1:
-                            # find the 1
                             iix = np.where(count[1] == 1)[0]
-                            if 2 in iix:
-                                n_AABA += 1
-                                window[1] = 1
-                            elif 1 in iix:
-                                n_ABAA += 1
-                                window[2] = 1
-                            elif 0 in iix:
-                                n_BAAA += 1
-                                window[4] = 1
-                            else:
-                                n_BBBA += 1
-                                window[7] = 1
-                        elif count_sum == 3:
-                            # find the 0
+                        else:
                             iix = np.where(count[1] == 0)[0]
-                            if 2 in iix:
-                                n_AABA += 1
-                                window[1] = 1
+                            if 0 in iix:
+                                n_BAAAA += 1
+                                window[header.index('BAAAA')] = 1
                             elif 1 in iix:
-                                n_ABAA += 1
-                                window[2] = 1
-                            elif 0 in iix:
-                                n_BAAA += 1
-                                window[4] = 1
+                                n_ABAAA += 1
+                                window[header.index('ABAAA')] = 1
+                            elif 2 in iix:
+                                n_AABAA += 1
+                                window[header.index('AABAA')] = 1
                             elif 3 in iix:
-                                n_BBBA += 1
-                                window[7] = 1
-                    elif count_sum == 2:
-                        # two zeros
+                                n_AAABA += 1
+                                window[header.index('AAABA')] = 1
+                            else:
+                                n_BBBBA += 1
+                                window[header.index('BBBBA')] = 1
+                    elif (count_sum == 2) or (count_sum == 3):
+                        # AABBA, ABABA, ABBAA, BAABA, BABAA, BBAAA
                         iix = np.where(count[1] == 0)[0]
-                        if 0 in iix and 2 in iix:
-                            n_BABA += 1
-                            window[5] = 1
-                        elif 0 in iix and 1 in iix:
-                            n_BBAA += 1
-                            window[6] = 1
+                        if 1 in iix and 2 in iix and 3 in iix:
+                            n_ABBBA += 1
+                            window[header.index('ABBBA')] = 1
+                        elif 0 in iix and 2 in iix and 3 in iix:
+                            n_BABBA += 1
+                            window[header.index('BABBA')] = 1
+                        elif 0 in iix and 1 in iix and 3 in iix:
+                            n_BBABA += 1
+                            window[header.index('BBABA')] = 1
+                        elif 0 in iix and 1 in iix and 2 in iix:
+                            n_BBBAA += 1
+                            window[header.index('BBBAA')] = 1
+                        elif 2 in iix and 3 in iix:
+                            n_AABBA += 1
+                            window[header.index('AABBA')] = 1
+                        elif 1 in iix and 3 in iix:
+                            n_ABABA += 1
+                            window[header.index('ABABA')] = 1
                         elif 1 in iix and 2 in iix:
-                            n_ABBA += 1
-                            window[3] = 1
+                            n_ABBAA += 1
+                            window[header.index('ABBAA')] = 1
+                        elif 0 in iix and 3 in iix:
+                            n_BAABA += 1
+                            window[header.index('BAABA')] = 1
+                        elif 0 in iix and 2 in iix:
+                            n_BABAA += 1
+                            window[header.index('BABAA')] = 1
+                        elif 0 in iix and 1 in iix:
+                            n_BBAAA += 1
+                            window[header.index('BBAAA')] = 1
+                        else:
+                            import ipdb; ipdb.set_trace()
                     else:
                         raise ValueError("pattern not recognized")
-                        # import ipdb;ipdb.set_trace()
                 t1t2dict[chrom][int(pos)] = tuple(window)
-
-#        print("AAAA:{}".format(n_AAAA))
-#        print("AABA:{}".format(n_AABA))
-#        print("ABAA:{}".format(n_ABAA))
-#        print("ABBA:{}".format(n_ABBA))
-#        print("BAAA:{}".format(n_BAAA))
-#        print("BABA:{}".format(n_BABA))
-#        print("BBAA:{}".format(n_BBAA))
-#        print("BBBA:{}".format(n_BBBA))
     return(t1t2dict)
 
 
@@ -335,6 +342,8 @@ if __name__ == "__main__":
     qdict = loadvcf(vcfFile, quart, args.dlm)
     if len(quart) == 5:
         t1t2dict = foil5(qdict, quart)
-    else:
+    elif len(quart) == 4:
         t1t2dict = foil4(qdict, quart)
+    else:
+        raise ValueError("quartet must be 4 or 5 taxa")
     DfoilTble(t1t2dict, args.size, len(quart))
