@@ -202,7 +202,11 @@ def vcfformat(gt, formats, tri=False, invariant=False):
             import ipdb;ipdb.set_trace()
         gt = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
     elif tri:
-        pass
+        if 'PGT' in formats or 'PID' in formats:
+            ad = gt[formats.index('AD')]
+            dp = gt[formats.index('DP')]
+            gq = gt[formats.index('GQ')]
+            pl = gt[formats.index('PL')]
         # TODO: triallelic
         # 0/0, 0/1, 1/1, 0/2, 1/2, 2/2
         # possible error on incorrect number of PL sites
@@ -211,7 +215,7 @@ def vcfformat(gt, formats, tri=False, invariant=False):
 #            # normal triallelic
 #        elif nalts == 3:
 #            # all 4 bases
-        gt = ":".join(gt)
+        gt = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
     else:
         if 'PGT' in formats or 'PID' in formats:
             ad = gt[formats.index('AD')]
