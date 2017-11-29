@@ -212,7 +212,7 @@ def vcfformat(gt, formats, tri=False, invariant=False):
                 gq = '99'
                 pl = "500,500,0"
             gt = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
-        except IndexError:
+        except ValueError:
             gt = "./.:.:.:.:."
     elif tri:
         if 'PGT' in formats or 'PID' in formats:
