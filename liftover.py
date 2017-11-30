@@ -183,19 +183,6 @@ def vcfformat(gt, formats, tri=False, invariant=False):
     ------
     gt: list, modified list of genotype information
     """
-
-    """
-    GT
-    GT:AD
-    GT:AD:DP
-    GT:AD:DP:GQ:PGT:PID:PL
-    GT:AD:DP:GQ:PL
-    GT:AD:DP:RGQ
-    GT:AD:PGT:PID
-    GT:AD:PGT:PID:RGQ
-    GT:AD:RGQ
-    GT:DP:RGQ
-     """
     formats = formats.split(':')
     if invariant:
         try:
@@ -224,14 +211,11 @@ def vcfformat(gt, formats, tri=False, invariant=False):
                 gt = ".:.:.:.:."
     elif tri:
         try:
-            if 'PGT' in formats or 'PID' in formats:
-                ad = gt[formats.index('AD')]
-                dp = gt[formats.index('DP')]
-                gq = gt[formats.index('GQ')]
-                pl = gt[formats.index('PL')]
-                gt = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
-            else:
-                gt = ":".join(gt)
+            ad = gt[formats.index('AD')]
+            dp = gt[formats.index('DP')]
+            gq = gt[formats.index('GQ')]
+            pl = gt[formats.index('PL')]
+            gt = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
             # TODO: triallelic
             # 0/0, 0/1, 1/1, 0/2, 1/2, 2/2
             # possible error on incorrect number of PL sites
@@ -242,37 +226,24 @@ def vcfformat(gt, formats, tri=False, invariant=False):
     #            # all 4 bases
         except ValueError:
             print("{}:{}".format(formats, gt))
-            gt = "./.:.:.:.:."
+            gt = ".:.:.:.:."
     else:
         try:
-            if 'PGT' in formats or 'PID' in formats:
-                ad = gt[formats.index('AD')]
-                dp = gt[formats.index('DP')]
-                gq = gt[formats.index('GQ')]
-                pl = gt[formats.index('PL')]
-                # reverse AD
-                ad1, ad2 = ad.split(",")
-                ad = "{},{}".format(ad2, ad1)
-                # reverse PL
-                pl1, pl2, pl3 = pl.split(",")
-                pl = "{},{},{}".format(pl3, pl2, pl1)
-            else:
-                # GT:AD:DP:GQ:PL
-                ad = gt[formats.index('AD')]
-                dp = gt[formats.index('DP')]
-                gq = gt[formats.index('GQ')]
-                pl = gt[formats.index('PL')]
-                # reverse AD
-                ad1, ad2 = ad.split(",")
-                ad = "{},{}".format(ad2, ad1)
-                # reverse PL
-                pl1, pl2, pl3 = pl.split(",")
-                pl = "{},{},{}".format(pl3, pl2, pl1)
-        # rebuild genotype
+            # GT:AD:DP:GQ:PL
+            ad = gt[formats.index('AD')]
+            dp = gt[formats.index('DP')]
+            gq = gt[formats.index('GQ')]
+            pl = gt[formats.index('PL')]
+            # reverse AD
+            ad1, ad2 = ad.split(",")
+            ad = "{},{}".format(ad2, ad1)
+            # reverse PL
+            pl1, pl2, pl3 = pl.split(",")
+            pl = "{},{},{}".format(pl3, pl2, pl1)
             gt = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
         except ValueError:
             print("{}:{}".format(formats, gt))
-            gt = "./.:.:.:.:."
+            gt = ".:.:.:.:."
     return(gt)
 
 
