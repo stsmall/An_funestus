@@ -25,12 +25,12 @@ def vcfformat(geno):
         # transfer is fb format, ref is GATK
         ad = gt[3]
         dp = gt[2]
-        gq = gt[1]
+        gq = int(float(gt[1]))
         gl = gt[-1].split(",")  # from GL to PL
         if "." in gt[0]:
             gt = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, gt[-1])
         else:
-      q       raw_pl = [-10 * float(i) for i in gl]
+            raw_pl = [-10 * float(i) for i in gl]
             norm_pl = min(raw_pl)
             pl = [int(i - norm_pl) for i in raw_pl]
             plstr = map(str, pl)
