@@ -517,7 +517,7 @@ def liftover(vcfFile, transdict, refdict, outStream):
                     x[8] = "GT:AD:DP:GQ:PL"
                     try:
                         if alt_a != "*":
-                        outStream.write("{}\n".format("\t".join(x)))
+                            outStream.write("{}\n".format("\t".join(x)))
                     except TypeError:
                         import ipdb;ipdb.set_trace()
                 except KeyError:
