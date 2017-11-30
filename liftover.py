@@ -500,25 +500,35 @@ def liftover(vcfFile, transdict, refdict, outStream):
                         x, alt_a = reorientGT(x, ref_a, alt_a)
                         # t.write("AFTER\t{}\t{}\t{}\n".format(ref_a, alt_a, x))
                     elif "." in x[4]:
+                        formats = x[8]
                         for i, sample in enumerate(x[9:]):
                             gt = sample.split(":")
-                            if 'RQG' in x[8]:
+                            if 'RQG' in formats:
                                 # GT:AD:DP:RQG from HaplotypeCaller
-                                ad = gt[1]
-                                dp = gt[2]
-                                gq = gt[3]
+                                ad = gt[formats.index('AD')]
+                                dp = gt[formats.index('DP')]
+                                gq = gt[formats.index('RGQ')]
                                 pl = "0,500,500"
                             else:
                                 # GT:AD:DP from UnifiedGenotyper
-                                ad = gt[1]
-                                dp = gt[2]
+                                ad = gt[formats.index('AD')]
+                                dp = gt[formats.index('DP')]
                                 gq = '99'
                                 pl = "0,500,500"
-                            geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq,
-                                                           pl)
+                            geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
                             x[i + 9] = geno
-                    x[0] = newchrom
-                    x[1] = newpos
+                    else:
+                        formats = x[8]
+                        for i, sample in enumerate(x[9:]):
+                            gt = sample.split(":")
+                            ad = gt[formats.index('AD')]
+                            dp = gt[formats.index('DP')]
+                            gq = gt[formats.index('GQ')]
+                            pl = gt[formats.index('PL')]
+                            geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
+                            x[i + 9] = geno
+#                    x[0] = newchrom
+#                    x[1] = newpos
                     x[3] = ref_a
                     x[4] = alt_a
                     x[8] = "GT:AD:DP:GQ:PL"
