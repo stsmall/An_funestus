@@ -263,7 +263,10 @@ def vcfformat(gt, formats, tri=False, invariant=False):
                     plt = "{},{}".format(pl1, pl2)
             else:
                 print(gt)
-            gt = "{}:{}:{}:{}:{}".format(gt[0], adt, dp, gq, plt)
+            try:
+                gt = "{}:{}:{}:{}:{}".format(gt[0], adt, dp, gq, plt)
+            except UnboundLocalError:
+                gt = ".:.:.:.:."
         except ValueError:
             print("{}:{}".format(formats, gt))
             gt = ".:.:.:.:."
