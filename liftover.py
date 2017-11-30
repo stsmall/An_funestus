@@ -215,15 +215,55 @@ def vcfformat(gt, formats, tri=False, invariant=False):
             dp = gt[formats.index('DP')]
             gq = gt[formats.index('GQ')]
             pl = gt[formats.index('PL')]
-            gt = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
             # TODO: triallelic
             # 0/0, 0/1, 1/1, 0/2, 1/2, 2/2
             # possible error on incorrect number of PL sites
-    #        nalts = gt[1].count(",")
-    #        if nalts == 2:
-    #            # normal triallelic
-    #        elif nalts == 3:
-    #            # all 4 bases
+            nalts = ad.count(",")  # expect 1, if 2 then tri
+            if nalts == 1:
+                ad1, ad2 = ad.split(",")
+                ad = "{},{}".format(ad2, ad1)
+                pl1, pl2, pl3 = pl.split(",")
+                pl = "{},{},{}".format(pl3, pl2, pl1)
+                # build triallelic
+                if "0/0" in gt[0]:
+                    adt = "{},0".format(ad)
+                    plt = "{},500,500,500".format(pl)
+                elif "0/1" in gt[0]:
+                    adt = "{},0".format(ad)
+                    plt = "{},500,500,500".format(pl)
+                elif "0/2" in gt[0]:
+                    adt = "{},{},{}".format(ad2, 0, ad1)
+                    plt = "500,500,500,{}".format(pl)
+                elif "1/2" in gt[0]:
+                    adt = "{},{},{}".format(0, ad1, ad2)
+                    plt = "500,500,500,{}".format(pl)
+                elif "2/2" in gt[0]:
+                    adt = "{},{},{}".format(0, 0, ad1)
+                    plt = "500,500,500,{}".format(pl)
+            elif nalts == 2:
+                # rearrage triallelic
+                ad1, ad2, ad3 = ad.split(",")
+                pl1, pl2, pl3, pl4, pl5, pl6 = pl.split(",")
+                pl1 = "{},{},{}".format(pl3, pl2, pl1)
+                pl2 = "{},{},{}".format(pl6, pl5, pl4)
+                if "0/0" in gt[0]:
+                    adt = "{}".format(ad2, ad1, ad3)
+                    plt = "{},{}".format(pl1, pl2)
+                elif "0/1" in gt[0]:
+                    adt = "{}".format(ad2, ad1, ad3)
+                    plt = "{},{}".format(pl1, pl2)
+                elif "0/2" in gt[0]:
+                    adt = "{}".format(ad2, ad1, ad3)
+                    plt = "{},{}".format(pl1, pl2)
+                elif "1/2" in gt[0]:
+                    adt = "{}".format(ad2, ad1, ad3)
+                    plt = "{},{}".format(pl1, pl2)
+                elif "2/2" in gt[0]:
+                    adt = "{}".format(ad2, ad1, ad3)
+                    plt = "{},{}".format(pl1, pl2)
+            else:
+                print(gt)
+            gt = "{}:{}:{}:{}:{}".format(gt[0], adt, dp, gq, plt)
         except ValueError:
             print("{}:{}".format(formats, gt))
             gt = ".:.:.:.:."
@@ -434,7 +474,9 @@ def liftover(vcfFile, transdict, refdict, outStream):
     # t = open("nonmatchingref.out", 'w')
     with open(vcfFile, 'r') as vcf:
         for line in vcf:
-            if not line.startswith("#"):
+            if line.startswith("#CHROM"):
+                outStream.write(line)
+            elif not line.startswith("#"):
                 x = line.strip().split()
                 chrom = x[0]
                 pos = x[1]
@@ -474,6 +516,7 @@ def liftover(vcfFile, transdict, refdict, outStream):
                     x[4] = alt_a
                     x[8] = "GT:AD:DP:GQ:PL"
                     try:
+                        if alt_a != "*":
                         outStream.write("{}\n".format("\t".join(x)))
                     except TypeError:
                         import ipdb;ipdb.set_trace()
