@@ -15,6 +15,9 @@ python liftover.py -v FOO.vcf -o FOO.vcf.new -t FOO.coordinate
      bedtools getfasta -fi FASTA -bed pos.bed -tab -bedOut > FOO.bed
      # getfasta seems to return the wrong seq if it is not 50,80,100 line char
 6) optional: convert freebayes format to gatk format using fb2gatk.py
+7) run liftover.py
+
+*filter vcf for before, remove '*' and indels, vcfstreamsort before merge
 print fx.__doc__
 @author: stsmall
 """

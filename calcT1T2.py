@@ -268,16 +268,13 @@ def foil5(vcfdict, quartet):
                 count_len = len(count[1])  # 4 zeros
                 if count_len == 5:
                     if m[4, 1] != 0:
-                        if (count_sum == 0 or count_sum == 5):
+                        if count_sum == 0:
                             # 'AAAAA'
                             n_AAAAA += 1
                             window[header.index('AAAAA')] = 1
-                        elif (count_sum == 1 or count_sum == 4):
+                        elif count_sum == 1:
                             # AAABA, AABAA, ABAAA, BAAAA, BBBBA
-                            if count_sum == 1:
-                                iix = np.where(count[1] == 1)[0]
-                            else:
-                                iix = np.where(count[1] == 0)[0]
+                            iix = np.where(count[1] == 1)[0]
                             if 0 in iix:
                                 n_BAAAA += 1
                                 window[header.index('BAAAA')] = 1
@@ -290,25 +287,10 @@ def foil5(vcfdict, quartet):
                             elif 3 in iix:
                                 n_AAABA += 1
                                 window[header.index('AAABA')] = 1
-                            else:
-                                n_BBBBA += 1
-                                window[header.index('BBBBA')] = 1
-                        elif (count_sum == 2) or (count_sum == 3):
+                        elif count_sum == 2:
                             # AABBA, ABABA, ABBAA, BAABA, BABAA, BBAAA
-                            iix = np.where(count[1] == 0)[0]
-                            if 1 in iix and 2 in iix and 3 in iix:
-                                n_ABBBA += 1
-                                window[header.index('ABBBA')] = 1
-                            elif 0 in iix and 2 in iix and 3 in iix:
-                                n_BABBA += 1
-                                window[header.index('BABBA')] = 1
-                            elif 0 in iix and 1 in iix and 3 in iix:
-                                n_BBABA += 1
-                                window[header.index('BBABA')] = 1
-                            elif 0 in iix and 1 in iix and 2 in iix:
-                                n_BBBAA += 1
-                                window[header.index('BBBAA')] = 1
-                            elif 2 in iix and 3 in iix:
+                            iix = np.where(count[1] == 1)[0]
+                            if 2 in iix and 3 in iix:
                                 n_AABBA += 1
                                 window[header.index('AABBA')] = 1
                             elif 1 in iix and 3 in iix:
@@ -326,8 +308,24 @@ def foil5(vcfdict, quartet):
                             elif 0 in iix and 1 in iix:
                                 n_BBAAA += 1
                                 window[header.index('BBAAA')] = 1
-                            else:
-                                import ipdb; ipdb.set_trace()
+                        elif count_sum == 3:
+                            # ABBBA, BABBA, BBABA, BBBAA
+                            iix = np.where(count[1] == 1)[0]
+                            if 1 in iix and 2 in iix and 3 in iix:
+                                n_ABBBA += 1
+                                window[header.index('ABBBA')] = 1
+                            elif 0 in iix and 2 in iix and 3 in iix:
+                                n_BABBA += 1
+                                window[header.index('BABBA')] = 1
+                            elif 0 in iix and 1 in iix and 3 in iix:
+                                n_BBABA += 1
+                                window[header.index('BBABA')] = 1
+                            elif 0 in iix and 1 in iix and 2 in iix:
+                                n_BBBAA += 1
+                                window[header.index('BBBAA')] = 1
+                        elif count_sum == 4:
+                            n_BBBBA += 1
+                            window[header.index('BBBBA')] = 1
                         else:
                             raise ValueError("pattern not recognized")
                         t1t2dict[chrom][int(pos)] = tuple(window)
