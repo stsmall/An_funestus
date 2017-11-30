@@ -511,6 +511,7 @@ def liftover(vcfFile, transdict, refdict, outStream):
                             geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq,
                                                            pl)
                             x[i + 9] = geno
+                    x[0] = newchrom
                     x[1] = newpos
                     x[3] = ref_a
                     x[4] = alt_a
