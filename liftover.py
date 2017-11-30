@@ -188,30 +188,11 @@ def vcfformat(gt, formats, tri=False, invariant=False):
     """
     formats = formats.split(':')
     if invariant:
-        try:
-            if 'RGQ' in formats:
-                # GT:AD:DP:RGQ from HaplotypeCaller
-                ad = gt[formats.index('AD')]
-                dp = gt[formats.index('DP')]
-                gq = gt[formats.index('RGQ')]
-                pl = "500,500,0"
-            else:
-                # GT:AD:DP from UnifiedGenotyper
-                ad = gt[formats.index('AD')]
-                dp = gt[formats.index('DP')]
-                gq = '99'
-                pl = "500,500,0"
-            gt = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
-        except ValueError:
-            if 'AD' not in formats:
-                dp = gt[formats.index('DP')]
-                ad = "{},0".format(dp)
-                gq = gt[formats.index('RGQ')]
-                pl = "500,500,0"
-                gt = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
-            else:
-                print(formats)
-                gt = ".:.:.:.:."
+        ad = gt[formats.index('AD')]
+        dp = gt[formats.index('DP')]
+        gq = gt[formats.index('GQ')]
+        pl = gt[formats.index('PL')]
+        gt = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
     elif tri:
         try:
             ad = gt[formats.index('AD')]
@@ -474,10 +455,8 @@ def liftover(vcfFile, transdict, refdict, outStream):
     outStream: file, completed file
 
     """
-    miss = 0
     print("executing liftover ...")
     tx = open("UnalignedCarryOver.bed", 'w')
-    # t = open("nonmatchingref.out", 'w')
     with open(vcfFile, 'r') as vcf:
         for line in vcf:
             if line.startswith("#CHROM"):
@@ -490,58 +469,18 @@ def liftover(vcfFile, transdict, refdict, outStream):
                     newchrom, newpos, orient = transdict[chrom][pos]
                     ref_a, alt_a = refdict[newchrom][newpos]
                     if orient == "-":
-                        # print("Before: {} -- {}".format(ra, ref_a))
                         x[3] = reverseComplement(x[3])
                         x[4] = reverseComplement(x[4])
-                        # print("After: {} -- {}".format(ra, ref_a))
                     if x[3] != ref_a:
-                        # t.write("BEFORE\t{}\t{}\t{}\n".format(ref_a, alt_a, x))
-                        miss += 1
                         x, alt_a = reorientGT(x, ref_a, alt_a)
-                        # t.write("AFTER\t{}\t{}\t{}\n".format(ref_a, alt_a, x))
-                    elif "." in x[4]:
-                        formats = x[8]
-                        for i, sample in enumerate(x[9:]):
-                            gt = sample.split(":")
-                            if 'RQG' in formats:
-                                # GT:AD:DP:RQG from HaplotypeCaller
-                                ad = gt[formats.index('AD')]
-                                dp = gt[formats.index('DP')]
-                                gq = gt[formats.index('RGQ')]
-                                pl = "0,500,500"
-                            else:
-                                # GT:AD:DP from UnifiedGenotyper
-                                ad = gt[formats.index('AD')]
-                                dp = gt[formats.index('DP')]
-                                gq = '99'
-                                pl = "0,500,500"
-                            geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
-                            x[i + 9] = geno
-                    else:
-                        formats = x[8]
-                        for i, sample in enumerate(x[9:]):
-                            gt = sample.split(":")
-                            ad = gt[formats.index('AD')]
-                            dp = gt[formats.index('DP')]
-                            gq = gt[formats.index('GQ')]
-                            pl = gt[formats.index('PL')]
-                            geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
-                            x[i + 9] = geno
-#                    x[0] = newchrom
-#                    x[1] = newpos
+                    x[0] = newchrom
+                    x[1] = newpos
                     x[3] = ref_a
                     x[4] = alt_a
-                    x[8] = "GT:AD:DP:GQ:PL"
-                    try:
-                        if alt_a != "*":
-                            outStream.write("{}\n".format("\t".join(x)))
-                    except TypeError:
-                        import ipdb;ipdb.set_trace()
                 except KeyError:
+                    import ipdb;ipdb.set_trace()
                     tx.write("{}\t{}\n".format(x[0], x[1]))
-    # t.close()
     tx.close()
-    print("Mismatch Reference Allele {} times".format(miss))
     return(outStream)
 
 
