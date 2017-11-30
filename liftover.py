@@ -213,8 +213,15 @@ def vcfformat(gt, formats, tri=False, invariant=False):
                 pl = "500,500,0"
             gt = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
         except ValueError:
-            print("{}:{}".format(formats, gt))
-            gt = "./.:.:.:.:."
+            if 'AD' not in formats:
+                ad = "{},0".format(dp)
+                dp = gt[formats.index('DP')]
+                gq = gt[formats.index('RGQ')]
+                pl = "500,500,0"
+                gt = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
+            else:
+                print(formats)
+                gt = ".:.:.:.:."
     elif tri:
         try:
             if 'PGT' in formats or 'PID' in formats:
