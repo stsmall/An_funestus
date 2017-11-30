@@ -214,8 +214,8 @@ def vcfformat(gt, formats, tri=False, invariant=False):
             gt = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
         except ValueError:
             if 'AD' not in formats:
-                ad = "{},0".format(dp)
                 dp = gt[formats.index('DP')]
+                ad = "{},0".format(dp)
                 gq = gt[formats.index('RGQ')]
                 pl = "500,500,0"
                 gt = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
