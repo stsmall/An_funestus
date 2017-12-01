@@ -23,8 +23,6 @@ parser.add_argument('-s', "--size", type=int, default=0,
                     help="size of window for T1, T2 calculations")
 parser.add_argument("--dlm", type=str, default=".",
                     help="delimeter denoting species")
-parser.add_argument("--dfoil", action="store_true",
-                    help="returns table for dfoil")
 args = parser.parse_args()
 
 
@@ -59,6 +57,13 @@ def loadvcf(vcFile, quart, dlm):
                     count_list.append([alt, ref])
                 qdict[chrom][pos] = (count_list)
     return(qdict)
+
+
+def blockSE(t1t2dict, size):
+    """
+    """
+    # bin t1t2dict.keys() into size
+    return(None)
 
 
 def DfoilTble(t1t2dict, size, ntaxa):
