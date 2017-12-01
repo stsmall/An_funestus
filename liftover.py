@@ -201,7 +201,7 @@ def reorientGT(x, ref_a, alt_a):
             dp = gt[formats.index('DP')]
             gq = gt[formats.index('GQ')]
             pl = gt[formats.index('PL')]
-            geno = "{}:0,{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
+            geno = "{}:0,{}:{}:{}:500,500,{}".format(gt[0], ad, dp, gq, pl)
             x[i + 9] = geno
         x[4] = x[3]
     elif x[3] in alt_a:
@@ -336,7 +336,7 @@ def reorientGT_TRI(x, ref_a, alt_a):
             dp = gt[formats.index('DP')]
             gq = gt[formats.index('GQ')]
             pl = gt[formats.index('PL')]
-            geno = "{}:0,{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
+            geno = "{}:0,{}:{}:{}:500,500,{}".format(gt[0], ad, dp, gq, pl)
             x[i + 9] = geno
         x[4] = x[3]
     elif x[3] in alt_a:
