@@ -206,78 +206,68 @@ def reorientGT(x, ref_a, alt_a):
         x[4] = x[3]
     elif x[3] in alt_a:
         if ref_a in x[4]:
-            if "," in x[4]:
-                x[4] = "NA"
-            else:
-                for i, sample in enumerate(x[9:]):
-                    gt = sample.split(":")
-                    if "0/0" in gt[0]:
-                        gt[0] = '1/1'
-                    elif "1/1" in gt[0]:
-                        gt[0] = '0/0'
-                    # fix formating
-                    ad = gt[formats.index('AD')]
-                    dp = gt[formats.index('DP')]
-                    gq = gt[formats.index('GQ')]
-                    pl = gt[formats.index('PL')]
-                    # reverse AD
-                    ad1, ad2 = ad.split(",")
-                    ad = "{},{}".format(ad2, ad1)
-                    # reverse PL
-                    pl1, pl2, pl3 = pl.split(",")
-                    pl = "{},{},{}".format(pl3, pl2, pl1)
-                    geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
-                    x[i + 9] = geno
-                x[4] = x[3]
-                # x[3] = x[4]
+            for i, sample in enumerate(x[9:]):
+                gt = sample.split(":")
+                if "0/0" in gt[0]:
+                    gt[0] = '1/1'
+                elif "1/1" in gt[0]:
+                    gt[0] = '0/0'
+                # fix formating
+                ad = gt[formats.index('AD')]
+                dp = gt[formats.index('DP')]
+                gq = gt[formats.index('GQ')]
+                pl = gt[formats.index('PL')]
+                # reverse AD
+                ad1, ad2 = ad.split(",")
+                ad = "{},{}".format(ad2, ad1)
+                # reverse PL
+                pl1, pl2, pl3 = pl.split(",")
+                pl = "{},{},{}".format(pl3, pl2, pl1)
+                geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
+                x[i + 9] = geno
+            x[4] = x[3]
+            # x[3] = x[4]
         elif ref_a not in x[4]:
-            if "," in x[4]:
-                # all 4 alleles present, skip this
-                x[4] = 'NA'
-            else:
-                # build a triallelic site where there is no reference
-                for i, sample in enumerate(x[9:]):
-                    # change all 0 to 1, all 1 to 2
-                    gt = sample.split(":")
-                    gt[0] = gt[0].replace("1", "2")
-                    gt[0] = gt[0].replace("0", "1")
-                    ad = gt[formats.index('AD')]
-                    dp = gt[formats.index('DP')]
-                    gq = gt[formats.index('GQ')]
-                    pl = gt[formats.index('PL')]
-                    ad1, ad2 = ad.split(",")
-                    ad = "0,{},{}".format(ad1, ad2)
-                    pl1, pl2, pl3 = pl.split(",")
-                    pl = "500,500,{},500,{},{}".format(pl1, pl2, pl3)
-                    geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
-                    x[i + 9] = geno
-                x[4] = "{},{}".format(x[3], x[4])
+            # build a triallelic site where there is no reference
+            for i, sample in enumerate(x[9:]):
+                # change all 0 to 1, all 1 to 2
+                gt = sample.split(":")
+                gt[0] = gt[0].replace("1", "2")
+                gt[0] = gt[0].replace("0", "1")
+                ad = gt[formats.index('AD')]
+                dp = gt[formats.index('DP')]
+                gq = gt[formats.index('GQ')]
+                pl = gt[formats.index('PL')]
+                ad1, ad2 = ad.split(",")
+                ad = "0,{},{}".format(ad1, ad2)
+                pl1, pl2, pl3 = pl.split(",")
+                pl = "500,500,{},500,{},{}".format(pl1, pl2, pl3)
+                geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
+                x[i + 9] = geno
+            x[4] = "{},{}".format(x[3], x[4])
         else:
             import ipdb; ipdb.set_trace()
     elif x[3] not in alt_a:
         # case 2
         if ref_a in x[4]:
-            if "," in x[4]:
-                x[4] = "NA"
-            else:
-                for i, sample in enumerate(x[9:]):
-                    # change all 1s to 0s, all 0s to 1s
-                    gt = sample.split(":")
-                    if '0/0' in gt[0]:
-                        gt[0] = '1/1'
-                    elif '1/1' in gt[0]:
-                        gt[0] = '0/0'
-                    ad = gt[formats.index('AD')]
-                    dp = gt[formats.index('DP')]
-                    gq = gt[formats.index('GQ')]
-                    pl = gt[formats.index('PL')]
-                    ad1, ad2 = ad.split(",")
-                    ad = "{},{}".format(ad1, ad2)
-                    pl1, pl2, pl3 = pl.split(",")
-                    pl = "{},{},{}".format(pl3, pl2, pl1)
-                    geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
-                    x[i + 9] = geno
-                x[4] = x[3]
+            for i, sample in enumerate(x[9:]):
+                # change all 1s to 0s, all 0s to 1s
+                gt = sample.split(":")
+                if '0/0' in gt[0]:
+                    gt[0] = '1/1'
+                elif '1/1' in gt[0]:
+                    gt[0] = '0/0'
+                ad = gt[formats.index('AD')]
+                dp = gt[formats.index('DP')]
+                gq = gt[formats.index('GQ')]
+                pl = gt[formats.index('PL')]
+                ad1, ad2 = ad.split(",")
+                ad = "{},{}".format(ad1, ad2)
+                pl1, pl2, pl3 = pl.split(",")
+                pl = "{},{},{}".format(pl3, pl2, pl1)
+                geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
+                x[i + 9] = geno
+            x[4] = x[3]
         elif alt_a in x[4]:
             # build a triallelic site where there is no reference
             for i, sample in enumerate(x[9:]):
@@ -296,26 +286,26 @@ def reorientGT(x, ref_a, alt_a):
                 geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
                 x[i + 9] = geno
             x[4] = "{},{}".format(x[3], x[4])
-        elif "." in alt_a:
-            for i, sample in enumerate(x[9:]):
-                # change all 0 to 1, all 1 to 2
-                gt = sample.split(":")
-                gt[0] = gt[0].replace("1", "2")
-                gt[0] = gt[0].replace("0", "1")
-                ad = gt[formats.index('AD')]
-                dp = gt[formats.index('DP')]
-                gq = gt[formats.index('GQ')]
-                pl = gt[formats.index('PL')]
-                ad1, ad2 = ad.split(",")
-                ad = "0,{},{}".format(ad1, ad2)
-                pl1, pl2, pl3 = pl.split(",")
-                pl = "500,500,{},500,{},{}".format(pl1, pl2, pl3)
-                geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
-                x[i + 9] = geno
-            x[4] = "{},{}".format(x[3], x[4])
-        else:
-            print("{}".format("\t".join(x)))
-            print("{}\t{}".format(ref_a, alt_a))
+    elif "." in alt_a:
+        for i, sample in enumerate(x[9:]):
+            # change all 0 to 1, all 1 to 2
+            gt = sample.split(":")
+            gt[0] = gt[0].replace("1", "2")
+            gt[0] = gt[0].replace("0", "1")
+            ad = gt[formats.index('AD')]
+            dp = gt[formats.index('DP')]
+            gq = gt[formats.index('GQ')]
+            pl = gt[formats.index('PL')]
+            ad1, ad2 = ad.split(",")
+            ad = "0,{},{}".format(ad1, ad2)
+            pl1, pl2, pl3 = pl.split(",")
+            pl = "500,500,{},500,{},{}".format(pl1, pl2, pl3)
+            geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
+            x[i + 9] = geno
+        x[4] = "{},{}".format(x[3], x[4])
+    else:
+        print("{}".format("\t".join(x)))
+        print("{}\t{}".format(ref_a, alt_a))
     return(x)
 
 
@@ -575,7 +565,6 @@ def liftover(vcfFile, transdict, refdict, outStream, tri):
                 x = line.strip().split()
                 chrom = x[0]
                 pos = x[1]
-                # if "," not in x[4]:
                 try:
                     newchrom, newpos, orient = transdict[chrom][pos]
                     ref_a, alt_a = refdict[newchrom][newpos]
@@ -587,18 +576,19 @@ def liftover(vcfFile, transdict, refdict, outStream, tri):
                             if tri:
                                 x = reorientGT_TRI(x, ref_a, alt_a)
                             else:
-                                x = reorientGT(x, ref_a, alt_a)
+                                if "," not in x[4]:
+                                    x = reorientGT(x, ref_a, alt_a)
+                                else:
+                                    x[4] = 'NA'
                             x[0] = newchrom
                             x[1] = newpos
                             x[3] = ref_a
+                        else:
+                            x[0] = newchrom
+                            x[1] = newpos
                     except:
                         import ipdb;ipdb.set_trace()
-                    else:
-                        x[0] = newchrom
-                        x[1] = newpos
-                    if x[4] == 'NA':
-                        pass
-                    else:
+                    if 'NA' not in x[4]:
                         outStream.write("{}\n".format("\t".join(x)))
                 except KeyError:
                     tx.write("{}\t{}\n".format(x[0], x[1]))
