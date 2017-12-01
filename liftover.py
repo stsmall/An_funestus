@@ -525,7 +525,7 @@ def reorientGT_TRI(x, ref_a, alt_a):
         elif alt_a in x[4]:
             # build a triallelic site where there is no reference
             if "," in x[4]:
-                import ipdb;ipdb.set_trace()
+                x = "NA"
             else:
                 for i, sample in enumerate(x[9:]):
                     # change all 0 to 1, all 1 to 2
@@ -542,7 +542,7 @@ def reorientGT_TRI(x, ref_a, alt_a):
                     pl = "500,500,{},500,{},{}".format(pl1, pl2, pl3)
                     geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
                     x[i + 9] = geno
-            x[4] = "{},{}".format(x[3], x[4])
+                x[4] = "{},{}".format(x[3], x[4])
         elif "." in alt_a:
             if "," in x[4]:
                 x[4] = "NA"
