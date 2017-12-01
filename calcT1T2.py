@@ -59,7 +59,7 @@ def loadvcf(vcFile, quart, dlm):
     return(qdict)
 
 
-def blockSE(posdict, iix1, iix2, iix3, size=0):
+def blockSE(t1t2dict, iix1, iix2, iix3, size=0):
     """
     """
     t1sedict = {}
