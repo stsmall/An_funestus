@@ -1,4 +1,4 @@
-#CHROM	POS	.	REF	ALT	QUAL	FILTER	INFO	FORMAT	P1	P2	P3	P4	PO
+#CHORM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	P1	P2	P3	P4	PO
 X	0	.	A	T	50	PASS	.	.	1/1:.:.:.	0/0:.:.:.	0/0:.:.:.	0/0:.:.:.	0/0:.:.:.
 X	1	.	A	T	50	PASS	.	.	0/0:.:.:.	1/1:.:.:.	0/0:.:.:.	0/0:.:.:.	0/0:.:.:.
 X	2	.	A	T	50	PASS	.	.	0/0:.:.:.	0/0:.:.:.	0/0:.:.:.	1/1:.:.:.	0/0:.:.:.

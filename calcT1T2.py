@@ -88,7 +88,7 @@ def blockSE(posdict, iix1, iix2, iix3, size=0):
     else:
         pass
         # bin t1t2dict.keys() into size
-    return(t1sedict, t2sedict)
+    return(t1sedict[chrom], t2sedict[chrom])
 
 
 def DfoilTble(t1t2dict, size, ntaxa):
