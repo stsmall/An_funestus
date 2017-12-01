@@ -620,8 +620,11 @@ def liftover(vcfFile, transdict, refdict, outStream, tri):
                             x[1] = newpos
                             x[3] = ref_a
                         else:
-                            x[0] = newchrom
-                            x[1] = newpos
+                            try:
+                                x[0] = newchrom
+                                x[1] = newpos
+                            except TypeError:
+                                import ipdb;ipdb.set_trace()
                     except IndexError:
                         import ipdb;ipdb.set_trace()
                     if 'NA' not in x[4]:
