@@ -416,7 +416,9 @@ def reorientGT_TRI(x, ref_a, alt_a):
                 # x[3] = x[4]
         elif ref_a not in x[4]:
             if "," in x[4]:
-                # all 4 alleles present, skip this
+                print("TEST1\n)
+                print("{}".format("\t".join(x)))
+                print("{}\t{}\n".format(ref_a, alt_a))
                 x[4] = 'NA'
             else:
                 # build a triallelic site where there is no reference
@@ -555,7 +557,9 @@ def reorientGT_TRI(x, ref_a, alt_a):
         else:
             import ipdb; ipdb.set_trace()
     else:
-        import ipdb; ipdb.set_trace()
+        print("TEST2\n")
+        print("{}".format("\t".join(x)))
+        print("{}\t{}\n".format(ref_a, alt_a))
     return(x)
 
 
