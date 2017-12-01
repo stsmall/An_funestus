@@ -314,7 +314,8 @@ def reorientGT(x, ref_a, alt_a):
                 x[i + 9] = geno
             x[4] = "{},{}".format(x[3], x[4])
         else:
-            import ipdb;ipdb.set_trace()
+            print("{}".format("\t".join(x)))
+            print("{}\t{}".format(ref_a, alt_a))
     return(x)
 
 
