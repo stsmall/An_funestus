@@ -59,7 +59,7 @@ def loadvcf(vcFile, quart, dlm):
     return(qdict)
 
 
-def blockSE(t1t2dict, iix1, iix2, iix3, size=0):
+def blockSE(t1t2dict, iix1, iix2, iix3, size=0, reps=10):
     """
     """
     t1sedict = {}
@@ -70,7 +70,7 @@ def blockSE(t1t2dict, iix1, iix2, iix3, size=0):
             t2list = []
             posdict = OrderedDict(sorted(t1t2dict[chrom].items()))
             sites = len(posdict.keys())
-            for i in range(100):
+            for i in range(reps):
                 pos = np.random.choice(posdict.keys(), sites, replace=True)
                 divergence = []
                 for p in pos:
@@ -83,8 +83,8 @@ def blockSE(t1t2dict, iix1, iix2, iix3, size=0):
                 t1 = (t2_inner + div_sum[iix3]) / sites
                 t1list.append(t1)
                 t2list.append(t2)
-            t1sedict[chrom] = (np.std(t1list)) / 31.6228
-            t2sedict[chrom] = (np.std(t2list)) / 31.6228
+            t1sedict[chrom] = (np.std(t1list)) / np.sqrt(reps)
+            t2sedict[chrom] = (np.std(t2list)) / np.sqrt(reps)
     else:
         pass
         # TODO: block resampling
