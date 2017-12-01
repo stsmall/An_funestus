@@ -475,7 +475,7 @@ def reorientGT_TRI(x, ref_a, alt_a):
                         pl = "{},{},{},{},{},{}".format(pl3, pl2, pl1, pl6, pl4, pl5)
                         geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
                         x[i + 9] = geno
-                    alt_a = "{},{}".format(x[3], x[4][1])
+                    x[4] = "{},{}".format(x[3], x[4][1])
                 elif r == 1:
                     # change 2 to 0
                     # change 0 to 2
@@ -502,7 +502,7 @@ def reorientGT_TRI(x, ref_a, alt_a):
                         pl = "{},{},{},{},{},{}".format(pl6, pl5, pl4, pl3, pl2, pl1)
                         geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
                         x[i + 9] = geno
-                    alt_a = "{},{}".format(x[4][0], x[3])
+                    x[4] = "{},{}".format(x[4][0], x[3])
             else:
                 for i, sample in enumerate(x[9:]):
                     # change all 1s to 0s, all 0s to 1s
