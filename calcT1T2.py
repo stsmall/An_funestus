@@ -228,7 +228,7 @@ def foil4(vcfdict, quartet):
             print("BAAA:{}\tABAA:{}\tBBAA:{}\tN:{}".format(n_BAAA, n_ABAA,
                                                            n_BBAA,
                                                            callable_pos))
-            print("{}\t({},{}),{}+-{} : {}\t({},{}) : {}+-{}\n".format(chrom, p1, p2,
+            print("{}\t({},{}),{} : {}+-{}\t({},{}) : {}+-{}\n".format(chrom, p1, p2,
                                                                p3, t1, t1se,
                                                                p1, p2, t2,
                                                                t2se))

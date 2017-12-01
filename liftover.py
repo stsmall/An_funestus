@@ -555,9 +555,9 @@ def reorientGT_TRI(x, ref_a, alt_a):
                 x[i + 9] = geno
             x[4] = "{},{}".format(x[3], x[4])
         else:
-        print("TEST2\n")
-        print("{}".format("\t".join(x)))
-        print("{}\t{}\n".format(ref_a, alt_a))
+            print("TEST2\n")
+            print("{}".format("\t".join(x)))
+            print("{}\t{}\n".format(ref_a, alt_a))
     else:
         print("TEST3\n")
         print("{}".format("\t".join(x)))
