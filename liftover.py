@@ -495,7 +495,7 @@ def reorientGT_TRI(x, ref_a, alt_a):
                         gq = gt[formats.index('GQ')]
                         pl = gt[formats.index('PL')]
                         # reverse AD
-                        ad1, ad2 = ad.split(",")
+                        ad1, ad2, ad3 = ad.split(",")
                         ad = "{},{},{}".format(ad3, ad2, ad1)
                         # reverse PL
                         pl1, pl2, pl3, pl4, pl5, pl6 = pl.split(",")
