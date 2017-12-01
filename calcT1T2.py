@@ -70,7 +70,7 @@ def blockSE(t1t2dict, iix1, iix2, iix3, size=0):
             t2list = []
             posdict = OrderedDict(sorted(t1t2dict[chrom].items()))
             sites = len(posdict.keys())
-            for i in range(1000):
+            for i in range(100):
                 pos = np.random.choice(posdict.keys(), sites, replace=True)
                 divergence = []
                 for p in pos:
@@ -87,7 +87,8 @@ def blockSE(t1t2dict, iix1, iix2, iix3, size=0):
             t2sedict[chrom] = (np.std(t2list)) / 31.6228
     else:
         pass
-        # bin t1t2dict.keys() into size
+        # TODO: block resampling
+        # bin t1t2dict.keys() into size for block resampling accounting for ld
     return(t1sedict[chrom], t2sedict[chrom])
 
 
