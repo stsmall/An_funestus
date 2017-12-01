@@ -439,7 +439,10 @@ def reorientGT_TRI(x, ref_a, alt_a):
                     x[i + 9] = geno
                 x[4] = "{},{}".format(x[3], x[4])
         else:
-            import ipdb; ipdb.set_trace()
+            print("TEST2\n")
+            print("{}".format("\t".join(x)))
+            print("{}\t{}\n".format(ref_a, alt_a))
+            x[4] = 'NA'
     elif x[3] not in alt_a:
         # case 2
         if ref_a in x[4]:
@@ -555,13 +558,15 @@ def reorientGT_TRI(x, ref_a, alt_a):
                 x[i + 9] = geno
             x[4] = "{},{}".format(x[3], x[4])
         else:
-            print("TEST2\n")
+            print("TEST3\n")
             print("{}".format("\t".join(x)))
             print("{}\t{}\n".format(ref_a, alt_a))
+            x[4] = 'NA'
     else:
-        print("TEST3\n")
+        print("TEST4\n")
         print("{}".format("\t".join(x)))
         print("{}\t{}\n".format(ref_a, alt_a))
+        x[4] = 'NA'
     return(x)
 
 
