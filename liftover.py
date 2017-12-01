@@ -551,7 +551,7 @@ def reorientGT_TRI(x, ref_a, alt_a):
                 gq = gt[formats.index('GQ')]
                 pl = gt[formats.index('PL')]
                 try:
-                    ad1, ad2, ad3 = ad.split(",")
+                    ad1, ad2 = ad.split(",")
                 except ValueError:
                     import ipdb;ipdb.set_trace()
                 ad = "0,{},{}".format(ad1, ad2)
