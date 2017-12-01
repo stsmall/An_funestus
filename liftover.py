@@ -568,9 +568,11 @@ def liftover(vcfFile, transdict, refdict, outStream, tri):
                         if tri:
                             print("reformatting triallelic sites at your own"
                                   "risk")
-                            x, alt_a = reorientGT_TRI(x, ref_a, alt_a)
+                            x = reorientGT_TRI(x, ref_a, alt_a)
                         else:
-                            x, alt_a = reorientGT(x, ref_a, alt_a)
+                            x = reorientGT(x, ref_a, alt_a)
+                            print("skipping triallelic sites, prob easier"
+                                  "to remove before running")
                         x[0] = newchrom
                         x[1] = newpos
                         x[3] = ref_a
