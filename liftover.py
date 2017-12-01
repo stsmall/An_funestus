@@ -582,14 +582,17 @@ def liftover(vcfFile, transdict, refdict, outStream, tri):
                     if orient == "-":
                         x[3] = reverseComplement(x[3])
                         x[4] = reverseComplement(x[4])
-                    if x[3] != ref_a:
-                        if tri:
-                            x = reorientGT_TRI(x, ref_a, alt_a)
-                        else:
-                            x = reorientGT(x, ref_a, alt_a)
-                        x[0] = newchrom
-                        x[1] = newpos
-                        x[3] = ref_a
+                    try:
+                        if x[3] != ref_a:
+                            if tri:
+                                x = reorientGT_TRI(x, ref_a, alt_a)
+                            else:
+                                x = reorientGT(x, ref_a, alt_a)
+                            x[0] = newchrom
+                            x[1] = newpos
+                            x[3] = ref_a
+                    except:
+                        import ipdb;ipdb.set_trace()
                     else:
                         x[0] = newchrom
                         x[1] = newpos
