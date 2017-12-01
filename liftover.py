@@ -416,7 +416,7 @@ def reorientGT_TRI(x, ref_a, alt_a):
                 # x[3] = x[4]
         elif ref_a not in x[4]:
             if "," in x[4]:
-                print("TEST1\n)
+                print("TEST1\n")
                 print("{}".format("\t".join(x)))
                 print("{}\t{}\n".format(ref_a, alt_a))
                 x[4] = 'NA'
