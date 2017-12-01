@@ -217,12 +217,14 @@ def foil4(vcfdict, quartet):
                         else:
                             raise ValueError("pattern not recognized")
                         t1t2dict[chrom][int(pos)] = tuple(window)
+        #'AAAA', 'AABA', 'ABAA', 'ABBA', 'BAAA', 'BABA', 'BBAA', 'BBBA'
+        # 0        1        2      3        4       5      6       7
         if callable_pos > 0:
             # P1 P2 P3 O; BAAA, ABAA, BBAA
             t2_inner = (n_ABAA + n_BAAA) / 2
             t2 = t2_inner / callable_pos
             t1 = (t2_inner + n_BBAA) / callable_pos
-            t1se, t2se = blockSE(t1t2dict)
+            t1se, t2se = blockSE(t1t2dict, 2, 4, 6)
             print("BAAA:{}\tABAA:{}\tBBAA:{}\tN:{}".format(n_BAAA, n_ABAA,
                                                            n_BBAA,
                                                            callable_pos))
