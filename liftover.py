@@ -296,8 +296,25 @@ def reorientGT(x, ref_a, alt_a):
                 geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
                 x[i + 9] = geno
             x[4] = "{},{}".format(x[3], x[4])
+        elif "." in alt_a:
+            for i, sample in enumerate(x[9:]):
+                # change all 0 to 1, all 1 to 2
+                gt = sample.split(":")
+                gt[0] = gt[0].replace("1", "2")
+                gt[0] = gt[0].replace("0", "1")
+                ad = gt[formats.index('AD')]
+                dp = gt[formats.index('DP')]
+                gq = gt[formats.index('GQ')]
+                pl = gt[formats.index('PL')]
+                ad1, ad2 = ad.split(",")
+                ad = "0,{},{}".format(ad1, ad2)
+                pl1, pl2, pl3 = pl.split(",")
+                pl = "500,500,{},500,{},{}".format(pl1, pl2, pl3)
+                geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
+                x[i + 9] = geno
+            x[4] = "{},{}".format(x[3], x[4])
         else:
-            import ipdb; ipdb.set_trace()
+            import ipdb;ipdb.set_trace()
     return(x)
 
 
@@ -566,13 +583,9 @@ def liftover(vcfFile, transdict, refdict, outStream, tri):
                         x[4] = reverseComplement(x[4])
                     if x[3] != ref_a:
                         if tri:
-                            print("reformatting triallelic sites at your own"
-                                  "risk")
                             x = reorientGT_TRI(x, ref_a, alt_a)
                         else:
                             x = reorientGT(x, ref_a, alt_a)
-                            print("skipping triallelic sites, prob easier"
-                                  "to remove before running")
                         x[0] = newchrom
                         x[1] = newpos
                         x[3] = ref_a
