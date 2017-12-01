@@ -236,24 +236,26 @@ def foil4(vcfdict, quartet):
             t2_inner = (n_BAAA + n_AABA) / 2
             t2a = t2_inner / callable_pos
             t1a = (t2_inner + n_BABA) / callable_pos
-            t1se, t2se = blockSE(t1t2dict)
+            t1se, t2se = blockSE(t1t2dict, 4, 1, 5)
             print("BAAA:{}\tABAA:{}\tBBAA:{}\tN:{}".format(n_BAAA, n_AABA,
                                                            n_BABA,
                                                            callable_pos))
-            print("{}\t({},{}),{} : {}\t({},{}) : {}\n".format(chrom, p1, p3,
-                                                               p2, t1a, p1, p3,
-                                                               t2a))
+            print("{}\t({},{}),{} : {}+-{}\t({},{}) : {}+-{}\n".format(chrom, p1, p3,
+                                                               p2, t1a, t1se, p1, p3,
+                                                               t2a, t2se))
             # P2 P3 P1 O; ABAA AABA ABBA
             t2_inner = (n_ABAA + n_AABA) / 2
             t2b = t2_inner / callable_pos
             t1b = (t2_inner + n_ABBA) / callable_pos
-            t1se, t2se = blockSE(t1t2dict)
+            t1se, t2se = blockSE(t1t2dict, 2, 1, 3)
             print("BAAA:{}\tABAA:{}\tBBAA:{}\tN:{}".format(n_ABAA, n_AABA,
                                                            n_ABBA,
                                                            callable_pos))
-            print("{}\t({},{}),{} : {}\t({},{}) : {}\n".format(chrom, p2, p3,
-                                                               p1, t1b, p2, p3,
-                                                               t2b))
+            print("{}\t({},{}),{} : {}+-{}\t({},{}) : {}+-{}\n".format(chrom,
+                                                                       p2, p3,
+                                                                       p1, t1b,
+                                                                       t1se, p2, p3,
+                                                                       t2b, t2se))
     return(t1t2dict)
 
 
