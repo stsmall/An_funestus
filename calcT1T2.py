@@ -49,23 +49,27 @@ def loadvcf(vcFile, quart, dlm):
                     pos = x[1]
                     count_list = []
                     polarize = x[q_ix[-1][0]].split(":")[0]
-                    for q in q_ix:
-                        ref = 0  # check for missing
-                        alt = 0  # check for missing
-                        for s in q:
-                            gt = x[s].split(":")[0]
-                            ref += gt.count("0")
-                            alt += gt.count("1")
-                        if ref == 0 and alt == 0:
-                            ref = -1
-                            alt = -1
-                        if "0/0" in polarize:
-                            count_list.append([alt, ref])
-                        elif "1/1" in polarize:
-                            count_list.append([ref, alt])
-                        else:
-                            import ipdb;ipdb.set_trace()
-                    qdict[chrom][pos] = (count_list)
+                    if "." in polarize:
+                        # missing outgroup site
+                        continue
+                    else:
+                        for q in q_ix:
+                            ref = 0  # check for missing
+                            alt = 0  # check for missing
+                            for s in q:
+                                gt = x[s].split(":")[0]
+                                ref += gt.count("0")
+                                alt += gt.count("1")
+                            if ref == 0 and alt == 0:
+                                ref = -1
+                                alt = -1
+                            if "0/0" in polarize:
+                                count_list.append([alt, ref])
+                            elif "1/1" in polarize:
+                                count_list.append([ref, alt])
+                            else:
+                                import ipdb;ipdb.set_trace()
+                        qdict[chrom][pos] = (count_list)
     return(qdict)
 
 
