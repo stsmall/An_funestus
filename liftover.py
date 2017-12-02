@@ -645,7 +645,7 @@ def liftover(vcfFile, transdict, refdict, outStream, tri):
     print("Matching reference:{}".format(refmatch))
     print("Mismatch reference:{}".format(refmismatch))
     print("Mismatch fixed:{}".format(reffix))
-    print("Discarded:{}".format(reffix - refmismatch))
+    print("Mismatch not fixed:{}".format(refmismatch - reffix))
     print("Unaligned:{}".format(unaligned))
     return(outStream)
 
