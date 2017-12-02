@@ -601,6 +601,11 @@ def liftover(vcfFile, transdict, refdict, outStream, tri):
                 x = line.strip().split()
                 chrom = x[0]
                 pos = x[1]
+                #
+                if len(x[4].split(",")[0]) > 1:
+                    import ipdb;ipdb.set_trace()
+                print("Before\n{}\t{}\t{}\t{}\t{}\n".format(x[0], x[1], x[3], x[4], x[9]))
+                #
                 try:
                     newchrom, newpos, orient = transdict[chrom][pos]
                     ref_a, alt_a = refdict[newchrom][newpos]
@@ -620,13 +625,15 @@ def liftover(vcfFile, transdict, refdict, outStream, tri):
                             x[1] = newpos
                             x[3] = ref_a
                         else:
-                            try:
-                                x[0] = newchrom
-                                x[1] = newpos
-                            except TypeError:
-                                import ipdb;ipdb.set_trace()
+                            x[0] = newchrom
+                            x[1] = newpos
                     except TypeError:
                         import ipdb;ipdb.set_trace()
+                    #
+                    if len(x[4].split(",")[0]) > 1:
+                        import ipdb;ipdb.set_trace()
+                    print("After\n{}\t{}\t{}\t{}\t{}\n".format(x[0], x[1], x[3], x[4], x[9]))
+                    #
                     if 'NA' not in x[4]:
                         outStream.write("{}\n".format("\t".join(x)))
                 except KeyError:
