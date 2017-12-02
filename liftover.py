@@ -597,6 +597,7 @@ def liftover(vcfFile, transdict, refdict, outStream, tri):
     reffix = 0
     print("executing liftover ...")
     tx = open("UnalignedCarryOver.bed", 'w')
+    t = open("ChangedSites.out", 'w')
     with open(vcfFile, 'r') as vcf:
         for line in vcf:
             if line.startswith("#CHROM"):
@@ -605,10 +606,6 @@ def liftover(vcfFile, transdict, refdict, outStream, tri):
                 x = line.strip().split()
                 chrom = x[0]
                 pos = x[1]
-                #
-                if len(x[4].split(",")[0]) > 1:
-                    import ipdb;ipdb.set_trace()
-                #
                 try:
                     refmatch += 1
                     newchrom, newpos, orient = transdict[chrom][pos]
@@ -619,7 +616,7 @@ def liftover(vcfFile, transdict, refdict, outStream, tri):
                     try:
                         if x[3] != ref_a:
                             refmismatch += 1
-                            print("Before\n{}\t{}\t{}\t{}\t{}\n".format(x[0], x[1], x[3], x[4], x[9]))
+                            t.write("Before\n{}\t{}\t{}\t{}\t{}\n".format(x[0], x[1], x[3], x[4], x[9]))
                             if tri:
                                 x = reorientGT_TRI(x, ref_a, alt_a)
                             else:
@@ -627,7 +624,7 @@ def liftover(vcfFile, transdict, refdict, outStream, tri):
                                     x = reorientGT(x, ref_a, alt_a)
                                 else:
                                     x[4] = 'NA'
-                            print("After\n{}\t{}\t{}\t{}\t{}\n".format(x[0], x[1], ref_a, x[4], x[9]))
+                            t.write("After\n{}\t{}\t{}\t{}\t{}\n".format(x[0], x[1], ref_a, x[4], x[9]))
                             x[0] = newchrom
                             x[1] = newpos
                             x[3] = ref_a
@@ -637,16 +634,13 @@ def liftover(vcfFile, transdict, refdict, outStream, tri):
                     except TypeError:
                         import ipdb;ipdb.set_trace()
                     if 'NA' not in x[4]:
-                        #
-                        if len(x[4].split(",")[0]) > 1:
-                            import ipdb;ipdb.set_trace()
-                        #
                         reffix += 1
                         outStream.write("{}\n".format("\t".join(x)))
                 except KeyError:
                     unaligned += 1
                     tx.write("{}\t{}\n".format(x[0], x[1]))
     tx.close()
+    t.close()
     print("Matching reference:{}".format(refmatch))
     print("Mismatch reference:{}".format(refmismatch))
     print("Mismatch fixed:{}".format(reffix))
