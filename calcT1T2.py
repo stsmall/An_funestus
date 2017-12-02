@@ -64,9 +64,8 @@ def loadvcf(vcFile, quart, dlm):
                                 count_list.append([alt, ref])
                             elif "1/1" in polarize:
                                 count_list.append([ref, alt])
-                            else:
-                                continue
-                        qdict[chrom][pos] = (count_list)
+                        if "0/1" not in polarize:
+                            qdict[chrom][pos] = (count_list)
     return(qdict)
 
 
