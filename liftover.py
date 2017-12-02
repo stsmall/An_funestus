@@ -627,7 +627,7 @@ def liftover(vcfFile, transdict, refdict, outStream, tri):
                                     x = reorientGT(x, ref_a, alt_a)
                                 else:
                                     x[4] = 'NA'
-                            print("After\n{}\t{}\t{}\t{}\t{}\n".format(x[0], x[1], x[3], x[4], x[9]))
+                            print("After\n{}\t{}\t{}\t{}\t{}\n".format(x[0], x[1], ref_a, x[4], x[9]))
                             x[0] = newchrom
                             x[1] = newpos
                             x[3] = ref_a
