@@ -48,7 +48,7 @@ def loadvcf(vcFile, quart, dlm):
                     chrom = x[0]
                     pos = x[1]
                     count_list = []
-                    polarize = x[q_ix[0]].split(":")[0]
+                    polarize = x[q_ix[-1][0]].split(":")[0]
                     for q in q_ix:
                         ref = 0  # check for missing
                         alt = 0  # check for missing
