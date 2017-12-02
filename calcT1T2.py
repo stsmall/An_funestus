@@ -41,21 +41,31 @@ def loadvcf(vcFile, quart, dlm):
                     q_ix.append([i for i, x in enumerate(sample) if q == x.split(dlm)[0]])
             elif not line.startswith("##"):
                 x = line.strip().split()
-                chrom = x[0]
-                pos = x[1]
-                count_list = []
-                for q in q_ix:
-                    ref = 0  # check for missing
-                    alt = 0  # check for missing
-                    for s in q:
-                        gt = x[s].split(":")[0]
-                        ref += gt.count("0")
-                        alt += gt.count("1")
-                    if ref == 0 and alt == 0:
-                        ref = -1
-                        alt = -1
-                    count_list.append([alt, ref])
-                qdict[chrom][pos] = (count_list)
+                if "," in x[4]:
+                    # skip triallelic sites
+                    continue
+                else:
+                    chrom = x[0]
+                    pos = x[1]
+                    count_list = []
+                    polarize = x[q_ix[0]].split(":")[0]
+                    for q in q_ix:
+                        ref = 0  # check for missing
+                        alt = 0  # check for missing
+                        for s in q:
+                            gt = x[s].split(":")[0]
+                            ref += gt.count("0")
+                            alt += gt.count("1")
+                        if ref == 0 and alt == 0:
+                            ref = -1
+                            alt = -1
+                        if "0/0" in polarize:
+                            count_list.append([alt, ref])
+                        elif "1/1" in polarize:
+                            count_list.append([ref, alt])
+                        else:
+                            continue
+                    qdict[chrom][pos] = (count_list)
     return(qdict)
 
 

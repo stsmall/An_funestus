@@ -525,7 +525,7 @@ def reorientGT_TRI(x, ref_a, alt_a):
         elif alt_a in x[4]:
             # build a triallelic site where there is no reference
             if "," in x[4]:
-                x = "NA"
+                x[4] = "NA"
             else:
                 for i, sample in enumerate(x[9:]):
                     # change all 0 to 1, all 1 to 2
