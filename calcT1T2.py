@@ -64,7 +64,7 @@ def loadvcf(vcFile, quart, dlm):
                         elif "1/1" in polarize:
                             count_list.append([ref, alt])
                         else:
-                            continue
+                            import ipdb;ipdb.set_trace()
                     qdict[chrom][pos] = (count_list)
     return(qdict)
 

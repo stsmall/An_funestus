@@ -28,6 +28,8 @@ def fixPGTPID(vcf):
                 formats = x[8].split(":")
                 if x[5] == 'inf':
                     x[5] = '500'
+                else:
+                    pass
                 if "*" not in x[4] and len(formats) > 1:
                     if "PGT" in formats or "PID" in formats:
                         for sample in range(9, len(x)):
@@ -41,27 +43,30 @@ def fixPGTPID(vcf):
                         x[8] = "GT:AD:DP:GQ:PL"
                         f.write("{}\n".format("\t".join(x)))
                     elif "." in x[4]:
-                        # fix invariant
-                        try:
-                            for sample in range(9, len(x)):
-                                gt = x[sample].split(":")
-                                try:
-                                    gq = gt[formats.index('RGQ')]
-                                except ValueError:
-                                    gq = '99'
-                                dp = gt[formats.index('DP')]
-                                try:
-                                    ad = gt[formats.index('AD')]
-                                except ValueError:
-                                    ad = dp
-                                pl = '0'
-                                adv = ad.split(",")[0]
-                                newgt = [gt[0], adv, dp, gq, pl]
-                                x[sample] = ":".join(newgt)
-                            x[8] = "GT:AD:DP:GQ:PL"
-                            f.write("{}\n".format("\t".join(x)))
-                        except ValueError:
-                            import ipdb;ipdb.set_trace()
+                        if len(x[3]) > 1:
+                            continue
+                        else:
+                            # fix invariant
+                            try:
+                                for sample in range(9, len(x)):
+                                    gt = x[sample].split(":")
+                                    try:
+                                        gq = gt[formats.index('RGQ')]
+                                    except ValueError:
+                                        gq = '99'
+                                    dp = gt[formats.index('DP')]
+                                    try:
+                                        ad = gt[formats.index('AD')]
+                                    except ValueError:
+                                        ad = dp
+                                    pl = '0'
+                                    adv = ad.split(",")[0]
+                                    newgt = [gt[0], adv, dp, gq, pl]
+                                    x[sample] = ":".join(newgt)
+                                x[8] = "GT:AD:DP:GQ:PL"
+                                f.write("{}\n".format("\t".join(x)))
+                            except ValueError:
+                                import ipdb;ipdb.set_trace()
                     else:
                         f.write(line)
     f.close()
