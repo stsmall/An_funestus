@@ -607,7 +607,6 @@ def liftover(vcfFile, transdict, refdict, outStream, tri):
                 chrom = x[0]
                 pos = x[1]
                 try:
-                    refmatch += 1
                     newchrom, newpos, orient = transdict[chrom][pos]
                     ref_a, alt_a = refdict[newchrom][newpos]
                     if orient == "-":
@@ -628,13 +627,15 @@ def liftover(vcfFile, transdict, refdict, outStream, tri):
                             x[0] = newchrom
                             x[1] = newpos
                             x[3] = ref_a
+                            if "NA" not in x[4]:
+                                reffix += 1
                         else:
+                            refmatch += 1
                             x[0] = newchrom
                             x[1] = newpos
                     except TypeError:
                         import ipdb;ipdb.set_trace()
                     if 'NA' not in x[4]:
-                        reffix += 1
                         outStream.write("{}\n".format("\t".join(x)))
                 except KeyError:
                     unaligned += 1
@@ -644,7 +645,7 @@ def liftover(vcfFile, transdict, refdict, outStream, tri):
     print("Matching reference:{}".format(refmatch))
     print("Mismatch reference:{}".format(refmismatch))
     print("Mismatch fixed:{}".format(reffix))
-    print("Discarded:{}".format(refmismatch - reffix))
+    print("Discarded:{}".format(reffix - refmismatch))
     print("Unaligned:{}".format(unaligned))
     return(outStream)
 
