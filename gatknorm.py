@@ -32,16 +32,19 @@ def fixPGTPID(vcf):
                     pass
                 if "*" not in x[4] and len(formats) > 1:
                     if "PGT" in formats or "PID" in formats:
-                        for sample in range(9, len(x)):
-                            gt = x[sample].split(":")
-                            ad = gt[formats.index('AD')]
-                            dp = gt[formats.index('DP')]
-                            gq = gt[formats.index('GQ')]
-                            pl = gt[formats.index('PL')]
-                            newgt = [gt[0], ad, dp, gq, pl]
-                            x[sample] = ":".join(newgt)
-                        x[8] = "GT:AD:DP:GQ:PL"
-                        f.write("{}\n".format("\t".join(x)))
+                        try:
+                            for sample in range(9, len(x)):
+                                gt = x[sample].split(":")
+                                ad = gt[formats.index('AD')]
+                                dp = gt[formats.index('DP')]
+                                gq = gt[formats.index('GQ')]
+                                pl = gt[formats.index('PL')]
+                                newgt = [gt[0], ad, dp, gq, pl]
+                                x[sample] = ":".join(newgt)
+                            x[8] = "GT:AD:DP:GQ:PL"
+                            f.write("{}\n".format("\t".join(x)))
+                        except:
+                            import ipdb;ipdb.set_trace()
                     elif "." in x[4]:
                         if len(x[3]) > 1:
                             continue

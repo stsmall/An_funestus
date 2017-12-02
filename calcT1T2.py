@@ -49,10 +49,7 @@ def loadvcf(vcFile, quart, dlm):
                     pos = x[1]
                     count_list = []
                     polarize = x[q_ix[-1][0]].split(":")[0]
-                    if "." in polarize:
-                        # missing outgroup site
-                        continue
-                    else:
+                    if "." not in polarize:
                         for q in q_ix:
                             ref = 0  # check for missing
                             alt = 0  # check for missing
