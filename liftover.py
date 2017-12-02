@@ -625,7 +625,7 @@ def liftover(vcfFile, transdict, refdict, outStream, tri):
                                 x[1] = newpos
                             except TypeError:
                                 import ipdb;ipdb.set_trace()
-                    except IndexError:
+                    except TypeError:
                         import ipdb;ipdb.set_trace()
                     if 'NA' not in x[4]:
                         outStream.write("{}\n".format("\t".join(x)))
