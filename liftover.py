@@ -132,7 +132,7 @@ def loadTransfer(transfersFile):
             newchrom = x[4]
             newpos_s = x[6]
             newpos_e = x[7]
-            transdict[chrom][pos_e] = (newchrom, newpos_e, orient)
+            transdict[chrom][pos_e] = (newchrom, newpos_s, orient)
     return(transdict)
 
 
