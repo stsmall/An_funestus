@@ -419,10 +419,10 @@ def reorientGT_TRI(x, ref_a, alt_a):
                 # x[3] = x[4]
         elif ref_a not in x[4]:
             if "," in x[4]:
-                print("TEST1\n")
-                print("{}".format("\t".join(x)))
-                print("{}\t{}\n".format(ref_a, alt_a))
                 x[4] = 'NA'
+#                print("TEST1\n")
+#                print("{}".format("\t".join(x)))
+#                print("{}\t{}\n".format(ref_a, alt_a))
             else:
                 # build a triallelic site where there is no reference
                 for i, sample in enumerate(x[9:]):
@@ -442,10 +442,10 @@ def reorientGT_TRI(x, ref_a, alt_a):
                     x[i + 9] = geno
                 x[4] = "{},{}".format(x[3], x[4])
         else:
-            print("TEST2\n")
-            print("{}".format("\t".join(x)))
-            print("{}\t{}\n".format(ref_a, alt_a))
             x[4] = 'NA'
+#            print("TEST2\n")
+#            print("{}".format("\t".join(x)))
+#            print("{}\t{}\n".format(ref_a, alt_a))
     elif x[3] not in alt_a:
         # case 2
         if ref_a in x[4]:
@@ -569,15 +569,15 @@ def reorientGT_TRI(x, ref_a, alt_a):
                     x[i + 9] = geno
                 x[4] = "{},{}".format(x[3], x[4])
         else:
-            print("TEST3\n")
-            print("{}".format("\t".join(x)))
-            print("{}\t{}\n".format(ref_a, alt_a))
             x[4] = 'NA'
+#            print("TEST3\n")
+#            print("{}".format("\t".join(x)))
+#            print("{}\t{}\n".format(ref_a, alt_a))
     else:
-        print("TEST4\n")
-        print("{}".format("\t".join(x)))
-        print("{}\t{}\n".format(ref_a, alt_a))
         x[4] = 'NA'
+#        print("TEST4\n")
+#        print("{}".format("\t".join(x)))
+#        print("{}\t{}\n".format(ref_a, alt_a))
     return(x)
 
 
@@ -601,6 +601,8 @@ def liftover(vcfFile, transdict, refdict, outStream, tri):
     unaligned = 0
     reffix = 0
     triallelic = 0
+    invariant = 0
+    variant = 0
     print("executing liftover ...")
     tx = open("UnalignedCarryOver.bed", 'w')
     t = open("ChangedSites.out", 'w')
@@ -615,6 +617,10 @@ def liftover(vcfFile, transdict, refdict, outStream, tri):
                 try:
                     newchrom, newpos, orient = transdict[chrom][pos]
                     ref_a, alt_a = refdict[newchrom][newpos]
+                    if alt_a == ".":
+                        invariant += 1
+                    else:
+                        variant += 1
                     if orient == "-":
                         x[3] = reverseComplement(x[3])
                         x[4] = reverseComplement(x[4])
@@ -653,6 +659,8 @@ def liftover(vcfFile, transdict, refdict, outStream, tri):
     print("Mismatch fixed:{}".format(reffix))
     print("Mismatch not fixed:{}".format(refmismatch - reffix))
     print("Unaligned:{}".format(unaligned))
+    print("Fixed Differences:{}".format(invariant))
+    print("Polylmorphic:{}".format(variant))
     if not tri:
         print("Skipped {} Triallelic".format(triallelic))
     return(outStream)
