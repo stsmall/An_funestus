@@ -603,6 +603,7 @@ def liftover(vcfFile, transdict, refdict, outStream, tri):
     rvc_before = 0
     rvc_after = 0
     rvc = 0
+    triallelic = 0
     print("executing liftover ...")
     tx = open("UnalignedCarryOver.bed", 'w')
     t = open("ChangedSites.out", 'w')
@@ -636,6 +637,7 @@ def liftover(vcfFile, transdict, refdict, outStream, tri):
                                 if "," not in x[4]:
                                     x = reorientGT(x, ref_a, alt_a)
                                 else:
+                                    triallelic += 1
                                     x[4] = 'NA'
                             forline = "\t".join(x[0], x[1], ref_a, x[4], x[9])
                             t.write("After\n{}\n".format(forline))
@@ -665,6 +667,8 @@ def liftover(vcfFile, transdict, refdict, outStream, tri):
     print("Sites reverse complemented:{}".format(rvc))
     print("Matech by reverse complement:{}".format(rvc_before - rvc_after))
     print("RVC:{}".format(rvc))
+    if not tri:
+        print("Skipped {} Triallelic".format(triallelic))
     return(outStream)
 
 
