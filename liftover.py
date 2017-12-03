@@ -620,7 +620,7 @@ def liftover(vcfFile, transdict, refdict, outStream, tri):
                         x[4] = reverseComplement(x[4])
                     if x[3] != ref_a:
                         refmismatch += 1
-                        forline = "\t".join(x[0], x[1], x[3], x[4], x[9])
+                        forline = "\t".join((x[0], x[1], x[3], x[4], x[9]))
                         t.write("Before\n{}\n".format(forline))
                         if tri:
                             x = reorientGT_TRI(x, ref_a, alt_a)
@@ -630,7 +630,7 @@ def liftover(vcfFile, transdict, refdict, outStream, tri):
                                 x[4] = 'NA'
                             else:
                                 x = reorientGT(x, ref_a, alt_a)
-                        forline = "\t".join(x[0], x[1], ref_a, x[4], x[9])
+                        forline = "\t".join((x[0], x[1], ref_a, x[4], x[9]))
                         t.write("After\n{}\n".format(forline))
                         x[0] = newchrom
                         x[1] = newpos
