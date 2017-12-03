@@ -600,9 +600,6 @@ def liftover(vcfFile, transdict, refdict, outStream, tri):
     refmismatch = 0
     unaligned = 0
     reffix = 0
-    rvc_before = 0
-    rvc_after = 0
-    rvc = 0
     triallelic = 0
     print("executing liftover ...")
     tx = open("UnalignedCarryOver.bed", 'w')
@@ -619,39 +616,31 @@ def liftover(vcfFile, transdict, refdict, outStream, tri):
                     newchrom, newpos, orient = transdict[chrom][pos]
                     ref_a, alt_a = refdict[newchrom][newpos]
                     if orient == "-":
-                        rvc += 1
-                        if x[3] != ref_a:
-                            rvc_before += 1
                         x[3] = reverseComplement(x[3])
                         x[4] = reverseComplement(x[4])
-                        if x[3] == ref_a:
-                            rvc_after += 1
-                    try:
-                        if x[3] != ref_a:
-                            refmismatch += 1
-                            forline = "\t".join(x[0], x[1], x[3], x[4], x[9])
-                            t.write("Before\n{}\n".format(forline))
-                            if tri:
-                                x = reorientGT_TRI(x, ref_a, alt_a)
-                            else:
-                                if "," not in x[4]:
-                                    x = reorientGT(x, ref_a, alt_a)
-                                else:
-                                    triallelic += 1
-                                    x[4] = 'NA'
-                            forline = "\t".join(x[0], x[1], ref_a, x[4], x[9])
-                            t.write("After\n{}\n".format(forline))
-                            x[0] = newchrom
-                            x[1] = newpos
-                            x[3] = ref_a
-                            if "NA" not in x[4]:
-                                reffix += 1
+                    if x[3] != ref_a:
+                        refmismatch += 1
+                        forline = "\t".join(x[0], x[1], x[3], x[4], x[9])
+                        t.write("Before\n{}\n".format(forline))
+                        if tri:
+                            x = reorientGT_TRI(x, ref_a, alt_a)
                         else:
-                            refmatch += 1
-                            x[0] = newchrom
-                            x[1] = newpos
-                    except TypeError:
-                        continue
+                            if "," in x[4]:
+                                triallelic += 1
+                                x[4] = 'NA'
+                            else:
+                                x = reorientGT(x, ref_a, alt_a)
+                        forline = "\t".join(x[0], x[1], ref_a, x[4], x[9])
+                        t.write("After\n{}\n".format(forline))
+                        x[0] = newchrom
+                        x[1] = newpos
+                        x[3] = ref_a
+                        if "NA" not in x[4]:
+                            reffix += 1
+                    else:
+                        refmatch += 1
+                        x[0] = newchrom
+                        x[1] = newpos
                     if 'NA' not in x[4]:
                         outStream.write("{}\n".format("\t".join(x)))
                 except KeyError:
@@ -664,9 +653,6 @@ def liftover(vcfFile, transdict, refdict, outStream, tri):
     print("Mismatch fixed:{}".format(reffix))
     print("Mismatch not fixed:{}".format(refmismatch - reffix))
     print("Unaligned:{}".format(unaligned))
-    print("Sites reverse complemented:{}".format(rvc))
-    print("Matech by reverse complement:{}".format(rvc_before - rvc_after))
-    print("RVC:{}".format(rvc))
     if not tri:
         print("Skipped {} Triallelic".format(triallelic))
     return(outStream)
