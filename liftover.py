@@ -24,6 +24,7 @@ print fx.__doc__
 from __future__ import print_function
 import argparse
 from collections import defaultdict
+import ipdb
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-v1', "--vcfFile", type=str, action="store",
@@ -246,7 +247,7 @@ def reorientGT(x, ref_a, alt_a):
                 x[i + 9] = geno
             x[4] = "{},{}".format(x[3], x[4])
         else:
-            import ipdb; ipdb.set_trace()
+            ipdb.set_trace()
     elif x[3] not in alt_a:
         # case 2
         if ref_a in x[4]:
@@ -364,7 +365,8 @@ def reorientGT_TRI(x, ref_a, alt_a):
                         ad1, ad2, ad3 = ad.split(",")
                         ad = "{},{},{}".format(ad2, ad1, ad3)
                         pl1, pl2, pl3, pl4, pl5, pl6 = pl.split(",")
-                        pl = "{},{},{},{},{},{}".format(pl3, pl2, pl1, pl5, pl4, pl6)
+                        pl = "{},{},{},{},{},{}".format(pl3, pl2, pl1,
+                                                        pl5, pl4, pl6)
                         geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
                         x[i + 9] = geno
                     x[4] = alt_a
@@ -388,7 +390,8 @@ def reorientGT_TRI(x, ref_a, alt_a):
                         ad1, ad2, ad3 = ad.split(",")
                         ad = "{},{},{}".format(ad3, ad2, ad1)
                         pl1, pl2, pl3, pl4, pl5, pl6 = pl.split(",")
-                        pl = "{},{},{},{},{},{}".format(pl6, pl5, pl4, pl3, pl4, pl1)
+                        pl = "{},{},{},{},{},{}".format(pl6, pl5, pl4,
+                                                        pl3, pl4, pl1)
                         geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
                         x[i + 9] = geno
                     x[4] = x[4]
@@ -472,7 +475,8 @@ def reorientGT_TRI(x, ref_a, alt_a):
                         ad = "{},{},{}".format(ad2, ad1, ad3)
                         # reverse PL
                         pl1, pl2, pl3, pl4, pl5, pl6 = pl.split(",")
-                        pl = "{},{},{},{},{},{}".format(pl3, pl2, pl1, pl6, pl4, pl5)
+                        pl = "{},{},{},{},{},{}".format(pl3, pl2, pl1,
+                                                        pl6, pl4, pl5)
                         geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
                         x[i + 9] = geno
                     x[4] = "{},{}".format(x[3], x[4].split(",")[1])
@@ -499,7 +503,8 @@ def reorientGT_TRI(x, ref_a, alt_a):
                         ad = "{},{},{}".format(ad3, ad2, ad1)
                         # reverse PL
                         pl1, pl2, pl3, pl4, pl5, pl6 = pl.split(",")
-                        pl = "{},{},{},{},{},{}".format(pl6, pl5, pl4, pl3, pl2, pl1)
+                        pl = "{},{},{},{},{},{}".format(pl6, pl5, pl4,
+                                                        pl3, pl2, pl1)
                         geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
                         x[i + 9] = geno
                     x[4] = "{},{}".format(x[4].split(",")[0], x[3])
@@ -595,6 +600,9 @@ def liftover(vcfFile, transdict, refdict, outStream, tri):
     refmismatch = 0
     unaligned = 0
     reffix = 0
+    rvc_before = 0
+    rvc_after = 0
+    rvc = 0
     print("executing liftover ...")
     tx = open("UnalignedCarryOver.bed", 'w')
     t = open("ChangedSites.out", 'w')
@@ -610,12 +618,18 @@ def liftover(vcfFile, transdict, refdict, outStream, tri):
                     newchrom, newpos, orient = transdict[chrom][pos]
                     ref_a, alt_a = refdict[newchrom][newpos]
                     if orient == "-":
+                        rvc += 1
+                        if x[3] != ref_a:
+                            rvc_before += 1
                         x[3] = reverseComplement(x[3])
                         x[4] = reverseComplement(x[4])
+                        if x[3] == ref_a:
+                            rvc_after += 1
                     try:
                         if x[3] != ref_a:
                             refmismatch += 1
-                            t.write("Before\n{}\t{}\t{}\t{}\t{}\n".format(x[0], x[1], x[3], x[4], x[9]))
+                            forline = "\t".join(x[0], x[1], x[3], x[4], x[9])
+                            t.write("Before\n{}\n".format(forline))
                             if tri:
                                 x = reorientGT_TRI(x, ref_a, alt_a)
                             else:
@@ -623,7 +637,8 @@ def liftover(vcfFile, transdict, refdict, outStream, tri):
                                     x = reorientGT(x, ref_a, alt_a)
                                 else:
                                     x[4] = 'NA'
-                            t.write("After\n{}\t{}\t{}\t{}\t{}\n".format(x[0], x[1], ref_a, x[4], x[9]))
+                            forline = "\t".join(x[0], x[1], ref_a, x[4], x[9])
+                            t.write("After\n{}\n".format(forline))
                             x[0] = newchrom
                             x[1] = newpos
                             x[3] = ref_a
@@ -634,7 +649,7 @@ def liftover(vcfFile, transdict, refdict, outStream, tri):
                             x[0] = newchrom
                             x[1] = newpos
                     except TypeError:
-                        import ipdb;ipdb.set_trace()
+                        continue
                     if 'NA' not in x[4]:
                         outStream.write("{}\n".format("\t".join(x)))
                 except KeyError:
@@ -647,6 +662,9 @@ def liftover(vcfFile, transdict, refdict, outStream, tri):
     print("Mismatch fixed:{}".format(reffix))
     print("Mismatch not fixed:{}".format(refmismatch - reffix))
     print("Unaligned:{}".format(unaligned))
+    print("Sites reverse complemented:{}".format(rvc))
+    print("Matech by reverse complement:{}".format(rvc_before - rvc_after))
+    print("RVC:{}".format(rvc))
     return(outStream)
 
 
