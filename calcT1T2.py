@@ -25,6 +25,8 @@ parser.add_argument("--dlm", type=str, default=".",
                     help="delimeter denoting species")
 args = parser.parse_args()
 
+# TODO: allele freq for D rather than count
+
 
 def loadvcf(vcFile, quart, dlm):
     """Creates a dictionary object from a vcffile only including species in the
@@ -39,6 +41,9 @@ def loadvcf(vcFile, quart, dlm):
                 q_ix = []
                 for q in quart:
                     q_ix.append([i for i, x in enumerate(sample) if q == x.split(dlm)[0]])
+                # randomly subsample q_ix to use only 1 individual
+                q_ix_ind = [np.random.choice(i, 1) for i in q_ix]
+                samplelist = [sample[i[0]] for i in q_ix_ind]
             elif not line.startswith("##"):
                 x = line.strip().split()
                 if "," in x[4]:
@@ -50,7 +55,7 @@ def loadvcf(vcFile, quart, dlm):
                     count_list = []
                     polarize = x[q_ix[-1][0]].split(":")[0]
                     if "." not in polarize:
-                        for q in q_ix:
+                        for q in q_ix_ind:
                             ref = 0  # check for missing
                             alt = 0  # check for missing
                             for s in q:
@@ -66,6 +71,10 @@ def loadvcf(vcFile, quart, dlm):
                                 count_list.append([ref, alt])
                         if "0/1" not in polarize:
                             qdict[chrom][pos] = (count_list)
+    print("{}:{}\n{}:{}\n{}:{}\n{}:{}\n".format(quart[0], samplelist[0],
+                                                quart[1], samplelist[1],
+                                                quart[3], samplelist[3],
+                                                quart[4], samplelist[4]))
     return(qdict)
 
 
