@@ -73,8 +73,8 @@ def loadvcf(vcFile, quart, dlm):
                             qdict[chrom][pos] = (count_list)
     print("{}:{}\n{}:{}\n{}:{}\n{}:{}\n".format(quart[0], samplelist[0],
                                                 quart[1], samplelist[1],
-                                                quart[3], samplelist[3],
-                                                quart[4], samplelist[4]))
+                                                quart[2], samplelist[3],
+                                                quart[3], samplelist[3]))
     return(qdict)
 
 
