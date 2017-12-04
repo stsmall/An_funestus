@@ -19,7 +19,7 @@ parser.add_argument('-v', "--vcfFile", type=str, required=True,
 parser.add_argument('-g', "--groups", nargs='+',
                     required=True, help="quartet of species to calculate,"
                     " assumes form: P1 P2 P3. can be given multiple times")
-parser.add_argument('-s', "--size", type=int, default=0,
+parser.add_argument('-s', "--size", type=int, default=10000,
                     help="size of window for T1, T2 calculations")
 parser.add_argument("--dlm", type=str, default=".",
                     help="delimeter denoting species")
@@ -41,9 +41,6 @@ def loadvcf(vcFile, quart, dlm):
                 q_ix = []
                 for q in quart:
                     q_ix.append([i for i, x in enumerate(sample) if q == x.split(dlm)[0]])
-                # randomly subsample q_ix to use only 1 individual
-                q_ix_ind = [np.random.choice(i, 1) for i in q_ix]
-                samplelist = [sample[i[0]] for i in q_ix_ind]
             elif not line.startswith("##"):
                 x = line.strip().split()
                 if "," in x[4]:
@@ -55,27 +52,23 @@ def loadvcf(vcFile, quart, dlm):
                     count_list = []
                     polarize = x[q_ix[-1][0]].split(":")[0]
                     if "." not in polarize:
-                        for q in q_ix_ind:
-                            ref = 0  # check for missing
-                            alt = 0  # check for missing
+                        for q in q_ix:
                             for s in q:
+                                ref = 0  # check for missing
+                                alt = 0  # check for missing
                                 gt = x[s].split(":")[0]
                                 ref += gt.count("0")
                                 alt += gt.count("1")
-                            if ref == 0 and alt == 0:
-                                ref = -1
-                                alt = -1
-                            if "0/0" in polarize:
-                                count_list.append([alt, ref])
-                            elif "1/1" in polarize:
-                                count_list.append([ref, alt])
+                                if ref == 0 and alt == 0:
+                                    ref = -1
+                                    alt = -1
+                                if "0/0" in polarize:
+                                    count_list.append([alt, ref])
+                                elif "1/1" in polarize:
+                                    count_list.append([ref, alt])
                         if "0/1" not in polarize:
                             qdict[chrom][pos] = (count_list)
-    print("{}: {}\n{}: {}\n{}: {}\n{}: {}\n".format(quart[0], samplelist[0],
-                                                    quart[1], samplelist[1],
-                                                    quart[2], samplelist[2],
-                                                    quart[3], samplelist[3]))
-    return(qdict)
+    return(qdict, q_ix)
 
 
 def blockSE(t1t2dict, iix1, iix2, iix3, size=0, reps=10):
@@ -123,48 +116,36 @@ def DfoilTble(t1t2dict, size, ntaxa):
                    'BAAAA', 'BAABA', 'BABAA', 'BABBA',
                    'BBAAA', 'BBABA', 'BBBAA', 'BBBBA']
     d = open("dfoil.tbl", 'w')
-    if size == 0:
-        d.write("#chrom\tsites\t{}\n".format('\t'.join(headers)))
-        for chrom in t1t2dict.keys():
-            posdict = OrderedDict(sorted(t1t2dict[chrom].items()))
-            divergence = []
-            for pos in posdict.keys():
-                divergence.append(posdict[pos])
-            div = np.array(divergence)
-            sites = len(divergence)
-            div_sum = np.sum(div, axis=0)
-            divstr = map(str, div_sum)
-            d.write("{}\t{}\t{}\n".format(chrom, sites, '\t'.join(divstr)))
-    else:
-        d.write("#chrom\tstart\tend\tsites\t{}\n".format('\t'.join(headers)))
-        start = 1
-        end = size
-        for chrom in t1t2dict.keys():
-            posdict = OrderedDict(sorted(t1t2dict[chrom].items()))
-            divergence = []
-            for pos in posdict.keys():
-                if pos > end:
-                    try:
-                        # AAAA, AABA, ABAA, ABBA, BAAA, BABA, BBAA, BBBA
-                        div = np.array(divergence)
-                        sites = len(divergence)
-                        div_sum = np.sum(div, axis=0)
-                        divstr = map(str, div_sum)
-                        d.write("{}\t{}\t{}\t{}\t{}\n".format(chrom, start, end, sites, '\t'.join(divstr)))
-                        divergence = []
-                        start = end
-                        end = end + size
-                    except IndexError:
-                        d.write("{}\t{}\t{}\t{}\t{}0\n".format(chrom, start, end, sites, '0\t'*15))
-                        start = end
-                        end = end + size
-                else:
-                    divergence.append(posdict[pos])
+    d.write("#chrom\tstart\tend\tsites\t{}\n".format('\t'.join(headers)))
+    start = 1
+    end = size
+    for chrom in t1t2dict.keys():
+        posdict = OrderedDict(sorted(t1t2dict[chrom].items()))
+        divergence = []
+        for pos in posdict.keys():
+            if pos > end:
+                try:
+                    # AAAA, AABA, ABAA, ABBA, BAAA, BABA, BBAA, BBBA
+                    div = np.array(divergence)
+                    sites = len(divergence)
+                    div_sum = np.sum(div, axis=0)
+                    divstr = map(str, div_sum)
+                    d.write("{}\t{}\t{}\t{}\t{}\n".format(chrom, start, end, sites, '\t'.join(divstr)))
+                    divergence = []
+                    start = end
+                    end = end + size
+                except IndexError:
+                    d.write("{}\t{}\t{}\t{}\t{}0\n".format(chrom, start, end, sites, '0\t'*15))
+                    start = end
+                    end = end + size
+            else:
+                blockcount = np.mean(posdict[pos], axis=0)
+                divergence.append(blockcount)
     d.close
     return(None)
 
 
-def foil4(vcfdict, quartet):
+def foil4(vcfdict, quartet, q_ix):
     """Calculates the divergence between (1,2) as:
         T2 = (1/N) * ((n_ABAA + n_BAAA) / 2).
       Calculates the divergence between (1,2),3 as:
@@ -182,112 +163,110 @@ def foil4(vcfdict, quartet):
     """
     print("calculating divergence times for quartet: {}...".format(quartet))
     p1, p2, p3, p4 = quartet
-    t1t2dict = defaultdict(dict)
+    t1t2dict = defaultdict(lambda: defaultdict(lambda: []))
     for chrom in vcfdict.keys():
-        n_AAAA = 0  #
-        n_AABA = 0  #
-        n_ABAA = 0
-        n_ABBA = 0  #
-        n_BAAA = 0
-        n_BABA = 0  #
-        n_BBAA = 0
-        n_BBBA = 0  #
-        callable_pos = 0
-        for pos in vcfdict[chrom].keys():
-            m = np.array(vcfdict[chrom][pos])
-            if -1 not in m:
-                window = [0, 0, 0, 0, 0, 0, 0, 0]
-                header = ['AAAA', 'AABA', 'ABAA', 'ABBA', 'BAAA', 'BABA',
-                          'BBAA', 'BBBA']
-                callable_pos += 1
-                count = np.where(m == 0)
-                try:
-                    count_sum = sum(count[1][0:3])  # sum only first 3 entries
-                except IndexError:
-                    import ipdb;ipdb.set_trace()
-                count_len = len(count[1])  # 4 zeros
-                if count_len == 4:
-                    if m[3, 1] != 0:
-                        if count_sum == 0:
-                            n_AAAA += 1
-                            window[header.index('AAAA')] = 1
-                        elif count_sum == 1:
-                            iix = np.where(count[1] == 1)[0]
-                            if 2 in iix:
-                                n_AABA += 1
-                                window[header.index('AABA')] = 1
-                            elif 1 in iix:
-                                n_ABAA += 1
-                                window[header.index('ABAA')] = 1
-                            elif 0 in iix:
-                                n_BAAA += 1
-                                window[header.index('BAAA')] = 1
-                        elif count_sum == 2:
-                            # two zeros
-                            iix = np.where(count[1] == 1)[0]
-                            if 0 in iix and 2 in iix:
-                                n_BABA += 1
-                                window[header.index('BABA')] = 1
-                            elif 0 in iix and 1 in iix:
-                                n_BBAA += 1
-                                window[header.index('BBAA')] = 1
-                            elif 1 in iix and 2 in iix:
-                                n_ABBA += 1
-                                window[header.index('ABBA')] = 1
-                        elif count_sum == 3:
-                            n_BBBA += 1
-                            window[header.index('BBBA')] = 1
-                        else:
-                            raise ValueError("pattern not recognized")
-                        t1t2dict[chrom][int(pos)] = tuple(window)
-        # 'AAAA', 'AABA', 'ABAA', 'ABBA', 'BAAA', 'BABA', 'BBAA', 'BBBA'
-        # 0        1        2      3        4       5      6       7
-        if callable_pos > 0:
-            # P1 P2 P3 O; BAAA, ABAA, BBAA
-            t2_inner = (n_ABAA + n_BAAA) / 2
-            t2 = t2_inner / callable_pos
-            t1 = (t2_inner + n_BBAA) / callable_pos
-            # t1se, t2se = blockSE(t1t2dict, 2, 4, 6)
-            print("BAAA:{}\tABAA:{}\tBBAA:{}\tN:{}".format(n_BAAA, n_ABAA,
-                                                           n_BBAA,
-                                                           callable_pos))
-            print("{}\t({},{}),{} : {}\t({},{}) : {}\n".format(chrom, p1, p2,
-                                                               p3, t1,
-                                                               p1, p2, t2,))
-#            print("{}\t({},{}),{} : {}+-{}\t({},{}) : {}+-{}\n".format(chrom, p1, p2,
-#                                                               p3, t1, t1se,
-#                                                               p1, p2, t2,
-#                                                               t2se))
-            # P1 P3 P2 O; BAAA AABA BABA
-            t2_inner = (n_BAAA + n_AABA) / 2
-            t2a = t2_inner / callable_pos
-            t1a = (t2_inner + n_BABA) / callable_pos
-            # t1se, t2se = blockSE(t1t2dict, 4, 1, 5)
-            print("BAAA:{}\tABAA:{}\tBBAA:{}\tN:{}".format(n_BAAA, n_AABA,
-                                                           n_BABA,
-                                                           callable_pos))
-            print("{}\t({},{}),{} : {}\t({},{}) : {}\n".format(chrom, p1, p3,
-                                                               p2, t1a, p1, p3,
-                                                               t2a))
-#            print("{}\t({},{}),{} : {}+-{}\t({},{}) : {}+-{}\n".format(chrom, p1, p3,
-#                                                               p2, t1a, t1se, p1, p3,
-#                                                               t2a, t2se))
-            # P2 P3 P1 O; ABAA AABA ABBA
-            t2_inner = (n_ABAA + n_AABA) / 2
-            t2b = t2_inner / callable_pos
-            t1b = (t2_inner + n_ABBA) / callable_pos
-            # t1se, t2se = blockSE(t1t2dict, 2, 1, 3)
-            print("BAAA:{}\tABAA:{}\tBBAA:{}\tN:{}".format(n_ABAA, n_AABA,
-                                                           n_ABBA,
-                                                           callable_pos))
-            print("{}\t({},{}),{} : {}\t({},{}) : {}\n".format(chrom, p2, p3,
-                                                               p1, t1b, p2, p3,
-                                                               t2b))
-#            print("{}\t({},{}),{} : {}+-{}\t({},{}) : {}+-{}\n".format(chrom,
-#                                                                       p2, p3,
-#                                                                       p1, t1b,
-#                                                                       t1se, p2, p3,
-#                                                                       t2b, t2se))
+        t1list = []
+        t2list = []
+        for i in q_ix[0]:
+            for j in q_ix[1]:
+                for k in q_ix[2]:
+                    n_AAAA = 0  #
+                    n_AABA = 0  #
+                    n_ABAA = 0
+                    n_ABBA = 0  #
+                    n_BAAA = 0
+                    n_BABA = 0  #
+                    n_BBAA = 0
+                    n_BBBA = 0  #
+                    callable_pos = 0
+                    countlist = []
+                    for pos in vcfdict[chrom].keys():
+                        marray = np.array(vcfdict[chrom][pos])
+                        m = np.array([marray[i], marray[j], marray[k], marray[-1]])
+                        if -1 not in m:
+                            window = [0, 0, 0, 0, 0, 0, 0, 0]
+                            header = ['AAAA', 'AABA', 'ABAA', 'ABBA', 'BAAA',
+                                      'BABA', 'BBAA', 'BBBA']
+                            callable_pos += 1
+                            count = np.where(m == 0)
+                            count_sum = sum(count[1][0:3])  # sum only first 3 entries
+                            count_len = len(count[1])  # 4 zeros
+                            if count_len == 4:
+                                if m[3, 1] != 0:
+                                    if count_sum == 0:
+                                        n_AAAA += 1
+                                        window[header.index('AAAA')] = 1
+                                    elif count_sum == 1:
+                                        iix = np.where(count[1] == 1)[0]
+                                        if 2 in iix:
+                                            n_AABA += 1
+                                            window[header.index('AABA')] = 1
+                                        elif 1 in iix:
+                                            n_ABAA += 1
+                                            window[header.index('ABAA')] = 1
+                                        elif 0 in iix:
+                                            n_BAAA += 1
+                                            window[header.index('BAAA')] = 1
+                                    elif count_sum == 2:
+                                        # two zeros
+                                        iix = np.where(count[1] == 1)[0]
+                                        if 0 in iix and 2 in iix:
+                                            n_BABA += 1
+                                            window[header.index('BABA')] = 1
+                                        elif 0 in iix and 1 in iix:
+                                            n_BBAA += 1
+                                            window[header.index('BBAA')] = 1
+                                        elif 1 in iix and 2 in iix:
+                                            n_ABBA += 1
+                                            window[header.index('ABBA')] = 1
+                                    elif count_sum == 3:
+                                        n_BBBA += 1
+                                        window[header.index('BBBA')] = 1
+                                    else:
+                                        raise ValueError("pattern not recognized")
+                                    t1t2dict[chrom][int(pos)].append(window)
+                    # 'AAAA', 'AABA', 'ABAA', 'ABBA', 'BAAA', 'BABA', 'BBAA', 'BBBA'
+                    # 0        1        2      3        4       5      6       7
+                    if callable_pos > 0:
+                        # P1 P2 P3 O; BAAA, ABAA, BBAA
+                        t2_inner = (n_ABAA + n_BAAA) / 2
+                        t2_1 = t2_inner / callable_pos
+                        t1_1 = (t2_inner + n_BBAA) / callable_pos
+                        # t1se, t2se = blockSE(t1t2dict, 2, 4, 6)
+
+                        # P1 P3 P2 O; BAAA AABA BABA
+                        t2_inner = (n_BAAA + n_AABA) / 2
+                        t2_2 = t2_inner / callable_pos
+                        t1_2 = (t2_inner + n_BABA) / callable_pos
+                        # t1se, t2se = blockSE(t1t2dict, 4, 1, 5)
+
+                        # P2 P3 P1 O; ABAA AABA ABBA
+                        t2_inner = (n_ABAA + n_AABA) / 2
+                        t2_3 = t2_inner / callable_pos
+                        t1_3 = (t2_inner + n_ABBA) / callable_pos
+                        # t1se, t2se = blockSE(t1t2dict, 2, 1, 3)
+                    t1list.append([t1_1, t1_2, t1_3])
+                    t2list.append([t2_1, t2_2, t2_3])
+                    countlist.append([n_AAAA, n_AABA, n_ABAA, n_ABBA, n_BAAA,
+                                      n_BABA, n_BBAA, n_BBBA])
+        # averages w/ SE
+        reps = len(t1list)
+        t1_1, t1_2, t1_3 = zip(*t1list)
+        t2_1, t2_2, t2_3 = zip(*t2list)
+        t1se = (np.std(t1_1)) / np.sqrt(reps)
+        t2se = (np.std(t2_1)) / np.sqrt(reps)
+        t1ase = (np.std(t1_2)) / np.sqrt(reps)
+        t2ase = (np.std(t2_2)) / np.sqrt(reps)
+        t1bse = (np.std(t1_3)) / np.sqrt(reps)
+        t2bse = (np.std(t2_3)) / np.sqrt(reps)
+        countmean = np.mean(countlist, axis=0)
+        print("{}/n{}/n".format(header, countmean))
+        print("{}\t({},{}),{} : {} +-{}\t({},{}) : {} +-{}\n".format(
+              chrom, p1, p2, p3, np.mean(t1_1), t1se, p1, p2, np.mean(t2_1), t2se))
+        print("{}\t({},{}),{} : {}+-{}\t({},{}) : {}+-{}\n".format(
+                chrom, p1, p3, p2, np.mean(t1_2), t1ase, p1, p3, np.mean(t2_2), t2ase))
+        print("{}\t({},{}),{} : {}+-{}\t({},{}) : {}+-{}\n".format(
+                chrom, p2, p3, p1, np.mean(t1_3), t1bse, p2, p3, np.mean(t2_3), t2bse))
     return(t1t2dict)
 
 
@@ -405,11 +384,11 @@ def foil5(vcfdict, quartet):
 if __name__ == "__main__":
     quart = args.groups
     vcfFile = args.vcfFile
-    qdict = loadvcf(vcfFile, quart, args.dlm)
+    qdict, q_ix = loadvcf(vcfFile, quart, args.dlm)
     if len(quart) == 5:
-        t1t2dict = foil5(qdict, quart)
+        t1t2dict = foil5(qdict, quart, q_ix)
     elif len(quart) == 4:
-        t1t2dict = foil4(qdict, quart)
+        t1t2dict = foil4(qdict, quart, q_ix)
     else:
         raise ValueError("quartet must be 4 or 5 taxa")
     DfoilTble(t1t2dict, args.size, len(quart))
