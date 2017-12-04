@@ -240,7 +240,7 @@ def foil4(vcfdict, quartet):
                         else:
                             raise ValueError("pattern not recognized")
                         t1t2dict[chrom][int(pos)] = tuple(window)
-        #'AAAA', 'AABA', 'ABAA', 'ABBA', 'BAAA', 'BABA', 'BBAA', 'BBBA'
+        # 'AAAA', 'AABA', 'ABAA', 'ABBA', 'BAAA', 'BABA', 'BBAA', 'BBBA'
         # 0        1        2      3        4       5      6       7
         if callable_pos > 0:
             # P1 P2 P3 O; BAAA, ABAA, BBAA
@@ -251,7 +251,7 @@ def foil4(vcfdict, quartet):
             print("BAAA:{}\tABAA:{}\tBBAA:{}\tN:{}".format(n_BAAA, n_ABAA,
                                                            n_BBAA,
                                                            callable_pos))
-            print("{}\t({},{}),{} : {}+-{}\t({},{}) : {}+-{}\n".format(chrom, p1, p2,
+            print("{}\t({},{}),{} : {}\t({},{}) : {}\n".format(chrom, p1, p2,
                                                                p3, t1,
                                                                p1, p2, t2,))
 #            print("{}\t({},{}),{} : {}+-{}\t({},{}) : {}+-{}\n".format(chrom, p1, p2,
@@ -266,7 +266,7 @@ def foil4(vcfdict, quartet):
             print("BAAA:{}\tABAA:{}\tBBAA:{}\tN:{}".format(n_BAAA, n_AABA,
                                                            n_BABA,
                                                            callable_pos))
-            print("{}\t({},{}),{} : {}+-{}\t({},{}) : {}+-{}\n".format(chrom, p1, p3,
+            print("{}\t({},{}),{} : {}\t({},{}) : {}\n".format(chrom, p1, p3,
                                                                p2, t1a, p1, p3,
                                                                t2a))
 #            print("{}\t({},{}),{} : {}+-{}\t({},{}) : {}+-{}\n".format(chrom, p1, p3,
@@ -280,11 +280,9 @@ def foil4(vcfdict, quartet):
             print("BAAA:{}\tABAA:{}\tBBAA:{}\tN:{}".format(n_ABAA, n_AABA,
                                                            n_ABBA,
                                                            callable_pos))
-            print("{}\t({},{}),{} : {}+-{}\t({},{}) : {}+-{}\n".format(chrom,
-                                                                       p2, p3,
-                                                                       p1, t1b,
-                                                                       p2, p3,
-                                                                       t2b))
+            print("{}\t({},{}),{} : {}\t({},{}) : {}\n".format(chrom, p2, p3,
+                                                               p1, t1b, p2, p3,
+                                                               t2b))
 #            print("{}\t({},{}),{} : {}+-{}\t({},{}) : {}+-{}\n".format(chrom,
 #                                                                       p2, p3,
 #                                                                       p1, t1b,
