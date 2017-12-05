@@ -127,10 +127,8 @@ def loadTransfer(transfersFile):
             x = line.strip().split()
             chrom = x[0]
             orient = x[1]
-            # pos_s = x[2]
             pos_e = x[3]
             newchrom = x[4]
-            newpos_s = x[6]
             newpos_e = x[7]
             transdict[chrom][pos_e] = (newchrom, newpos_e, orient)
     return(transdict)

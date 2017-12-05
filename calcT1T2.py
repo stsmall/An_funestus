@@ -183,7 +183,7 @@ def foil4(vcfdict, quartet, q_ix):
                     for pos in vcfdict[chrom].keys():
                         marray = np.array(vcfdict[chrom][pos])
                         try:
-                            m = np.array([marray[i], marray[j], marray[k], marray[-1]])
+                            m = np.array([marray[i-9], marray[j-9], marray[k-9], marray[-1]])
                         except IndexError:
                             import ipdb;ipdb.set_trace()
                         if -1 not in m:
