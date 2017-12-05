@@ -37,10 +37,10 @@ def loadvcf(vcFile, quart, dlm):
     with open(vcfFile, 'r') as vcf:
         for line in vcf:
             if line.startswith("#CHROM"):
-                sample = line.strip().split()
+                samplelist = line.strip().split()
                 q_ix = []
                 for q in quart:
-                    q_ix.append([i for i, x in enumerate(sample) if q == x.split(dlm)[0]])
+                    q_ix.append([i for i, x in enumerate(samplelist) if q == x.split(dlm)[0]])
             elif not line.startswith("##"):
                 x = line.strip().split()
                 if "," in x[4]:
@@ -52,21 +52,21 @@ def loadvcf(vcFile, quart, dlm):
                     count_list = []
                     polarize = x[q_ix[-1][0]].split(":")[0]
                     if "." not in polarize:
-                        for q in q_ix:
-                            for s in q:
-                                ref = 0  # check for missing
-                                alt = 0  # check for missing
-                                gt = x[s].split(":")[0]
-                                ref += gt.count("0")
-                                alt += gt.count("1")
-                                if ref == 0 and alt == 0:
-                                    ref = -1
-                                    alt = -1
-                                if "0/0" in polarize:
-                                    count_list.append([alt, ref])
-                                elif "1/1" in polarize:
-                                    count_list.append([ref, alt])
+                        for sample in range(9, len(x)):
+                            ref = 0  # check for missing
+                            alt = 0  # check for missing
+                            gt = x[sample].split(":")[0]
+                            ref += gt.count("0")
+                            alt += gt.count("1")
+                            if ref == 0 and alt == 0:
+                                ref = -1
+                                alt = -1
+                            if "0/0" in polarize:
+                                count_list.append([alt, ref])
+                            elif "1/1" in polarize:
+                                count_list.append([ref, alt])
                         if "0/1" not in polarize:
+                            # if ancestral is not polymorphic
                             qdict[chrom][pos] = (count_list)
     return(qdict, q_ix)
 
@@ -183,7 +183,7 @@ def foil4(vcfdict, quartet, q_ix):
                     for pos in vcfdict[chrom].keys():
                         marray = np.array(vcfdict[chrom][pos])
                         try:
-                            m = np.array([marray[i-9], marray[j-9], marray[k-9], marray[-1]])
+                            m = np.array([marray[i], marray[j], marray[k], marray[-1]])
                         except IndexError:
                             import ipdb;ipdb.set_trace()
                         if -1 not in m:
