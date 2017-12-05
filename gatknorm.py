@@ -41,28 +41,35 @@ def fixPGTPID(vcf):
                         x[8] = "GT:AD:DP:GQ:PL"
                         f.write("{}\n".format("\t".join(x)))
                     elif "." in x[4]:
-                        if len(x[3]) > 1:
+                        if (len(x[3]) > 1) or (len(x[4]) > 1):
                             # skip ref allele that are insertions
-                            continue
+                            pass
                         else:
                             # fix invariant
                             for sample in range(9, len(x)):
                                 gt = x[sample].split(":")
-                                try:
-                                    gq = gt[formats.index('RGQ')]
-                                except ValueError:
-                                    gq = '99'
-                                dp = gt[formats.index('DP')]
-                                try:
-                                    ad = gt[formats.index('AD')]
-                                except ValueError:
-                                    ad = dp
-                                pl = '0'
-                                adv = ad.split(",")[0]
-                                newgt = [gt[0], adv, dp, gq, pl]
-                                x[sample] = ":".join(newgt)
+                                if gt[0] == "./." or gt[0] == ".":
+                                    x[sample] = "./.:.:.:.:."
+                                else:
+                                    try:
+                                        gq = gt[formats.index('RGQ')]
+                                    except ValueError:
+                                        gq = '99'
+                                    dp = gt[formats.index('DP')]
+                                    try:
+                                        ad = gt[formats.index('AD')]
+                                    except ValueError:
+                                        ad = dp
+                                    pl = '0'
+                                    adv = ad.split(",")[0]
+                                    newgt = [gt[0], adv, dp, gq, pl]
+                                    x[sample] = ":".join(newgt)
                             x[8] = "GT:AD:DP:GQ:PL"
-                            f.write("{}\n".format("\t".join(x)))
+                            newsite = "/t".join(x)
+                            if newsite.count("./.") == len(range(9, len(x))):
+                                pass
+                            else:
+                                f.write("{}\n".format(newsite))
                     else:
                         f.write(line)
     f.close()
