@@ -38,8 +38,8 @@ def fixmafgap(mafFile):
                     else:
                         p2ref[3] = str(int(p2ref[3]) - 1)
                     f.write(line)
-                    f.write("{} {} {} {} {} {}\n".format(p1ref[0], p1ref[1], p1ref[2], p1ref[3], p1ref[4], p1ref[5], p1ref[6]))
-                    f.write("{} {} {} {} {} {}\n".format(p2ref[0], p2ref[1], p2ref[2], p2ref[3], p2ref[4], p2ref[5], p2ref[6]))
+                    f.write("{}\n".format(" ".join(p1ref)))
+                    f.write("{}\n".format(" ".join(p2ref)))
                 else:
                     f.write(line)
                     f.write(p1)
