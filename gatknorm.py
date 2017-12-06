@@ -52,19 +52,21 @@ def fixPGTPID(vcf):
                                     x[sample] = "./.:.:.:.:."
                                 else:
                                     try:
-                                        gq = gt[formats.index('RGQ')]
-                                    except ValueError:
-                                        gq = '99'
-                                    dp = gt[formats.index('DP')]
-                                    try:
-                                        ad = gt[formats.index('AD')]
-                                    except:
+                                        try:
+                                            gq = gt[formats.index('RGQ')]
+                                        except ValueError:
+                                            gq = '99'
+                                        dp = gt[formats.index('DP')]
+                                        try:
+                                            ad = gt[formats.index('AD')]
+                                        except ValueError:
+                                            ad = dp
+                                        pl = '0'
+                                        adv = ad.split(",")[0]
+                                        newgt = [gt[0], adv, dp, gq, pl]
+                                        x[sample] = ":".join(newgt)
+                                    except IndexError:
                                         import ipdb;ipdb.set_trace()
-                                        # ad = dp
-                                    pl = '0'
-                                    adv = ad.split(",")[0]
-                                    newgt = [gt[0], adv, dp, gq, pl]
-                                    x[sample] = ":".join(newgt)
                             x[8] = "GT:AD:DP:GQ:PL"
                             newsite = "\t".join(x)
                             if newsite.count("./.") == len(range(9, len(x))):
