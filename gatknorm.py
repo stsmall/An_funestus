@@ -29,21 +29,7 @@ def fixPGTPID(vcf):
                 if x[5] == 'inf':
                     x[5] = '500'
                 if ("*" not in x[4]) and (len(formats) > 1) and ("<NON_REF>" not in x[4]):
-                    if "PGT" in formats or "PID" in formats:
-                        for sample in range(9, len(x)):
-                            gt = x[sample].split(":")
-                            try:
-                                ad = gt[formats.index('AD')]
-                            except IndexError:
-                                import ipdb;ipdb.set_trace()
-                            dp = gt[formats.index('DP')]
-                            gq = gt[formats.index('GQ')]
-                            pl = gt[formats.index('PL')]
-                            newgt = [gt[0], ad, dp, gq, pl]
-                            x[sample] = ":".join(newgt)
-                        x[8] = "GT:AD:DP:GQ:PL"
-                        f.write("{}\n".format("\t".join(x)))
-                    elif "." in x[4]:
+                    if "." in x[4]:
                         if (len(x[3]) > 1) or (len(x[4]) > 1):
                             # skip ref allele that are insertions
                             pass
@@ -73,6 +59,24 @@ def fixPGTPID(vcf):
                                 pass
                             else:
                                 f.write("{}\n".format(newsite))
+                    elif "PGT" in formats or "PID" in formats:
+                        for sample in range(9, len(x)):
+                            gt = x[sample].split(":")
+                            if gt[0] == "./." or gt[0] == ".":
+                                x[sample] = "./.:.:.:.:."
+                            else:
+                                ad = gt[formats.index('AD')]
+                                dp = gt[formats.index('DP')]
+                                gq = gt[formats.index('GQ')]
+                                pl = gt[formats.index('PL')]
+                                newgt = [gt[0], ad, dp, gq, pl]
+                                x[sample] = ":".join(newgt)
+                        x[8] = "GT:AD:DP:GQ:PL"
+                        newsite = "\t".join(x)
+                        if newsite.count("./.") == len(range(9, len(x))):
+                            pass
+                        else:
+                            f.write("{}\n".format(newsite))
                     else:
                         f.write(line)
     f.close()
