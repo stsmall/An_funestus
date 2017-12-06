@@ -13,15 +13,12 @@ import ipdb
 import numpy as np
 import argparse
 from collections import defaultdict
-from collections import OrderedDict
 parser = argparse.ArgumentParser()
 parser.add_argument('-v', "--vcfFile", type=str, required=True,
                     help="vcf file of variants")
 parser.add_argument('-g', "--groups", nargs='+',
                     required=True, help="quartet of species to calculate,"
                     " assumes form: P1 P2 P3. can be given multiple times")
-parser.add_argument('-s', "--size", type=int, default=10000,
-                    help="size of window for T1, T2 calculations")
 parser.add_argument("--dlm", type=str, default=".",
                     help="delimeter denoting species")
 args = parser.parse_args()
@@ -70,83 +67,6 @@ def loadvcf(vcFile, quart, dlm):
                             # if ancestral is not polymorphic
                             qdict[chrom][pos] = (count_list)
     return(qdict, q_ix)
-
-
-def blockSE(t1t2dict, iix1, iix2, iix3, size=0, reps=10):
-    """
-    """
-    t1sedict = {}
-    t2sedict = {}
-    if size == 0:
-        for chrom in t1t2dict.keys():
-            t1list = []
-            t2list = []
-            posdict = OrderedDict(sorted(t1t2dict[chrom].items()))
-            sites = len(posdict.keys())
-            for i in range(reps):
-                pos = np.random.choice(posdict.keys(), sites, replace=True)
-                divergence = []
-                for p in pos:
-                    divergence.append(posdict[p])
-                # calc t1, t2
-                div = np.array(divergence)
-                div_sum = np.sum(div, axis=0)
-                t2_inner = (div_sum[iix1] + div_sum[iix2]) / 2
-                t2 = t2_inner / sites
-                t1 = (t2_inner + div_sum[iix3]) / sites
-                t1list.append(t1)
-                t2list.append(t2)
-            t1sedict[chrom] = (np.std(t1list)) / np.sqrt(reps)
-            t2sedict[chrom] = (np.std(t2list)) / np.sqrt(reps)
-    else:
-        pass
-        # TODO: block resampling
-        # bin t1t2dict.keys() into size for block resampling accounting for ld
-    return(t1sedict[chrom], t2sedict[chrom])
-
-
-def DfoilTble(t1t2dict, size, ntaxa):
-    """
-    """
-    if ntaxa is 4:
-        headers = ['AAAA', 'AABA', 'ABAA', 'ABBA',
-                   'BAAA', 'BABA', 'BBAA', 'BBBA']
-    elif ntaxa is 5:
-        headers = ['AAAAA', 'AAABA', 'AABAA', 'AABBA',
-                   'ABAAA', 'ABABA', 'ABBAA', 'ABBBA',
-                   'BAAAA', 'BAABA', 'BABAA', 'BABBA',
-                   'BBAAA', 'BBABA', 'BBBAA', 'BBBBA']
-    d = open("dfoil.tbl", 'w')
-    d.write("#chrom\tstart\tend\tsites\t{}\n".format('\t'.join(headers)))
-    start = 1
-    end = size
-    for chrom in t1t2dict.keys():
-        posdict = OrderedDict(sorted(t1t2dict[chrom].items()))
-        divergence = []
-        for pos in posdict.keys():
-            if pos > end:
-                try:
-                    try:
-                        # AAAA, AABA, ABAA, ABBA, BAAA, BABA, BBAA, BBBA
-                        div = np.array(divergence)
-                        sites = len(divergence)
-                        div_sum = np.sum(div, axis=0)
-                        divstr = map(str, div_sum)
-                        d.write("{}\t{}\t{}\t{}\t{}\n".format(chrom, start, end, sites, '\t'.join(divstr)))
-                        divergence = []
-                        start = end
-                        end = end + size
-                    except IndexError:
-                        d.write("{}\t{}\t{}\t{}\t{}0\n".format(chrom, start, end, sites, '0\t'*15))
-                        start = end
-                        end = end + size
-                except TypeError:
-                    ipdb.set_trace()
-            else:
-                blockcount = np.mean(posdict[pos], axis=0)
-                divergence.append(blockcount)
-    d.close
-    return(None)
 
 
 def foil4(vcfdict, quartet, q_ix):
@@ -232,6 +152,7 @@ def foil4(vcfdict, quartet, q_ix):
                     # 'AAAA', 'AABA', 'ABAA', 'ABBA', 'BAAA', 'BABA', 'BBAA', 'BBBA'
                     # 0        1        2      3        4       5      6       7
                     if callable_pos > 0:
+                        ipdb.set_trace()
                         # P1 P2 P3 O; BAAA, ABAA, BBAA
                         t2_inner = (n_ABAA + n_BAAA) / 2
                         t2_1 = t2_inner / callable_pos
@@ -399,4 +320,3 @@ if __name__ == "__main__":
         t1t2dict = foil4(qdict, quart, q_ix)
     else:
         raise ValueError("quartet must be 4 or 5 taxa")
-    DfoilTble(t1t2dict, args.size, len(quart))
