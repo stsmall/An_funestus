@@ -32,7 +32,10 @@ def fixPGTPID(vcf):
                     if "PGT" in formats or "PID" in formats:
                         for sample in range(9, len(x)):
                             gt = x[sample].split(":")
-                            ad = gt[formats.index('AD')]
+                            try:
+                                ad = gt[formats.index('AD')]
+                            except IndexError:
+                                import ipdb;ipdb.set_trace()
                             dp = gt[formats.index('DP')]
                             gq = gt[formats.index('GQ')]
                             pl = gt[formats.index('PL')]
@@ -52,21 +55,18 @@ def fixPGTPID(vcf):
                                     x[sample] = "./.:.:.:.:."
                                 else:
                                     try:
-                                        try:
-                                            gq = gt[formats.index('RGQ')]
-                                        except ValueError:
-                                            gq = '99'
-                                        dp = gt[formats.index('DP')]
-                                        try:
-                                            ad = gt[formats.index('AD')]
-                                        except ValueError:
-                                            ad = dp
-                                        pl = '0'
-                                        adv = ad.split(",")[0]
-                                        newgt = [gt[0], adv, dp, gq, pl]
-                                        x[sample] = ":".join(newgt)
-                                    except IndexError:
-                                        import ipdb;ipdb.set_trace()
+                                        gq = gt[formats.index('RGQ')]
+                                    except ValueError:
+                                        gq = '99'
+                                    dp = gt[formats.index('DP')]
+                                    try:
+                                        ad = gt[formats.index('AD')]
+                                    except ValueError:
+                                        ad = dp
+                                    pl = '0'
+                                    adv = ad.split(",")[0]
+                                    newgt = [gt[0], adv, dp, gq, pl]
+                                    x[sample] = ":".join(newgt)
                             x[8] = "GT:AD:DP:GQ:PL"
                             newsite = "\t".join(x)
                             if newsite.count("./.") == len(range(9, len(x))):
