@@ -191,43 +191,102 @@ def reorientGT(x, ref_a, alt_a):
 
     """
     formats = x[8].split(":")
-    if "." in x[4]:
-        # this site is invariant, so a fixed difference between genomes
-        for i, sample in enumerate(x[9:]):
-            gt = sample.split(":")
-            gt[0] = gt[0].replace("0", "1")  # change all 0s to 1s
-            ad = gt[formats.index('AD')]
-            dp = gt[formats.index('DP')]
-            gq = gt[formats.index('GQ')]
-            pl = gt[formats.index('PL')]
-            geno = "{}:0,{}:{}:{}:500,500,{}".format(gt[0], ad, dp, gq, pl)
-            x[i + 9] = geno
-        x[4] = x[3]
-    elif x[3] in alt_a:
-        if ref_a in x[4]:
+    try:
+        if "." in x[4]:
+            # this site is invariant, so a fixed difference between genomes
             for i, sample in enumerate(x[9:]):
                 gt = sample.split(":")
-                if "0/0" in gt[0]:
-                    gt[0] = '1/1'
-                elif "1/1" in gt[0]:
-                    gt[0] = '0/0'
-                # fix formating
+                gt[0] = gt[0].replace("0", "1")  # change all 0s to 1s
                 ad = gt[formats.index('AD')]
                 dp = gt[formats.index('DP')]
                 gq = gt[formats.index('GQ')]
                 pl = gt[formats.index('PL')]
-                # reverse AD
-                ad1, ad2 = ad.split(",")
-                ad = "{},{}".format(ad2, ad1)
-                # reverse PL
-                pl1, pl2, pl3 = pl.split(",")
-                pl = "{},{},{}".format(pl3, pl2, pl1)
-                geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
+                geno = "{}:0,{}:{}:{}:500,500,{}".format(gt[0], ad, dp, gq, pl)
                 x[i + 9] = geno
             x[4] = x[3]
-            # x[3] = x[4]
-        elif ref_a not in x[4]:
-            # build a triallelic site where there is no reference
+        elif x[3] in alt_a:
+            if ref_a in x[4]:
+                for i, sample in enumerate(x[9:]):
+                    gt = sample.split(":")
+                    if "0/0" in gt[0]:
+                        gt[0] = '1/1'
+                    elif "1/1" in gt[0]:
+                        gt[0] = '0/0'
+                    # fix formating
+                    ad = gt[formats.index('AD')]
+                    dp = gt[formats.index('DP')]
+                    gq = gt[formats.index('GQ')]
+                    pl = gt[formats.index('PL')]
+                    # reverse AD
+                    ad1, ad2 = ad.split(",")
+                    ad = "{},{}".format(ad2, ad1)
+                    # reverse PL
+                    pl1, pl2, pl3 = pl.split(",")
+                    pl = "{},{},{}".format(pl3, pl2, pl1)
+                    geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
+                    x[i + 9] = geno
+                x[4] = x[3]
+                # x[3] = x[4]
+            elif ref_a not in x[4]:
+                # build a triallelic site where there is no reference
+                for i, sample in enumerate(x[9:]):
+                    # change all 0 to 1, all 1 to 2
+                    gt = sample.split(":")
+                    gt[0] = gt[0].replace("1", "2")
+                    gt[0] = gt[0].replace("0", "1")
+                    ad = gt[formats.index('AD')]
+                    dp = gt[formats.index('DP')]
+                    gq = gt[formats.index('GQ')]
+                    pl = gt[formats.index('PL')]
+                    ad1, ad2 = ad.split(",")
+                    ad = "0,{},{}".format(ad1, ad2)
+                    pl1, pl2, pl3 = pl.split(",")
+                    pl = "500,500,{},500,{},{}".format(pl1, pl2, pl3)
+                    geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
+                    x[i + 9] = geno
+                x[4] = "{},{}".format(x[3], x[4])
+            else:
+                ipdb.set_trace()
+        elif x[3] not in alt_a:
+            # case 2
+            if ref_a in x[4]:
+                for i, sample in enumerate(x[9:]):
+                    # change all 1s to 0s, all 0s to 1s
+                    gt = sample.split(":")
+                    if '0/0' in gt[0]:
+                        gt[0] = '1/1'
+                    elif '1/1' in gt[0]:
+                        gt[0] = '0/0'
+                    ad = gt[formats.index('AD')]
+                    dp = gt[formats.index('DP')]
+                    gq = gt[formats.index('GQ')]
+                    pl = gt[formats.index('PL')]
+                    ad1, ad2 = ad.split(",")
+                    ad = "{},{}".format(ad1, ad2)
+                    pl1, pl2, pl3 = pl.split(",")
+                    pl = "{},{},{}".format(pl3, pl2, pl1)
+                    geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
+                    x[i + 9] = geno
+                x[4] = x[3]
+            elif alt_a in x[4]:
+                # build a triallelic site where there is no reference
+                for i, sample in enumerate(x[9:]):
+                    # change all 0 to 1, all 1 to 2
+                    gt = sample.split(":")
+                    gt[0] = gt[0].replace("1", "2")
+                    gt[0] = gt[0].replace("0", "1")
+                    ad = gt[formats.index('AD')]
+                    dp = gt[formats.index('DP')]
+                    gq = gt[formats.index('GQ')]
+                    pl = gt[formats.index('PL')]
+                    ad1, ad2 = ad.split(",")
+                    ad = "0,{},{}".format(ad1, ad2)
+                    pl1, pl2, pl3 = pl.split(",")
+                    pl = "500,500,{},500,{},{}".format(pl1, pl2, pl3)
+                    geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
+                    x[i + 9] = geno
+                x[4] = "{},{}".format(x[3], x[4])
+        elif "." in alt_a:
             for i, sample in enumerate(x[9:]):
                 # change all 0 to 1, all 1 to 2
                 gt = sample.split(":")
@@ -245,66 +304,10 @@ def reorientGT(x, ref_a, alt_a):
                 x[i + 9] = geno
             x[4] = "{},{}".format(x[3], x[4])
         else:
-            ipdb.set_trace()
-    elif x[3] not in alt_a:
-        # case 2
-        if ref_a in x[4]:
-            for i, sample in enumerate(x[9:]):
-                # change all 1s to 0s, all 0s to 1s
-                gt = sample.split(":")
-                if '0/0' in gt[0]:
-                    gt[0] = '1/1'
-                elif '1/1' in gt[0]:
-                    gt[0] = '0/0'
-                ad = gt[formats.index('AD')]
-                dp = gt[formats.index('DP')]
-                gq = gt[formats.index('GQ')]
-                pl = gt[formats.index('PL')]
-                ad1, ad2 = ad.split(",")
-                ad = "{},{}".format(ad1, ad2)
-                pl1, pl2, pl3 = pl.split(",")
-                pl = "{},{},{}".format(pl3, pl2, pl1)
-                geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
-                x[i + 9] = geno
-            x[4] = x[3]
-        elif alt_a in x[4]:
-            # build a triallelic site where there is no reference
-            for i, sample in enumerate(x[9:]):
-                # change all 0 to 1, all 1 to 2
-                gt = sample.split(":")
-                gt[0] = gt[0].replace("1", "2")
-                gt[0] = gt[0].replace("0", "1")
-                ad = gt[formats.index('AD')]
-                dp = gt[formats.index('DP')]
-                gq = gt[formats.index('GQ')]
-                pl = gt[formats.index('PL')]
-                ad1, ad2 = ad.split(",")
-                ad = "0,{},{}".format(ad1, ad2)
-                pl1, pl2, pl3 = pl.split(",")
-                pl = "500,500,{},500,{},{}".format(pl1, pl2, pl3)
-                geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
-                x[i + 9] = geno
-            x[4] = "{},{}".format(x[3], x[4])
-    elif "." in alt_a:
-        for i, sample in enumerate(x[9:]):
-            # change all 0 to 1, all 1 to 2
-            gt = sample.split(":")
-            gt[0] = gt[0].replace("1", "2")
-            gt[0] = gt[0].replace("0", "1")
-            ad = gt[formats.index('AD')]
-            dp = gt[formats.index('DP')]
-            gq = gt[formats.index('GQ')]
-            pl = gt[formats.index('PL')]
-            ad1, ad2 = ad.split(",")
-            ad = "0,{},{}".format(ad1, ad2)
-            pl1, pl2, pl3 = pl.split(",")
-            pl = "500,500,{},500,{},{}".format(pl1, pl2, pl3)
-            geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
-            x[i + 9] = geno
-        x[4] = "{},{}".format(x[3], x[4])
-    else:
-        print("{}".format("\t".join(x)))
-        print("{}\t{}".format(ref_a, alt_a))
+            print("{}".format("\t".join(x)))
+            print("{}\t{}".format(ref_a, alt_a))
+    except ValueError:
+        ipdb.set_trace()
     return(x)
 
 
