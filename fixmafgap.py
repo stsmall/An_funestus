@@ -30,7 +30,7 @@ def fixmafgap(mafFile):
                 p2 = maf.next()
                 p2ref = p2.strip().split()
                 # s AgamP4.chr2R 8961 298 + 61545105 CAA
-                if p2ref[3] == 0 or p1ref[3] == 0:
+                if p2ref[3] == '0' or p1ref[3] == '0':
                     pass
                 elif p1ref[3] != p2ref[3]:
                     p1ref[6] = p1ref[6][0:-1]
