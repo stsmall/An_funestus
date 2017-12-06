@@ -177,7 +177,7 @@ def refdistance(trees, reftree, coords, outgroup):
     ------
     trees: obj, obj from loadtrees
     reftree: string, reference topology to check distance against
-    coords: list, list of genome coordinats for each tree
+    coords: list, list of genome coordinates for each tree
     outgroup: string, name of outgroup
 
     Returns
@@ -209,30 +209,6 @@ def refdistance(trees, reftree, coords, outgroup):
         else:
             for y in rfnorm:
                 f.write("{}\n".format(y))
-    return(None)
-
-
-def checkmonophylyofref(utrees, groups, write_trees=False, print_trees=False):
-    """Checks that a given group is monophyletic in a topology. Returns counts
-    where this group was and was not monophyletic
-
-    Parameters
-    ------
-    utrees: list, topologies stored as a string
-    groups: list, groups to check for monophyly
-    write_trees: bool, return trees that are not monophyletic
-    print_trees: bool, print trees that are not monophyletic
-
-    Returns
-    ------
-    None
-
-    """
-    # removebl
-
-#    t1.check_monophyly()
-#    t1.get_monophyletic()
-#    set_feature(groups) #VAN = (ANVANF776, ANVANF779)
     return(None)
 
 
