@@ -44,14 +44,13 @@ def fixmafgap(mafFile):
                     f.write("{}\n".format(" ".join(p2ref)))
                     c.write(line)
                     c.write("{}\n".format(" ".join(p1ref)))
-                    c.write("{}\n".format(" ".join(p2ref)))
+                    c.write("{}\n\n".format(" ".join(p2ref)))
                 else:
                     f.write(line)
                     f.write(p1)
                     f.write(p2)
             else:
                 f.write(line)
-                c.write(line)
     f.close()
     c.close()
     return(None)
