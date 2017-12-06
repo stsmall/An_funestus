@@ -196,35 +196,41 @@ def reorientGT(x, ref_a, alt_a):
             # this site is invariant, so a fixed difference between genomes
             for i, sample in enumerate(x[9:]):
                 gt = sample.split(":")
-                gt[0] = gt[0].replace("0", "1")  # change all 0s to 1s
-                ad = gt[formats.index('AD')]
-                dp = gt[formats.index('DP')]
-                gq = gt[formats.index('GQ')]
-                pl = gt[formats.index('PL')]
-                geno = "{}:0,{}:{}:{}:500,500,{}".format(gt[0], ad, dp, gq, pl)
-                x[i + 9] = geno
+                if ("./." in gt[0]) or (gt[0] == '.'):
+                    pass
+                else:
+                    gt[0] = gt[0].replace("0", "1")  # change all 0s to 1s
+                    ad = gt[formats.index('AD')]
+                    dp = gt[formats.index('DP')]
+                    gq = gt[formats.index('GQ')]
+                    pl = gt[formats.index('PL')]
+                    geno = "{}:0,{}:{}:{}:500,500,{}".format(gt[0], ad, dp, gq, pl)
+                    x[i + 9] = geno
             x[4] = x[3]
         elif x[3] in alt_a:
             if ref_a in x[4]:
                 for i, sample in enumerate(x[9:]):
                     gt = sample.split(":")
-                    if "0/0" in gt[0]:
-                        gt[0] = '1/1'
-                    elif "1/1" in gt[0]:
-                        gt[0] = '0/0'
-                    # fix formating
-                    ad = gt[formats.index('AD')]
-                    dp = gt[formats.index('DP')]
-                    gq = gt[formats.index('GQ')]
-                    pl = gt[formats.index('PL')]
-                    # reverse AD
-                    ad1, ad2 = ad.split(",")
-                    ad = "{},{}".format(ad2, ad1)
-                    # reverse PL
-                    pl1, pl2, pl3 = pl.split(",")
-                    pl = "{},{},{}".format(pl3, pl2, pl1)
-                    geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
-                    x[i + 9] = geno
+                    if ("./." in gt[0]) or (gt[0] == '.'):
+                        pass
+                    else:
+                        if "0/0" in gt[0]:
+                            gt[0] = '1/1'
+                        elif "1/1" in gt[0]:
+                            gt[0] = '0/0'
+                        # fix formating
+                        ad = gt[formats.index('AD')]
+                        dp = gt[formats.index('DP')]
+                        gq = gt[formats.index('GQ')]
+                        pl = gt[formats.index('PL')]
+                        # reverse AD
+                        ad1, ad2 = ad.split(",")
+                        ad = "{},{}".format(ad2, ad1)
+                        # reverse PL
+                        pl1, pl2, pl3 = pl.split(",")
+                        pl = "{},{},{}".format(pl3, pl2, pl1)
+                        geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
+                        x[i + 9] = geno
                 x[4] = x[3]
                 # x[3] = x[4]
             elif ref_a not in x[4]:
@@ -232,18 +238,21 @@ def reorientGT(x, ref_a, alt_a):
                 for i, sample in enumerate(x[9:]):
                     # change all 0 to 1, all 1 to 2
                     gt = sample.split(":")
-                    gt[0] = gt[0].replace("1", "2")
-                    gt[0] = gt[0].replace("0", "1")
-                    ad = gt[formats.index('AD')]
-                    dp = gt[formats.index('DP')]
-                    gq = gt[formats.index('GQ')]
-                    pl = gt[formats.index('PL')]
-                    ad1, ad2 = ad.split(",")
-                    ad = "0,{},{}".format(ad1, ad2)
-                    pl1, pl2, pl3 = pl.split(",")
-                    pl = "500,500,{},500,{},{}".format(pl1, pl2, pl3)
-                    geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
-                    x[i + 9] = geno
+                    if ("./." in gt[0]) or (gt[0] == '.'):
+                        pass
+                    else:
+                        gt[0] = gt[0].replace("1", "2")
+                        gt[0] = gt[0].replace("0", "1")
+                        ad = gt[formats.index('AD')]
+                        dp = gt[formats.index('DP')]
+                        gq = gt[formats.index('GQ')]
+                        pl = gt[formats.index('PL')]
+                        ad1, ad2 = ad.split(",")
+                        ad = "0,{},{}".format(ad1, ad2)
+                        pl1, pl2, pl3 = pl.split(",")
+                        pl = "500,500,{},500,{},{}".format(pl1, pl2, pl3)
+                        geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
+                        x[i + 9] = geno
                 x[4] = "{},{}".format(x[3], x[4])
             else:
                 ipdb.set_trace()
@@ -253,26 +262,52 @@ def reorientGT(x, ref_a, alt_a):
                 for i, sample in enumerate(x[9:]):
                     # change all 1s to 0s, all 0s to 1s
                     gt = sample.split(":")
-                    if '0/0' in gt[0]:
-                        gt[0] = '1/1'
-                    elif '1/1' in gt[0]:
-                        gt[0] = '0/0'
-                    ad = gt[formats.index('AD')]
-                    dp = gt[formats.index('DP')]
-                    gq = gt[formats.index('GQ')]
-                    pl = gt[formats.index('PL')]
-                    ad1, ad2 = ad.split(",")
-                    ad = "{},{}".format(ad1, ad2)
-                    pl1, pl2, pl3 = pl.split(",")
-                    pl = "{},{},{}".format(pl3, pl2, pl1)
-                    geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
-                    x[i + 9] = geno
+                    if ("./." in gt[0]) or (gt[0] == '.'):
+                        pass
+                    else:
+                        if '0/0' in gt[0]:
+                            gt[0] = '1/1'
+                        elif '1/1' in gt[0]:
+                            gt[0] = '0/0'
+                        ad = gt[formats.index('AD')]
+                        dp = gt[formats.index('DP')]
+                        gq = gt[formats.index('GQ')]
+                        pl = gt[formats.index('PL')]
+                        ad1, ad2 = ad.split(",")
+                        ad = "{},{}".format(ad1, ad2)
+                        pl1, pl2, pl3 = pl.split(",")
+                        pl = "{},{},{}".format(pl3, pl2, pl1)
+                        geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
+                        x[i + 9] = geno
                 x[4] = x[3]
             elif alt_a in x[4]:
                 # build a triallelic site where there is no reference
                 for i, sample in enumerate(x[9:]):
-                    # change all 0 to 1, all 1 to 2
                     gt = sample.split(":")
+                    if ("./." in gt[0]) or (gt[0] == '.'):
+                        pass
+                    else:
+                        # change all 0 to 1, all 1 to 2
+                        gt[0] = gt[0].replace("1", "2")
+                        gt[0] = gt[0].replace("0", "1")
+                        ad = gt[formats.index('AD')]
+                        dp = gt[formats.index('DP')]
+                        gq = gt[formats.index('GQ')]
+                        pl = gt[formats.index('PL')]
+                        ad1, ad2 = ad.split(",")
+                        ad = "0,{},{}".format(ad1, ad2)
+                        pl1, pl2, pl3 = pl.split(",")
+                        pl = "500,500,{},500,{},{}".format(pl1, pl2, pl3)
+                        geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
+                        x[i + 9] = geno
+                x[4] = "{},{}".format(x[3], x[4])
+        elif "." in alt_a:
+            for i, sample in enumerate(x[9:]):
+                gt = sample.split(":")
+                if ("./." in gt[0]) or (gt[0] == '.'):
+                    pass
+                else:
+                    # change all 0 to 1, all 1 to 2
                     gt[0] = gt[0].replace("1", "2")
                     gt[0] = gt[0].replace("0", "1")
                     ad = gt[formats.index('AD')]
@@ -285,23 +320,6 @@ def reorientGT(x, ref_a, alt_a):
                     pl = "500,500,{},500,{},{}".format(pl1, pl2, pl3)
                     geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
                     x[i + 9] = geno
-                x[4] = "{},{}".format(x[3], x[4])
-        elif "." in alt_a:
-            for i, sample in enumerate(x[9:]):
-                # change all 0 to 1, all 1 to 2
-                gt = sample.split(":")
-                gt[0] = gt[0].replace("1", "2")
-                gt[0] = gt[0].replace("0", "1")
-                ad = gt[formats.index('AD')]
-                dp = gt[formats.index('DP')]
-                gq = gt[formats.index('GQ')]
-                pl = gt[formats.index('PL')]
-                ad1, ad2 = ad.split(",")
-                ad = "0,{},{}".format(ad1, ad2)
-                pl1, pl2, pl3 = pl.split(",")
-                pl = "500,500,{},500,{},{}".format(pl1, pl2, pl3)
-                geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
-                x[i + 9] = geno
             x[4] = "{},{}".format(x[3], x[4])
         else:
             print("{}".format("\t".join(x)))
@@ -333,13 +351,16 @@ def reorientGT_TRI(x, ref_a, alt_a):
         # this site is invariant, so a fixed difference between genomes
         for i, sample in enumerate(x[9:]):
             gt = sample.split(":")
-            gt[0] = gt[0].replace("0", "1")  # change all 0s to 1s
-            ad = gt[formats.index('AD')]
-            dp = gt[formats.index('DP')]
-            gq = gt[formats.index('GQ')]
-            pl = gt[formats.index('PL')]
-            geno = "{}:0,{}:{}:{}:500,500,{}".format(gt[0], ad, dp, gq, pl)
-            x[i + 9] = geno
+            if ("./." in gt[0]) or (gt[0] == '.'):
+                pass
+            else:
+                gt[0] = gt[0].replace("0", "1")  # change all 0s to 1s
+                ad = gt[formats.index('AD')]
+                dp = gt[formats.index('DP')]
+                gq = gt[formats.index('GQ')]
+                pl = gt[formats.index('PL')]
+                geno = "{}:0,{}:{}:{}:500,500,{}".format(gt[0], ad, dp, gq, pl)
+                x[i + 9] = geno
         x[4] = x[3]
     elif x[3] in alt_a:
         if ref_a in x[4]:
@@ -350,72 +371,81 @@ def reorientGT_TRI(x, ref_a, alt_a):
                     # ref allele is 1st alt allele
                     for i, sample in enumerate(x[9:]):
                         gt = sample.split(":")
-                        if "0/0" in gt[0]:
-                            gt[0] = "1/1"
-                        elif "1/1" in gt[0]:
-                            gt[0] = "0/0"
-                        elif "2" in gt[0]:
-                            if "1/2" in gt[0]:
-                                gt[0] = "0/2"
-                            elif "0/2" in gt[0]:
-                                gt[0] = "1/2"
-                        ad = gt[formats.index('AD')]
-                        dp = gt[formats.index('DP')]
-                        gq = gt[formats.index('GQ')]
-                        pl = gt[formats.index('PL')]
-                        ad1, ad2, ad3 = ad.split(",")
-                        ad = "{},{},{}".format(ad2, ad1, ad3)
-                        pl1, pl2, pl3, pl4, pl5, pl6 = pl.split(",")
-                        pl = "{},{},{},{},{},{}".format(pl3, pl2, pl1,
-                                                        pl5, pl4, pl6)
-                        geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
-                        x[i + 9] = geno
+                        if ("./." in gt[0]) or (gt[0] == '.'):
+                            pass
+                        else:
+                            if "0/0" in gt[0]:
+                                gt[0] = "1/1"
+                            elif "1/1" in gt[0]:
+                                gt[0] = "0/0"
+                            elif "2" in gt[0]:
+                                if "1/2" in gt[0]:
+                                    gt[0] = "0/2"
+                                elif "0/2" in gt[0]:
+                                    gt[0] = "1/2"
+                            ad = gt[formats.index('AD')]
+                            dp = gt[formats.index('DP')]
+                            gq = gt[formats.index('GQ')]
+                            pl = gt[formats.index('PL')]
+                            ad1, ad2, ad3 = ad.split(",")
+                            ad = "{},{},{}".format(ad2, ad1, ad3)
+                            pl1, pl2, pl3, pl4, pl5, pl6 = pl.split(",")
+                            pl = "{},{},{},{},{},{}".format(pl3, pl2, pl1,
+                                                            pl5, pl4, pl6)
+                            geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
+                            x[i + 9] = geno
                     x[4] = alt_a
                 elif r == 1:
                     # ref allele is 2nd alt allele
                     for i, sample in enumerate(x[9:]):
                         gt = sample.split(":")
-                        if "0/0" in gt[0]:
-                            gt[0] = "2/2"
-                        elif "2/2" in gt[0]:
-                            gt[0] = "0/0"
-                        elif "2" in gt[0]:
-                            if "1/2" in gt[0]:
-                                gt[0] = "0/1"
-                            elif "0/2" in gt[0]:
-                                gt[0] = "1/2"
-                        ad = gt[formats.index('AD')]
-                        dp = gt[formats.index('DP')]
-                        gq = gt[formats.index('GQ')]
-                        pl = gt[formats.index('PL')]
-                        ad1, ad2, ad3 = ad.split(",")
-                        ad = "{},{},{}".format(ad3, ad2, ad1)
-                        pl1, pl2, pl3, pl4, pl5, pl6 = pl.split(",")
-                        pl = "{},{},{},{},{},{}".format(pl6, pl5, pl4,
-                                                        pl3, pl4, pl1)
-                        geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
-                        x[i + 9] = geno
+                        if ("./." in gt[0]) or (gt[0] == '.'):
+                            pass
+                        else:
+                            if "0/0" in gt[0]:
+                                gt[0] = "2/2"
+                            elif "2/2" in gt[0]:
+                                gt[0] = "0/0"
+                            elif "2" in gt[0]:
+                                if "1/2" in gt[0]:
+                                    gt[0] = "0/1"
+                                elif "0/2" in gt[0]:
+                                    gt[0] = "1/2"
+                            ad = gt[formats.index('AD')]
+                            dp = gt[formats.index('DP')]
+                            gq = gt[formats.index('GQ')]
+                            pl = gt[formats.index('PL')]
+                            ad1, ad2, ad3 = ad.split(",")
+                            ad = "{},{},{}".format(ad3, ad2, ad1)
+                            pl1, pl2, pl3, pl4, pl5, pl6 = pl.split(",")
+                            pl = "{},{},{},{},{},{}".format(pl6, pl5, pl4,
+                                                            pl3, pl4, pl1)
+                            geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
+                            x[i + 9] = geno
                     x[4] = x[4]
             else:
                 for i, sample in enumerate(x[9:]):
                     gt = sample.split(":")
-                    if "0/0" in gt[0]:
-                        gt[0] = '1/1'
-                    elif "1/1" in gt[0]:
-                        gt[0] = '0/0'
-                    # fix formating
-                    ad = gt[formats.index('AD')]
-                    dp = gt[formats.index('DP')]
-                    gq = gt[formats.index('GQ')]
-                    pl = gt[formats.index('PL')]
-                    # reverse AD
-                    ad1, ad2 = ad.split(",")
-                    ad = "{},{}".format(ad2, ad1)
-                    # reverse PL
-                    pl1, pl2, pl3 = pl.split(",")
-                    pl = "{},{},{}".format(pl3, pl2, pl1)
-                    geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
-                    x[i + 9] = geno
+                    if ("./." in gt[0]) or (gt[0] == '.'):
+                        pass
+                    else:
+                        if "0/0" in gt[0]:
+                            gt[0] = '1/1'
+                        elif "1/1" in gt[0]:
+                            gt[0] = '0/0'
+                        # fix formating
+                        ad = gt[formats.index('AD')]
+                        dp = gt[formats.index('DP')]
+                        gq = gt[formats.index('GQ')]
+                        pl = gt[formats.index('PL')]
+                        # reverse AD
+                        ad1, ad2 = ad.split(",")
+                        ad = "{},{}".format(ad2, ad1)
+                        # reverse PL
+                        pl1, pl2, pl3 = pl.split(",")
+                        pl = "{},{},{}".format(pl3, pl2, pl1)
+                        geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
+                        x[i + 9] = geno
                 x[4] = x[3]
                 # x[3] = x[4]
         elif ref_a not in x[4]:
@@ -429,18 +459,21 @@ def reorientGT_TRI(x, ref_a, alt_a):
                 for i, sample in enumerate(x[9:]):
                     # change all 0 to 1, all 1 to 2
                     gt = sample.split(":")
-                    gt[0] = gt[0].replace("1", "2")
-                    gt[0] = gt[0].replace("0", "1")
-                    ad = gt[formats.index('AD')]
-                    dp = gt[formats.index('DP')]
-                    gq = gt[formats.index('GQ')]
-                    pl = gt[formats.index('PL')]
-                    ad1, ad2 = ad.split(",")
-                    ad = "0,{},{}".format(ad1, ad2)
-                    pl1, pl2, pl3 = pl.split(",")
-                    pl = "500,500,{},500,{},{}".format(pl1, pl2, pl3)
-                    geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
-                    x[i + 9] = geno
+                    if ("./." in gt[0]) or (gt[0] == '.'):
+                        pass
+                    else:
+                        gt[0] = gt[0].replace("1", "2")
+                        gt[0] = gt[0].replace("0", "1")
+                        ad = gt[formats.index('AD')]
+                        dp = gt[formats.index('DP')]
+                        gq = gt[formats.index('GQ')]
+                        pl = gt[formats.index('PL')]
+                        ad1, ad2 = ad.split(",")
+                        ad = "0,{},{}".format(ad1, ad2)
+                        pl1, pl2, pl3 = pl.split(",")
+                        pl = "500,500,{},500,{},{}".format(pl1, pl2, pl3)
+                        geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
+                        x[i + 9] = geno
                 x[4] = "{},{}".format(x[3], x[4])
         else:
             x[4] = 'NA'
@@ -458,75 +491,84 @@ def reorientGT_TRI(x, ref_a, alt_a):
                     # change 0 to 1
                     for i, sample in enumerate(x[9:]):
                         gt = sample.split(":")
-                        if '1/1' in gt[0]:
-                            gt[0] = '0/0'
-                        elif '0/0' in gt[0]:
-                            gt[0] = '1/1'
-                        elif '2' in gt[0]:
-                            if '0/2' in gt[0]:
-                                gt[0] = '1/2'
-                            elif '1/2' in gt[0]:
-                                gt[0] = '0/2'
-                        ad = gt[formats.index('AD')]
-                        dp = gt[formats.index('DP')]
-                        gq = gt[formats.index('GQ')]
-                        pl = gt[formats.index('PL')]
-                        # reverse AD
-                        ad1, ad2, ad3 = ad.split(",")
-                        ad = "{},{},{}".format(ad2, ad1, ad3)
-                        # reverse PL
-                        pl1, pl2, pl3, pl4, pl5, pl6 = pl.split(",")
-                        pl = "{},{},{},{},{},{}".format(pl3, pl2, pl1,
-                                                        pl6, pl4, pl5)
-                        geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
-                        x[i + 9] = geno
+                        if ("./." in gt[0]) or (gt[0] == '.'):
+                            pass
+                        else:
+                            if '1/1' in gt[0]:
+                                gt[0] = '0/0'
+                            elif '0/0' in gt[0]:
+                                gt[0] = '1/1'
+                            elif '2' in gt[0]:
+                                if '0/2' in gt[0]:
+                                    gt[0] = '1/2'
+                                elif '1/2' in gt[0]:
+                                    gt[0] = '0/2'
+                            ad = gt[formats.index('AD')]
+                            dp = gt[formats.index('DP')]
+                            gq = gt[formats.index('GQ')]
+                            pl = gt[formats.index('PL')]
+                            # reverse AD
+                            ad1, ad2, ad3 = ad.split(",")
+                            ad = "{},{},{}".format(ad2, ad1, ad3)
+                            # reverse PL
+                            pl1, pl2, pl3, pl4, pl5, pl6 = pl.split(",")
+                            pl = "{},{},{},{},{},{}".format(pl3, pl2, pl1,
+                                                            pl6, pl4, pl5)
+                            geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
+                            x[i + 9] = geno
                     x[4] = "{},{}".format(x[3], x[4].split(",")[1])
                 elif r == 1:
                     # change 2 to 0
                     # change 0 to 2
                     for i, sample in enumerate(x[9:]):
                         gt = sample.split(":")
-                        if '2/2' in gt[0]:
-                            gt[0] = '0/0'
-                        elif '0/0' in gt[0]:
-                            gt[0] = '2/2'
-                        elif '1' in gt[0]:
-                            if '0/1' in gt[0]:
-                                gt[0] = '1/2'
-                            elif '1/2' in gt[0]:
-                                gt[0] = '0/1'
-                        ad = gt[formats.index('AD')]
-                        dp = gt[formats.index('DP')]
-                        gq = gt[formats.index('GQ')]
-                        pl = gt[formats.index('PL')]
-                        # reverse AD
-                        ad1, ad2, ad3 = ad.split(",")
-                        ad = "{},{},{}".format(ad3, ad2, ad1)
-                        # reverse PL
-                        pl1, pl2, pl3, pl4, pl5, pl6 = pl.split(",")
-                        pl = "{},{},{},{},{},{}".format(pl6, pl5, pl4,
-                                                        pl3, pl2, pl1)
-                        geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
-                        x[i + 9] = geno
+                        if ("./." in gt[0]) or (gt[0] == '.'):
+                            pass
+                        else:
+                            if '2/2' in gt[0]:
+                                gt[0] = '0/0'
+                            elif '0/0' in gt[0]:
+                                gt[0] = '2/2'
+                            elif '1' in gt[0]:
+                                if '0/1' in gt[0]:
+                                    gt[0] = '1/2'
+                                elif '1/2' in gt[0]:
+                                    gt[0] = '0/1'
+                            ad = gt[formats.index('AD')]
+                            dp = gt[formats.index('DP')]
+                            gq = gt[formats.index('GQ')]
+                            pl = gt[formats.index('PL')]
+                            # reverse AD
+                            ad1, ad2, ad3 = ad.split(",")
+                            ad = "{},{},{}".format(ad3, ad2, ad1)
+                            # reverse PL
+                            pl1, pl2, pl3, pl4, pl5, pl6 = pl.split(",")
+                            pl = "{},{},{},{},{},{}".format(pl6, pl5, pl4,
+                                                            pl3, pl2, pl1)
+                            geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
+                            x[i + 9] = geno
                     x[4] = "{},{}".format(x[4].split(",")[0], x[3])
             else:
                 for i, sample in enumerate(x[9:]):
                     # change all 1s to 0s, all 0s to 1s
                     gt = sample.split(":")
-                    if '0/0' in gt[0]:
-                        gt[0] = '1/1'
-                    elif '1/1' in gt[0]:
-                        gt[0] = '0/0'
-                    ad = gt[formats.index('AD')]
-                    dp = gt[formats.index('DP')]
-                    gq = gt[formats.index('GQ')]
-                    pl = gt[formats.index('PL')]
-                    ad1, ad2 = ad.split(",")
-                    ad = "{},{}".format(ad1, ad2)
-                    pl1, pl2, pl3 = pl.split(",")
-                    pl = "{},{},{}".format(pl3, pl2, pl1)
-                    geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
-                    x[i + 9] = geno
+                    if ("./." in gt[0]) or (gt[0] == '.'):
+                        pass
+                    else:
+                        if '0/0' in gt[0]:
+                            gt[0] = '1/1'
+                        elif '1/1' in gt[0]:
+                            gt[0] = '0/0'
+                        ad = gt[formats.index('AD')]
+                        dp = gt[formats.index('DP')]
+                        gq = gt[formats.index('GQ')]
+                        pl = gt[formats.index('PL')]
+                        ad1, ad2 = ad.split(",")
+                        ad = "{},{}".format(ad1, ad2)
+                        pl1, pl2, pl3 = pl.split(",")
+                        pl = "{},{},{}".format(pl3, pl2, pl1)
+                        geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
+                        x[i + 9] = geno
                 x[4] = x[3]
         elif alt_a in x[4]:
             # build a triallelic site where there is no reference
@@ -536,18 +578,21 @@ def reorientGT_TRI(x, ref_a, alt_a):
                 for i, sample in enumerate(x[9:]):
                     # change all 0 to 1, all 1 to 2
                     gt = sample.split(":")
-                    gt[0] = gt[0].replace("1", "2")
-                    gt[0] = gt[0].replace("0", "1")
-                    ad = gt[formats.index('AD')]
-                    dp = gt[formats.index('DP')]
-                    gq = gt[formats.index('GQ')]
-                    pl = gt[formats.index('PL')]
-                    ad1, ad2 = ad.split(",")
-                    ad = "0,{},{}".format(ad1, ad2)
-                    pl1, pl2, pl3 = pl.split(",")
-                    pl = "500,500,{},500,{},{}".format(pl1, pl2, pl3)
-                    geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
-                    x[i + 9] = geno
+                    if ("./." in gt[0]) or (gt[0] == '.'):
+                        pass
+                    else:
+                        gt[0] = gt[0].replace("1", "2")
+                        gt[0] = gt[0].replace("0", "1")
+                        ad = gt[formats.index('AD')]
+                        dp = gt[formats.index('DP')]
+                        gq = gt[formats.index('GQ')]
+                        pl = gt[formats.index('PL')]
+                        ad1, ad2 = ad.split(",")
+                        ad = "0,{},{}".format(ad1, ad2)
+                        pl1, pl2, pl3 = pl.split(",")
+                        pl = "500,500,{},500,{},{}".format(pl1, pl2, pl3)
+                        geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
+                        x[i + 9] = geno
                 x[4] = "{},{}".format(x[3], x[4])
         elif "." in alt_a:
             if "," in x[4]:
@@ -556,18 +601,21 @@ def reorientGT_TRI(x, ref_a, alt_a):
                 for i, sample in enumerate(x[9:]):
                     # change all 0 to 1, all 1 to 2
                     gt = sample.split(":")
-                    gt[0] = gt[0].replace("1", "2")
-                    gt[0] = gt[0].replace("0", "1")
-                    ad = gt[formats.index('AD')]
-                    dp = gt[formats.index('DP')]
-                    gq = gt[formats.index('GQ')]
-                    pl = gt[formats.index('PL')]
-                    ad1, ad2 = ad.split(",")
-                    ad = "0,{},{}".format(ad1, ad2)
-                    pl1, pl2, pl3 = pl.split(",")
-                    pl = "500,500,{},500,{},{}".format(pl1, pl2, pl3)
-                    geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
-                    x[i + 9] = geno
+                    if ("./." in gt[0]) or (gt[0] == '.'):
+                        pass
+                    else:
+                        gt[0] = gt[0].replace("1", "2")
+                        gt[0] = gt[0].replace("0", "1")
+                        ad = gt[formats.index('AD')]
+                        dp = gt[formats.index('DP')]
+                        gq = gt[formats.index('GQ')]
+                        pl = gt[formats.index('PL')]
+                        ad1, ad2 = ad.split(",")
+                        ad = "0,{},{}".format(ad1, ad2)
+                        pl1, pl2, pl3 = pl.split(",")
+                        pl = "500,500,{},500,{},{}".format(pl1, pl2, pl3)
+                        geno = "{}:{}:{}:{}:{}".format(gt[0], ad, dp, gq, pl)
+                        x[i + 9] = geno
                 x[4] = "{},{}".format(x[3], x[4])
         else:
             x[4] = 'NA'
