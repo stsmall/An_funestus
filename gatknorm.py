@@ -28,37 +28,36 @@ def fixPGTPID(vcf):
                 formats = x[8].split(":")
                 if x[5] == 'inf':
                     x[5] = '500'
+                if (len(x[3]) > 1) or (len(x[4]) > 1):
+                    # skip ref allele that are insertions
+                    pass
                 if ("*" not in x[4]) and (len(formats) > 1) and ("<NON_REF>" not in x[4]):
                     if "." in x[4]:
-                        if (len(x[3]) > 1) or (len(x[4]) > 1):
-                            # skip ref allele that are insertions
+                        # fix invariant
+                        for sample in range(9, len(x)):
+                            gt = x[sample].split(":")
+                            if gt[0] == "./." or gt[0] == ".":
+                                x[sample] = "./.:.:.:.:."
+                            else:
+                                try:
+                                    gq = gt[formats.index('RGQ')]
+                                except ValueError:
+                                    gq = '99'
+                                dp = gt[formats.index('DP')]
+                                try:
+                                    ad = gt[formats.index('AD')]
+                                except ValueError:
+                                    ad = dp
+                                pl = '0'
+                                adv = ad.split(",")[0]
+                                newgt = [gt[0], adv, dp, gq, pl]
+                                x[sample] = ":".join(newgt)
+                        x[8] = "GT:AD:DP:GQ:PL"
+                        newsite = "\t".join(x)
+                        if newsite.count("./.") == len(range(9, len(x))):
                             pass
                         else:
-                            # fix invariant
-                            for sample in range(9, len(x)):
-                                gt = x[sample].split(":")
-                                if gt[0] == "./." or gt[0] == ".":
-                                    x[sample] = "./.:.:.:.:."
-                                else:
-                                    try:
-                                        gq = gt[formats.index('RGQ')]
-                                    except ValueError:
-                                        gq = '99'
-                                    dp = gt[formats.index('DP')]
-                                    try:
-                                        ad = gt[formats.index('AD')]
-                                    except ValueError:
-                                        ad = dp
-                                    pl = '0'
-                                    adv = ad.split(",")[0]
-                                    newgt = [gt[0], adv, dp, gq, pl]
-                                    x[sample] = ":".join(newgt)
-                            x[8] = "GT:AD:DP:GQ:PL"
-                            newsite = "\t".join(x)
-                            if newsite.count("./.") == len(range(9, len(x))):
-                                pass
-                            else:
-                                f.write("{}\n".format(newsite))
+                            f.write("{}\n".format(newsite))
                     elif "PGT" in formats or "PID" in formats:
                         for sample in range(9, len(x)):
                             gt = x[sample].split(":")
