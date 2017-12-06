@@ -31,7 +31,7 @@ def fixPGTPID(vcf):
                 if (len(x[3]) > 1) or (len(x[4]) > 1):
                     # skip ref allele that are insertions
                     pass
-                if ("*" not in x[4]) and (len(formats) > 1) and ("<NON_REF>" not in x[4]):
+                elif ("*" not in x[4]) and (len(formats) > 1) and ("<NON_REF>" not in x[4]):
                     if "." in x[4]:
                         # fix invariant
                         for sample in range(9, len(x)):
