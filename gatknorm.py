@@ -58,7 +58,7 @@ def fixPGTPID(vcf):
                                     dp = gt[formats.index('DP')]
                                     try:
                                         ad = gt[formats.index('AD')]
-                                    except IndexError:
+                                    except:
                                         import ipdb;ipdb.set_trace()
                                         ad = dp
                                     pl = '0'
