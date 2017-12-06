@@ -66,10 +66,10 @@ def loadvcf(vcFile, quart, dlm):
                         if "0/1" not in polarize:
                             # if ancestral is not polymorphic
                             qdict[chrom][pos] = (count_list)
-    return(qdict, q_ix)
+    return(qdict, q_ix, samplelist)
 
 
-def foil4(vcfdict, quartet, q_ix):
+def foil4(vcfdict, quartet, q_ix, samplelist):
     """Calculates the divergence between (1,2) as:
         T2 = (1/N) * ((n_ABAA + n_BAAA) / 2).
       Calculates the divergence between (1,2),3 as:
@@ -91,6 +91,7 @@ def foil4(vcfdict, quartet, q_ix):
     for chrom in vcfdict.keys():
         t1list = []
         t2list = []
+        indslist = []
         for i in q_ix[0]:
             for j in q_ix[1]:
                 for k in q_ix[2]:
@@ -113,7 +114,7 @@ def foil4(vcfdict, quartet, q_ix):
                                       'BABA', 'BBAA', 'BBBA']
                             callable_pos += 1
                             count = np.where(m == 0)
-                            count_sum = sum(count[1][0:3])  # sum only first 3 entries
+                            count_sum = sum(count[1][0:3])  # only first 3
                             count_len = len(count[1])  # 4 zeros
                             if count_len == 4:
                                 if m[3, 1] != 0:
@@ -147,12 +148,11 @@ def foil4(vcfdict, quartet, q_ix):
                                         n_BBBA += 1
                                         window[header.index('BBBA')] = 1
                                     else:
-                                        raise ValueError("pattern not recognized")
+                                        raise ValueError("unknown pattern")
                                     t1t2dict[chrom][int(pos)].append(window)
                     # 'AAAA', 'AABA', 'ABAA', 'ABBA', 'BAAA', 'BABA', 'BBAA', 'BBBA'
                     # 0        1        2      3        4       5      6       7
                     if callable_pos > 0:
-                        ipdb.set_trace()
                         # P1 P2 P3 O; BAAA, ABAA, BBAA
                         t2_inner = (n_ABAA + n_BAAA) / 2
                         t2_1 = t2_inner / callable_pos
@@ -172,10 +172,19 @@ def foil4(vcfdict, quartet, q_ix):
                         # t1se, t2se = blockSE(t1t2dict, 2, 1, 3)
                     t1list.append([t1_1, t1_2, t1_3])
                     t2list.append([t2_1, t2_2, t2_3])
+                    inds = (samplelist[marray[i-9]], samplelist[marray[j-9]],
+                            samplelist[marray[k-9]], samplelist[marray[-1]])
+                    indslist.append(inds)
                     countlist.append([n_AAAA, n_AABA, n_ABAA, n_ABBA, n_BAAA,
                                       n_BABA, n_BBAA, n_BBBA])
         # averages w/ SE
         reps = len(t1list)
+        ipdb.set_trace()
+        np.savetxt("t1array.out", t1list)
+        np.savetxt("t2array.out", t2list)
+        np.savetxt("indslist.out", indslist)
+        np.savetxt("counts.out", countlist)
+        ipdb.set_trace()
         t1_1, t1_2, t1_3 = zip(*t1list)
         t2_1, t2_2, t2_3 = zip(*t2list)
         t1se = (np.std(t1_1)) / np.sqrt(reps)
@@ -195,7 +204,7 @@ def foil4(vcfdict, quartet, q_ix):
     return(t1t2dict)
 
 
-def foil5(vcfdict, quartet, q_ix):
+def foil5(vcfdict, quartet, q_ix, samplelist):
     """Count pattern in VCF for DFOIL
 
     Parameters
@@ -313,10 +322,10 @@ def foil5(vcfdict, quartet, q_ix):
 if __name__ == "__main__":
     quart = args.groups
     vcfFile = args.vcfFile
-    qdict, q_ix = loadvcf(vcfFile, quart, args.dlm)
+    qdict, q_ix, samplelist = loadvcf(vcfFile, quart, args.dlm)
     if len(quart) == 5:
-        t1t2dict = foil5(qdict, quart, q_ix)
+        t1t2dict = foil5(qdict, quart, q_ix, samplelist)
     elif len(quart) == 4:
-        t1t2dict = foil4(qdict, quart, q_ix)
+        t1t2dict = foil4(qdict, quart, q_ix, samplelist)
     else:
         raise ValueError("quartet must be 4 or 5 taxa")
