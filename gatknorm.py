@@ -58,14 +58,14 @@ def fixPGTPID(vcf):
                                     dp = gt[formats.index('DP')]
                                     try:
                                         ad = gt[formats.index('AD')]
-                                    except ValueError:
+                                    except IndexError:
                                         ad = dp
                                     pl = '0'
                                     adv = ad.split(",")[0]
                                     newgt = [gt[0], adv, dp, gq, pl]
                                     x[sample] = ":".join(newgt)
                             x[8] = "GT:AD:DP:GQ:PL"
-                            newsite = "/t".join(x)
+                            newsite = "\t".join(x)
                             if newsite.count("./.") == len(range(9, len(x))):
                                 pass
                             else:
