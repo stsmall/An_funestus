@@ -33,6 +33,7 @@ def fixref(vcfFile, outgroup):
             else:
                 x = line.strip().split()
                 gtout = [x[i].split(":")[0] for i in outgroups_ix]
+                ipdb.set_trace()
                 if gtout.count("./.") < len(outgroups_ix):
                     for s in ingroups_ix:
                         gt = x[s].split(":")
