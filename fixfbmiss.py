@@ -27,7 +27,7 @@ def fixref(vcfFile, outgroup):
                 samplelist = line.strip().split()
                 x = line.strip().split()
                 sample_ix = range(9, len(x))
-                outgroups_ix = [i for i, y in enumerate(samplelist) if outgroup in line.split(".")[0]]
+                outgroups_ix = [i for i, y in enumerate(samplelist) if outgroup in y.split(".")[0]]
                 ingroups_ix = [var for var in sample_ix if var not in outgroups_ix][9:]
                 f.write(line)
             else:
