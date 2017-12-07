@@ -11,10 +11,12 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('mafFile', metavar="mafFile", type=str,
                     help='path to maf file')
+parser.add_argument("--filt", action="store_true",
+                    help="removes gapped positions rather than fixes them")
 args = parser.parse_args()
 
 
-def fixmafgap(mafFile):
+def fixmafgap(mafFile, filt):
     """
     """
     c = open("{}.changed".format(mafFile), 'w')
@@ -23,7 +25,6 @@ def fixmafgap(mafFile):
         for line in maf:
             if line.startswith("#"):
                 f.write(line)
-                c.write(line)
             elif line.startswith("a"):
                 p1 = maf.next()
                 p1ref = p1.strip().split()
@@ -39,12 +40,12 @@ def fixmafgap(mafFile):
                         p1ref[3] = str(int(p1ref[3]) - 1)
                     else:
                         p2ref[3] = str(int(p2ref[3]) - 1)
-                    f.write(line)
-                    f.write("{}\n".format(" ".join(p1ref)))
-                    f.write("{}\n".format(" ".join(p2ref)))
-                    c.write(line)
-                    c.write("{}\n".format(" ".join(p1ref)))
-                    c.write("{}\n\n".format(" ".join(p2ref)))
+                    if filt:
+                        pass
+                    else:
+                        f.write(line)
+                        f.write("{}\n".format(" ".join(p1ref)))
+                        f.write("{}\n".format(" ".join(p2ref)))
                 else:
                     f.write(line)
                     f.write(p1)
@@ -57,4 +58,4 @@ def fixmafgap(mafFile):
 
 
 if __name__ == '__main__':
-    fixmafgap(args.mafFile)
+    fixmafgap(args.mafFile, args.filt)
