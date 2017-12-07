@@ -49,4 +49,4 @@ def fixref(vcfFile, outgroup):
 
 
 if __name__ == '__main__':
-    fixref(args.INvcf)
+    fixref(args.INvcf, args.outgroup)
