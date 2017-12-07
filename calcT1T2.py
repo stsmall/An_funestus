@@ -48,7 +48,7 @@ def loadvcf(vcFile, quart, dlm):
                 x = line.strip().split()
                 if "," in x[4]:
                     # skip triallelic sites
-                    continue
+                    pass
                 else:
                     chrom = x[0]
                     pos = x[1]
