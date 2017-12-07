@@ -36,7 +36,7 @@ def fixref(vcfFile, outgroup):
                 if gtout.count("./.") < len(outgroups_ix):
                     for s in ingroups_ix:
                         gt = x[s].split(":")
-                        if "./." or "." in gt[0]:
+                        if "./." in gt[0] or "." in gt[0]:
                             gt[0] = "0/0"
                             x[s] = ":".join(gt)
                     f.write("{}\n".format("\t".join(x)))
