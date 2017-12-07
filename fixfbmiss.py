@@ -31,7 +31,6 @@ def fixref(vcfFile, outgroup):
                 ingroups_ix = [var for var in sample_ix if var not in outgroups_ix]
                 f.write(line)
             else:
-                ipdb.set_trace()
                 x = line.strip().split()
                 gtout = [x[i].split(":")[0] for i in outgroups_ix]
                 if gtout.count("./.") < len(outgroups_ix):
