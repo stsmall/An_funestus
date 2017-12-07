@@ -197,7 +197,7 @@ def reorientGT(x, ref_a, alt_a):
             for i, sample in enumerate(x[9:]):
                 gt = sample.split(":")
                 if ("./." in gt[0]) or (gt[0] == '.'):
-                    pass
+                    x[i + 9] = "./.:.:.:.:."
                 else:
                     gt[0] = gt[0].replace("0", "1")  # change all 0s to 1s
                     ad = gt[formats.index('AD')]
@@ -212,7 +212,7 @@ def reorientGT(x, ref_a, alt_a):
                 for i, sample in enumerate(x[9:]):
                     gt = sample.split(":")
                     if ("./." in gt[0]) or (gt[0] == '.'):
-                        pass
+                        x[i + 9] = "./.:.:.:.:."
                     else:
                         if "0/0" in gt[0]:
                             gt[0] = '1/1'
@@ -239,7 +239,7 @@ def reorientGT(x, ref_a, alt_a):
                     # change all 0 to 1, all 1 to 2
                     gt = sample.split(":")
                     if ("./." in gt[0]) or (gt[0] == '.'):
-                        pass
+                        x[i + 9] = "./.:.:.:.:."
                     else:
                         gt[0] = gt[0].replace("1", "2")
                         gt[0] = gt[0].replace("0", "1")
@@ -263,7 +263,7 @@ def reorientGT(x, ref_a, alt_a):
                     # change all 1s to 0s, all 0s to 1s
                     gt = sample.split(":")
                     if ("./." in gt[0]) or (gt[0] == '.'):
-                        pass
+                        x[i + 9] = "./.:.:.:.:."
                     else:
                         if '0/0' in gt[0]:
                             gt[0] = '1/1'
@@ -285,7 +285,7 @@ def reorientGT(x, ref_a, alt_a):
                 for i, sample in enumerate(x[9:]):
                     gt = sample.split(":")
                     if ("./." in gt[0]) or (gt[0] == '.'):
-                        pass
+                        x[i + 9] = "./.:.:.:.:."
                     else:
                         # change all 0 to 1, all 1 to 2
                         gt[0] = gt[0].replace("1", "2")
@@ -305,7 +305,7 @@ def reorientGT(x, ref_a, alt_a):
             for i, sample in enumerate(x[9:]):
                 gt = sample.split(":")
                 if ("./." in gt[0]) or (gt[0] == '.'):
-                    pass
+                    x[i + 9] = "./.:.:.:.:."
                 else:
                     # change all 0 to 1, all 1 to 2
                     gt[0] = gt[0].replace("1", "2")
@@ -352,7 +352,7 @@ def reorientGT_TRI(x, ref_a, alt_a):
         for i, sample in enumerate(x[9:]):
             gt = sample.split(":")
             if ("./." in gt[0]) or (gt[0] == '.'):
-                pass
+                x[i + 9] = "./.:.:.:.:."
             else:
                 gt[0] = gt[0].replace("0", "1")  # change all 0s to 1s
                 ad = gt[formats.index('AD')]
@@ -372,7 +372,7 @@ def reorientGT_TRI(x, ref_a, alt_a):
                     for i, sample in enumerate(x[9:]):
                         gt = sample.split(":")
                         if ("./." in gt[0]) or (gt[0] == '.'):
-                            pass
+                            x[i + 9] = "./.:.:.:.:."
                         else:
                             if "0/0" in gt[0]:
                                 gt[0] = "1/1"
@@ -400,7 +400,7 @@ def reorientGT_TRI(x, ref_a, alt_a):
                     for i, sample in enumerate(x[9:]):
                         gt = sample.split(":")
                         if ("./." in gt[0]) or (gt[0] == '.'):
-                            pass
+                            x[i + 9] = "./.:.:.:.:."
                         else:
                             if "0/0" in gt[0]:
                                 gt[0] = "2/2"
@@ -427,7 +427,7 @@ def reorientGT_TRI(x, ref_a, alt_a):
                 for i, sample in enumerate(x[9:]):
                     gt = sample.split(":")
                     if ("./." in gt[0]) or (gt[0] == '.'):
-                        pass
+                        x[i + 9] = "./.:.:.:.:."
                     else:
                         if "0/0" in gt[0]:
                             gt[0] = '1/1'
@@ -460,7 +460,7 @@ def reorientGT_TRI(x, ref_a, alt_a):
                     # change all 0 to 1, all 1 to 2
                     gt = sample.split(":")
                     if ("./." in gt[0]) or (gt[0] == '.'):
-                        pass
+                        x[i + 9] = "./.:.:.:.:."
                     else:
                         gt[0] = gt[0].replace("1", "2")
                         gt[0] = gt[0].replace("0", "1")
@@ -492,7 +492,7 @@ def reorientGT_TRI(x, ref_a, alt_a):
                     for i, sample in enumerate(x[9:]):
                         gt = sample.split(":")
                         if ("./." in gt[0]) or (gt[0] == '.'):
-                            pass
+                            x[i + 9] = "./.:.:.:.:."
                         else:
                             if '1/1' in gt[0]:
                                 gt[0] = '0/0'
@@ -523,7 +523,7 @@ def reorientGT_TRI(x, ref_a, alt_a):
                     for i, sample in enumerate(x[9:]):
                         gt = sample.split(":")
                         if ("./." in gt[0]) or (gt[0] == '.'):
-                            pass
+                            x[i + 9] = "./.:.:.:.:."
                         else:
                             if '2/2' in gt[0]:
                                 gt[0] = '0/0'
@@ -553,7 +553,7 @@ def reorientGT_TRI(x, ref_a, alt_a):
                     # change all 1s to 0s, all 0s to 1s
                     gt = sample.split(":")
                     if ("./." in gt[0]) or (gt[0] == '.'):
-                        pass
+                        x[i + 9] = "./.:.:.:.:."
                     else:
                         if '0/0' in gt[0]:
                             gt[0] = '1/1'
@@ -579,7 +579,7 @@ def reorientGT_TRI(x, ref_a, alt_a):
                     # change all 0 to 1, all 1 to 2
                     gt = sample.split(":")
                     if ("./." in gt[0]) or (gt[0] == '.'):
-                        pass
+                        x[i + 9] = "./.:.:.:.:."
                     else:
                         gt[0] = gt[0].replace("1", "2")
                         gt[0] = gt[0].replace("0", "1")
@@ -602,7 +602,7 @@ def reorientGT_TRI(x, ref_a, alt_a):
                     # change all 0 to 1, all 1 to 2
                     gt = sample.split(":")
                     if ("./." in gt[0]) or (gt[0] == '.'):
-                        pass
+                        x[i + 9] = "./.:.:.:.:."
                     else:
                         gt[0] = gt[0].replace("1", "2")
                         gt[0] = gt[0].replace("0", "1")
