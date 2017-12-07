@@ -196,14 +196,11 @@ def foil4(vcfdict, quartet):
                 window = [0, 0, 0, 0, 0, 0, 0, 0]
                 header = ['AAAA', 'AABA', 'ABAA', 'ABBA', 'BAAA', 'BABA',
                           'BBAA', 'BBBA']
-                callable_pos += 1
                 count = np.where(m == 0)
-                try:
-                    count_sum = sum(count[1][0:3])  # sum only first 3 entries
-                except IndexError:
-                    import ipdb;ipdb.set_trace()
+                count_sum = sum(count[1][0:3])  # sum only first 3 entries
                 count_len = len(count[1])  # 4 zeros
                 if count_len == 4:
+                    callable_pos += 1
                     if m[3, 1] != 0:
                         if count_sum == 0:
                             n_AAAA += 1
