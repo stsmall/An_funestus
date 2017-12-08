@@ -2,20 +2,25 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu Oct 26 14:32:39 2017
-python liftover.py -v FOO.vcf -o FOO.vcf.new -t FOO.coordinate
+python liftover.py -v1 FOO.vcf -v2 REF.vcf -o NAME -t FOO.tln
 1) run RepeatMasker on 2 genomes
-2) align the 2 genomes using mugsy
-3) convert species vcf to bed
+2) align the 2 genomes using ProgCactus
+3) convert species vcf to bed; vcf2bedgraph.py
 3) MafFilter
-    -remove full gaps
-    -create liftover by passing bed to MafFilter
+    -remove full gaps; Alnfilter2
+    -liftover; LiftOver
 4) sort by chrom and coordinate sort -k5,5 -k7,7n
-5) optional: include bedfile of all positions
-     fai2bed.py
-     bedtools getfasta -fi FASTA -bed pos.bed -tab -bedOut > FOO.bed
-     # getfasta seems to return the wrong seq if it is not 50,80,100 line char
-6) optional: convert freebayes format to gatk format using fb2gatk.py
+5) gatkNorm.py; to normalize format fields
 7) run liftover.py
+    * optional: include bedfile of all positions w/ -b option
+         fai2bed.py
+         bedtools getfasta -fi FASTA -bed pos.bed -tab -bedOut > FOO.bed
+         # getfasta seems to return the wrong seq if it is not
+         50,80,100 line char
+    * optional: convert freebayes format to gatk format using fb2gatk.py
+8) bcftools sort
+9) bgzip & bcftools index -t
+10) bcftools merge
 
 *filter vcf for before, remove '*' and indels, vcfstreamsort before merge
 print fx.__doc__
