@@ -151,7 +151,6 @@ def loadTransfer(transfersFile):
                 transdict[chrom][pos_e] = (newchrom, newpos_e, orient)
     d.close()
     print("Duplicate entries: {}".format(dups))
-    ipdb.set_trace()
     for i in paralog:
         chrom, pos = paralog[i]
         try:
