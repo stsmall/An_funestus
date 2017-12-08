@@ -152,7 +152,7 @@ def loadTransfer(transfersFile):
     d.close()
     print("Duplicate entries: {}".format(dups))
     for i in paralog:
-        chrom, pos = paralog[i]
+        chrom, pos = i
         try:
             del transdict[chrom][pos]
         except KeyError:
