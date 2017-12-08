@@ -125,7 +125,8 @@ def loadTransfer(transfersFile):
 
     """
     dups = 0
-    d = open("dups.out", 'w')
+    paralog = []
+    d = open("paralog.mask.out", 'w')
     print("loading transfer file ...")
     transdict = defaultdict(dict)
     with open(transfersFile, 'r') as transfer:
@@ -140,11 +141,23 @@ def loadTransfer(transfersFile):
             try:
                 transdict[chrom][pos_e]
                 dups += 1
-                d.write(line)
+                d.write("{}\t{}\t{}\t{}\n".format(chrom, pos_e, newchrom,
+                                                  newpos_e))  # paralog
+                d.write("{}\t{}\t{}\t{}\n".format(chrom, pos_e,
+                                                  transdict[chrom][pos_e][0],
+                                                  transdict[chrom][pos_e][1]))
+                paralog.append([chrom, pos_e])
             except KeyError:
                 transdict[chrom][pos_e] = (newchrom, newpos_e, orient)
     d.close()
     print("Duplicate entries: {}".format(dups))
+    ipdb.set_trace()
+    for i in paralog:
+        for chrom, pos in paralog[i]:
+            try:
+                del transdict[chrom][pos]
+            except KeyError:
+                pass
     return(transdict)
 
 
