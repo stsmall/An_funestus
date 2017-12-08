@@ -25,9 +25,10 @@ def ref2bg(vcfFile):
                 x = line.strip().split()
                 chrom = x[0]
                 pos_e = x[1]
-                pos_s = pos_e - 1
+                pos_s = int(pos_e) - 1
                 ref_a = x[3]
-                f.write("{}\t{}\t{}\t{}\n".format(chrom, pos_e, pos_s, ref_a))
+                f.write("{}\t{}\t{}\t{}\n".format(chrom, str(pos_e), pos_s,
+                                                  ref_a))
     f.close()
     return(None)
 
