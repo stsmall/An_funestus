@@ -124,6 +124,8 @@ def loadTransfer(transfersFile):
         is 'chrom' : 'pos' : ('newchrom', 'newpos', 'orientation')
 
     """
+    dups = 0
+    d = open("dups.out", 'w')
     print("loading transfer file ...")
     transdict = defaultdict(dict)
     with open(transfersFile, 'r') as transfer:
@@ -137,9 +139,12 @@ def loadTransfer(transfersFile):
             newpos_e = x[7]
             try:
                 transdict[chrom][pos_e]
-                print("Duplicate entries present in liftover TBL")
+                dups += 1
+                d.write(line)
             except KeyError:
                 transdict[chrom][pos_e] = (newchrom, newpos_e, orient)
+    d.close()
+    print("Duplicate entries: {}".format(dups))
     return(transdict)
 
 
