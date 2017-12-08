@@ -153,11 +153,11 @@ def loadTransfer(transfersFile):
     print("Duplicate entries: {}".format(dups))
     ipdb.set_trace()
     for i in paralog:
-        for chrom, pos in paralog[i]:
-            try:
-                del transdict[chrom][pos]
-            except KeyError:
-                pass
+        chrom, pos = paralog[i]
+        try:
+            del transdict[chrom][pos]
+        except KeyError:
+            pass
     return(transdict)
 
 
