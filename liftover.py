@@ -135,7 +135,11 @@ def loadTransfer(transfersFile):
             pos_e = x[3]
             newchrom = x[4]
             newpos_e = x[7]
-            transdict[chrom][pos_e] = (newchrom, newpos_e, orient)
+            try:
+                transdict[chrom][pos_e]
+                print("Duplicate entries present in liftover TBL")
+            except KeyError:
+                transdict[chrom][pos_e] = (newchrom, newpos_e, orient)
     return(transdict)
 
 
