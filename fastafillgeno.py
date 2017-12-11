@@ -19,7 +19,7 @@ parser.add_argument('-f', "--fasta", type=str, required=True,
                     help="bed file from a fasta file, 1 base per site. Make"
                     "this by first making a bed file of all positions and then"
                     "using bedtools getFastafrombed -tab -Outbed")
-parser.add_argument('-v', "--vcf", type=str, required=False,
+parser.add_argument('-v', "--mafvcf", type=str, required=False,
                     help="optional vcf from maffilter for the outgroup fill"
                     "ensure that this is coord sorted since maffilter does not"
                     "do this by default")
@@ -77,7 +77,7 @@ def fillgeno(infile, outfile, fdict, vcfdict, outgroup):
                             nuc = fdict[chrom][fillpos]
                             lnuc = "{}/{}".format(nuc, nuc)
                             reflist = [lnuc] * n_samples
-                            if outgroup:
+                            if outgroup and vcfdict:
                                 try:
                                     anc = vcfdict[chrom][fillpos][1]
                                     # ref = vcfdict[chrom][x[1]][0]
@@ -109,6 +109,8 @@ if __name__ == "__main__":
     vcf = args.vcf
     outgroup = args.outgroup
     fdict = readbedfasta(fasta)
-    if vcf:
-        vcfdict = readmafvcf(vcf)
+    if args.mafvcf:
+        vcfdict = readmafvcf(args.mafvcf)
+    else:
+        vcfdict = ''
     fillgeno(infile, outfile, fdict, vcfdict, outgroup)
