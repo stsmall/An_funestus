@@ -66,7 +66,7 @@ def fillgeno(infile, outfile, fdict, vcfdict, outgroup, dlm="."):
                     n_samples = len(samples)
                     out_iix = []
                     for o in outgroup:
-                        out_iix = [i for i, x in enumerate(header) if o == x.split(dlm)[0]]
+                        out_iix = [i for i, x in enumerate(samples) if o == x.split(dlm)[0]]
                 else:
                     x = line.strip().split()
                     chrom = x[0]
@@ -86,7 +86,6 @@ def fillgeno(infile, outfile, fdict, vcfdict, outgroup, dlm="."):
                                     refcount += 1
                                 except KeyError:
                                     for ix in out_iix:
-                                        import ipdb;ipdb.set_trace()
                                         if "/" in reflist[0]:
                                             reflist[ix] = "N/N"
                                         else:
