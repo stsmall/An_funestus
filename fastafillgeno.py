@@ -105,7 +105,7 @@ def fillgeno(infile, outfile, fdict, vcfdict, outgroup):
 if __name__ == "__main__":
     infile = args.infile
     outfile = args.outfile
-    fasta = args.fasta
+    fasta = args.bed
     vcf = args.mafvcf
     outgroup = args.outgroup
     fdict = readbedfasta(fasta)
