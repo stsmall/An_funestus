@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 """
 Created on Fri Nov 17 15:37:55 2017
-bedtools getfasta -fi FASTA -bed pos.bed -bedOut > FOO.bed
+first: python fai2bed.py FASTA.fai
+bedtools getfasta -fi FASTA -bed pos.bed -tab -bedOut > FOO.bed
 @author: stsmall
 """
 import argparse
@@ -14,7 +15,16 @@ args = parser.parse_args()
 
 
 def makebed(faifile):
-    """
+    """Make bed coordinates for constructing a bedgraph
+
+    Parameters
+    ------
+    faifile: file, fasta file index by samtools faidx FASTA
+
+    Returns
+    ------
+    pos.bed: file, bed file with start/end coordinates
+
     """
     fdict = {}
     with open(faifile, 'r') as fun:
