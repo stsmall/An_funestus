@@ -82,11 +82,11 @@ def fillgeno(infile, outfile, fdict, vcfdict, outgroup, dlm="."):
                                     anc = vcfdict[chrom][fillpos][1]
                                     # ref = vcfdict[chrom][x[1]][0]
                                     for ix in out_iix:
-                                        import ipdb;ipdb.set_trace()
                                         reflist[ix] = "{}/{}".format(anc, anc)
                                     refcount += 1
                                 except KeyError:
                                     for ix in out_iix:
+                                        import ipdb;ipdb.set_trace()
                                         if "/" in reflist[0]:
                                             reflist[ix] = "N/N"
                                         else:
