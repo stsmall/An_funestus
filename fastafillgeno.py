@@ -62,7 +62,7 @@ def fillgeno(infile, outfile, fdict, vcfdict, outgroup, dlm="."):
                 if line.startswith("#CHROM"):
                     f.write(line)
                     header = line.strip().split()
-                    samples = header[1:]
+                    samples = header[2:]
                     n_samples = len(samples)
                     out_iix = []
                     for o in outgroup:
