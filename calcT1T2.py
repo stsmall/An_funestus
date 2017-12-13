@@ -149,7 +149,10 @@ def DfoilTble(t1t2dict, size, ntaxa):
                         div = np.array(divergence)
                         sites = len(divergence)
                         div_sum = np.sum(div, axis=0)
-                        divstr = map(str, div_sum)
+                        try:
+                            divstr = map(str, div_sum)
+                        except TypeError:
+                            raise IndexError
                         d.write("{}\t{}\t{}\t{}\t{}\n".format(chrom, start, end, sites, '\t'.join(divstr)))
                         divergence = []
                         start = end
