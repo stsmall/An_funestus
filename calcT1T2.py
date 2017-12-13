@@ -158,7 +158,7 @@ def DfoilTble(t1t2dict, size, ntaxa):
                         start = end
                         end = end + size
                     except IndexError:
-                        d.write("{}\t{}\t{}\t{}\t{}0\n".format(chrom, start, end, sites, '0\t'*9))
+                        d.write("{}\t{}\t{}\t{}\t{}0\n".format(chrom, start, end, sites, '0\t'*7))
                         start = end
                         end = end + size
                 else:
