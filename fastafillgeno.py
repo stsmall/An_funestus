@@ -51,7 +51,7 @@ def readmafvcf(vcf):
     return(vcfdict)
 
 
-def fillgeno(infile, outfile, fdict, vcfdict, outgroup):
+def fillgeno(infile, outfile, fdict, vcfdict, outgroup, dlm="."):
     """
     """
     fillposi = 1
@@ -66,7 +66,7 @@ def fillgeno(infile, outfile, fdict, vcfdict, outgroup):
                     n_samples = len(samples)
                     out_iix = []
                     for o in outgroup:
-                        out_iix.append(samples.index(o))
+                        out_iix.append([i for i, x in enumerate(header) if o == x.split(dlm)[0]])
                 else:
                     x = line.strip().split()
                     chrom = x[0]
