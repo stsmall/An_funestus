@@ -66,7 +66,7 @@ def fillgeno(infile, outfile, fdict, vcfdict, outgroup, dlm="."):
                     n_samples = len(samples)
                     out_iix = []
                     for o in outgroup:
-                        out_iix.append([i for i, x in enumerate(header) if o == x.split(dlm)[0]])
+                        out_iix = [i for i, x in enumerate(header) if o == x.split(dlm)[0]]
                 else:
                     x = line.strip().split()
                     chrom = x[0]
