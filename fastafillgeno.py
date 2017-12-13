@@ -15,7 +15,7 @@ parser.add_argument('-i', "--infile", type=str, required=True,
                     help="infile in genoformat")
 parser.add_argument('-o', "--outfile", type=str, required=True,
                     help="outfile for filled geno")
-parser.add_argument('-f', "--fasta", type=str, required=True,
+parser.add_argument('-b', "--bed", type=str, required=True,
                     help="bed file from a fasta file, 1 base per site. Make"
                     "this by first making a bed file of all positions and then"
                     "using bedtools getFastafrombed -tab -Outbed")
@@ -106,7 +106,7 @@ if __name__ == "__main__":
     infile = args.infile
     outfile = args.outfile
     fasta = args.fasta
-    vcf = args.vcf
+    vcf = args.mafvcf
     outgroup = args.outgroup
     fdict = readbedfasta(fasta)
     if args.mafvcf:
