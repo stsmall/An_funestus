@@ -74,9 +74,9 @@ def addmaptoaln(infile, ddfish):
                     x = line.strip().split()
                     if any([x[-1] in k for k in ddfish.values()]):
                         for key in ddfish.keys():
-                            if x[-1] in ddfish[key]:
-                                chrom = "{}_{}".format(key, x[-1])
-                                x[-1] = chrom
+                            if x[-2] in ddfish[key]:
+                                chrom = "{}_{}".format(key, x[-2])
+                                x[-2] = chrom
                                 f.write("{}\n".format("\t".join(x)))
                                 break
                     else:
