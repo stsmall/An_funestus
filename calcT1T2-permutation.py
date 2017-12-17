@@ -154,9 +154,9 @@ def foil4(vcfdict, quartet, q_ix, samplelist, iterations):
         t1list = []
         t2list = []
         for its in range(iterations):
-            i = np.random.choice(q_ix[0], 1)
-            j = np.random.choice(q_ix[1], 1)
-            k = np.random.choice(q_ix[2], 1)
+            i = np.random.choice(q_ix[0], 1)[0]
+            j = np.random.choice(q_ix[1], 1)[0]
+            k = np.random.choice(q_ix[2], 1)[0]
             n_AAAA = 0  #
             n_AABA = 0  #
             n_ABAA = 0
