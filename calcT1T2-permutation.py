@@ -9,10 +9,10 @@ Calculates the T1 and T2 divergence times in a quartet
 from __future__ import print_function
 from __future__ import division
 # from IPython.display import HTML
-import ipdb
 import numpy as np
 import argparse
 from collections import defaultdict
+from collections import OrderedDict
 parser = argparse.ArgumentParser()
 parser.add_argument('-v', "--vcfFile", type=str, required=True,
                     help="vcf file of variants")
@@ -69,7 +69,65 @@ def loadvcf(vcFile, quart, dlm):
     return(qdict, q_ix, samplelist)
 
 
-def foil4(vcfdict, quartet, q_ix, samplelist):
+def DfoilTble(t1t2dict, size, ntaxa):
+    """
+    """
+    if ntaxa is 4:
+        headers = ['AAAA', 'AABA', 'ABAA', 'ABBA',
+                   'BAAA', 'BABA', 'BBAA', 'BBBA']
+    elif ntaxa is 5:
+        headers = ['AAAAA', 'AAABA', 'AABAA', 'AABBA',
+                   'ABAAA', 'ABABA', 'ABBAA', 'ABBBA',
+                   'BAAAA', 'BAABA', 'BABAA', 'BABBA',
+                   'BBAAA', 'BBABA', 'BBBAA', 'BBBBA']
+    d = open("dfoil.tbl", 'w')
+    if size == 0:
+        d.write("#chrom\tsites\t{}\n".format('\t'.join(headers)))
+        for chrom in t1t2dict.keys():
+            posdict = OrderedDict(sorted(t1t2dict[chrom].items()))
+            divergence = []
+            for pos in posdict.keys():
+                posmean = np.mean(np.array(posdict[pos]), axis=0)
+                divergence.append(posmean)
+            div = np.array(divergence)
+            sites = len(divergence)
+            div_sum = np.sum(div, axis=0)
+            divstr = map(str, div_sum)
+            d.write("{}\t{}\t{}\n".format(chrom, sites, '\t'.join(divstr)))
+    else:
+        d.write("#chrom\tstart\tend\tsites\t{}\n".format('\t'.join(headers)))
+        start = 1
+        end = size
+        for chrom in t1t2dict.keys():
+            posdict = OrderedDict(sorted(t1t2dict[chrom].items()))
+            divergence = []
+            for pos in posdict.keys():
+                if pos > end:
+                    try:
+                        # AAAA, AABA, ABAA, ABBA, BAAA, BABA, BBAA, BBBA
+                        div = np.array(divergence)
+                        sites = len(divergence)
+                        div_sum = np.sum(div, axis=0)
+                        try:
+                            divstr = map(str, div_sum)
+                        except TypeError:
+                            raise IndexError
+                        d.write("{}\t{}\t{}\t{}\t{}\n".format(chrom, start, end, sites, '\t'.join(divstr)))
+                        divergence = []
+                        start = end
+                        end = end + size
+                    except IndexError:
+                        d.write("{}\t{}\t{}\t{}\t{}0\n".format(chrom, start, end, sites, '0\t'*7))
+                        start = end
+                        end = end + size
+                else:
+                    posmean = np.mean(np.array(posdict[pos]), axis=0)
+                    divergence.append(posmean)
+    d.close
+    return(None)
+
+
+def foil4(vcfdict, quartet, q_ix, samplelist, iterations=100):
     """Calculates the divergence between (1,2) as:
         T2 = (1/N) * ((n_ABAA + n_BAAA) / 2).
       Calculates the divergence between (1,2),3 as:
@@ -91,100 +149,94 @@ def foil4(vcfdict, quartet, q_ix, samplelist):
     for chrom in vcfdict.keys():
         t1list = []
         t2list = []
-        indslist = []
-        for i in q_ix[0]:
-            for j in q_ix[1]:
-                for k in q_ix[2]:
-                    n_AAAA = 0  #
-                    n_AABA = 0  #
-                    n_ABAA = 0
-                    n_ABBA = 0  #
-                    n_BAAA = 0
-                    n_BABA = 0  #
-                    n_BBAA = 0
-                    n_BBBA = 0  #
-                    callable_pos = 0
-                    countlist = []
-                    for pos in vcfdict[chrom].keys():
-                        marray = np.array(vcfdict[chrom][pos])
-                        m = np.array([marray[i-9], marray[j-9], marray[k-9], marray[-1]])
-                        if -1 not in m:
-                            window = [0, 0, 0, 0, 0, 0, 0, 0]
-                            header = ['AAAA', 'AABA', 'ABAA', 'ABBA', 'BAAA',
-                                      'BABA', 'BBAA', 'BBBA']
-                            callable_pos += 1
-                            count = np.where(m == 0)
-                            count_sum = sum(count[1][0:3])  # only first 3
-                            count_len = len(count[1])  # 4 zeros
-                            if count_len == 4:
-                                if m[3, 1] != 0:
-                                    if count_sum == 0:
-                                        n_AAAA += 1
-                                        window[header.index('AAAA')] = 1
-                                    elif count_sum == 1:
-                                        iix = np.where(count[1] == 1)[0]
-                                        if 2 in iix:
-                                            n_AABA += 1
-                                            window[header.index('AABA')] = 1
-                                        elif 1 in iix:
-                                            n_ABAA += 1
-                                            window[header.index('ABAA')] = 1
-                                        elif 0 in iix:
-                                            n_BAAA += 1
-                                            window[header.index('BAAA')] = 1
-                                    elif count_sum == 2:
-                                        # two zeros
-                                        iix = np.where(count[1] == 1)[0]
-                                        if 0 in iix and 2 in iix:
-                                            n_BABA += 1
-                                            window[header.index('BABA')] = 1
-                                        elif 0 in iix and 1 in iix:
-                                            n_BBAA += 1
-                                            window[header.index('BBAA')] = 1
-                                        elif 1 in iix and 2 in iix:
-                                            n_ABBA += 1
-                                            window[header.index('ABBA')] = 1
-                                    elif count_sum == 3:
-                                        n_BBBA += 1
-                                        window[header.index('BBBA')] = 1
-                                    else:
-                                        raise ValueError("unknown pattern")
-                                    t1t2dict[chrom][int(pos)].append(window)
-                    # 'AAAA', 'AABA', 'ABAA', 'ABBA', 'BAAA', 'BABA', 'BBAA', 'BBBA'
-                    # 0        1        2      3        4       5      6       7
-                    if callable_pos > 0:
-                        # P1 P2 P3 O; BAAA, ABAA, BBAA
-                        t2_inner = (n_ABAA + n_BAAA) / 2
-                        t2_1 = t2_inner / callable_pos
-                        t1_1 = (t2_inner + n_BBAA) / callable_pos
-                        # t1se, t2se = blockSE(t1t2dict, 2, 4, 6)
+        for its in range(iterations):
+            i = np.random.choice(q_ix[0], 1)
+            j = np.random.choice(q_ix[1], 1)
+            k = np.random.choice(q_ix[2], 1)
+            n_AAAA = 0  #
+            n_AABA = 0  #
+            n_ABAA = 0
+            n_ABBA = 0  #
+            n_BAAA = 0
+            n_BABA = 0  #
+            n_BBAA = 0
+            n_BBBA = 0  #
+            callable_pos = 0
+            countlist = []
+            for pos in vcfdict[chrom].keys():
+                marray = np.array(vcfdict[chrom][pos])
+                m = np.array([marray[i-9], marray[j-9], marray[k-9], marray[-1]])
+                if -1 not in m:
+                    window = [0, 0, 0, 0, 0, 0, 0, 0]
+                    header = ['AAAA', 'AABA', 'ABAA', 'ABBA', 'BAAA',
+                              'BABA', 'BBAA', 'BBBA']
+                    callable_pos += 1
+                    count = np.where(m == 0)
+                    count_sum = sum(count[1][0:3])  # only first 3
+                    count_len = len(count[1])  # 4 zeros
+                    if count_len == 4:
+                        if m[3, 1] != 0:
+                            if count_sum == 0:
+                                n_AAAA += 1
+                                window[header.index('AAAA')] = 1
+                            elif count_sum == 1:
+                                iix = np.where(count[1] == 1)[0]
+                                if 2 in iix:
+                                    n_AABA += 1
+                                    window[header.index('AABA')] = 1
+                                elif 1 in iix:
+                                    n_ABAA += 1
+                                    window[header.index('ABAA')] = 1
+                                elif 0 in iix:
+                                    n_BAAA += 1
+                                    window[header.index('BAAA')] = 1
+                            elif count_sum == 2:
+                                # two zeros
+                                iix = np.where(count[1] == 1)[0]
+                                if 0 in iix and 2 in iix:
+                                    n_BABA += 1
+                                    window[header.index('BABA')] = 1
+                                elif 0 in iix and 1 in iix:
+                                    n_BBAA += 1
+                                    window[header.index('BBAA')] = 1
+                                elif 1 in iix and 2 in iix:
+                                    n_ABBA += 1
+                                    window[header.index('ABBA')] = 1
+                            elif count_sum == 3:
+                                n_BBBA += 1
+                                window[header.index('BBBA')] = 1
+                            else:
+                                raise ValueError("unknown pattern")
+                            t1t2dict[chrom][int(pos)].append(window)
+            # 'AAAA', 'AABA', 'ABAA', 'ABBA', 'BAAA', 'BABA', 'BBAA', 'BBBA'
+            # 0        1        2      3        4       5      6       7
+            if callable_pos > 0:
+                # P1 P2 P3 O; BAAA, ABAA, BBAA
+                t2_inner = (n_ABAA + n_BAAA) / 2
+                t2_1 = t2_inner / callable_pos
+                t1_1 = (t2_inner + n_BBAA) / callable_pos
+                # t1se, t2se = blockSE(t1t2dict, 2, 4, 6)
 
-                        # P1 P3 P2 O; BAAA AABA BABA
-                        t2_inner = (n_BAAA + n_AABA) / 2
-                        t2_2 = t2_inner / callable_pos
-                        t1_2 = (t2_inner + n_BABA) / callable_pos
-                        # t1se, t2se = blockSE(t1t2dict, 4, 1, 5)
+                # P1 P3 P2 O; BAAA AABA BABA
+                t2_inner = (n_BAAA + n_AABA) / 2
+                t2_2 = t2_inner / callable_pos
+                t1_2 = (t2_inner + n_BABA) / callable_pos
+                # t1se, t2se = blockSE(t1t2dict, 4, 1, 5)
 
-                        # P2 P3 P1 O; ABAA AABA ABBA
-                        t2_inner = (n_ABAA + n_AABA) / 2
-                        t2_3 = t2_inner / callable_pos
-                        t1_3 = (t2_inner + n_ABBA) / callable_pos
-                        # t1se, t2se = blockSE(t1t2dict, 2, 1, 3)
-                    t1list.append([t1_1, t1_2, t1_3])
-                    t2list.append([t2_1, t2_2, t2_3])
-                    inds = (samplelist[marray[i-9]], samplelist[marray[j-9]],
-                            samplelist[marray[k-9]], samplelist[marray[-1]])
-                    indslist.append(inds)
-                    countlist.append([n_AAAA, n_AABA, n_ABAA, n_ABBA, n_BAAA,
-                                      n_BABA, n_BBAA, n_BBBA])
+                # P2 P3 P1 O; ABAA AABA ABBA
+                t2_inner = (n_ABAA + n_AABA) / 2
+                t2_3 = t2_inner / callable_pos
+                t1_3 = (t2_inner + n_ABBA) / callable_pos
+                # t1se, t2se = blockSE(t1t2dict, 2, 1, 3)
+            t1list.append([t1_1, t1_2, t1_3])
+            t2list.append([t2_1, t2_2, t2_3])
+            countlist.append([n_AAAA, n_AABA, n_ABAA, n_ABBA, n_BAAA,
+                              n_BABA, n_BBAA, n_BBBA])
         # averages w/ SE
         reps = len(t1list)
-        ipdb.set_trace()
         np.savetxt("t1array.out", t1list)
         np.savetxt("t2array.out", t2list)
-        np.savetxt("indslist.out", indslist)
         np.savetxt("counts.out", countlist)
-        ipdb.set_trace()
         t1_1, t1_2, t1_3 = zip(*t1list)
         t2_1, t2_2, t2_3 = zip(*t2list)
         t1se = (np.std(t1_1)) / np.sqrt(reps)
@@ -220,102 +272,103 @@ def foil5(vcfdict, quartet, q_ix, samplelist):
     print("calculating divergence times for quartet: {}...".format(quartet))
     t1t2dict = defaultdict(lambda: defaultdict(lambda: []))
     for chrom in vcfdict.keys():
-        for i in q_ix[0]:
-            for j in q_ix[1]:
-                for k in q_ix[2]:
-                    n_AAAAA = 0
-                    n_AAABA = 0
-                    n_AABAA = 0
-                    n_AABBA = 0
-                    n_ABAAA = 0
-                    n_ABABA = 0
-                    n_ABBAA = 0
-                    n_ABBBA = 0
-                    n_BAAAA = 0
-                    n_BAABA = 0
-                    n_BABAA = 0
-                    n_BABBA = 0
-                    n_BBAAA = 0
-                    n_BBABA = 0
-                    n_BBBAA = 0
-                    n_BBBBA = 0
-                    callable_pos = 0
-                    for pos in vcfdict[chrom].keys():
-                        marray = np.array(vcfdict[chrom][pos])
-                        m = np.array([marray[i-9], marray[j-9], marray[k-9], marray[-1]])
-                        if -1 not in m:
-                            window = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-                            header = ['AAAAA', 'AAABA', 'AABAA', 'AABBA',
-                                      'ABAAA', 'ABABA', 'ABBAA', 'ABBBA',
-                                      'BAAAA', 'BAABA', 'BABAA', 'BABBA',
-                                      'BBAAA', 'BBABA', 'BBBAA', 'BBBBA']
-                            callable_pos += 1
-                            count = np.where(m == 0)
-                            count_sum = sum(count[1][0:4])  # sum only first 3 entries
-                            count_len = len(count[1])  # 4 zeros
-                            if count_len == 5:
-                                if m[4, 1] != 0:
-                                    if count_sum == 0:
-                                        # 'AAAAA'
-                                        n_AAAAA += 1
-                                        window[header.index('AAAAA')] = 1
-                                    elif count_sum == 1:
-                                        # AAABA, AABAA, ABAAA, BAAAA, BBBBA
-                                        iix = np.where(count[1] == 1)[0]
-                                        if 0 in iix:
-                                            n_BAAAA += 1
-                                            window[header.index('BAAAA')] = 1
-                                        elif 1 in iix:
-                                            n_ABAAA += 1
-                                            window[header.index('ABAAA')] = 1
-                                        elif 2 in iix:
-                                            n_AABAA += 1
-                                            window[header.index('AABAA')] = 1
-                                        elif 3 in iix:
-                                            n_AAABA += 1
-                                            window[header.index('AAABA')] = 1
-                                    elif count_sum == 2:
-                                        # AABBA, ABABA, ABBAA, BAABA, BABAA, BBAAA
-                                        iix = np.where(count[1] == 1)[0]
-                                        if 2 in iix and 3 in iix:
-                                            n_AABBA += 1
-                                            window[header.index('AABBA')] = 1
-                                        elif 1 in iix and 3 in iix:
-                                            n_ABABA += 1
-                                            window[header.index('ABABA')] = 1
-                                        elif 1 in iix and 2 in iix:
-                                            n_ABBAA += 1
-                                            window[header.index('ABBAA')] = 1
-                                        elif 0 in iix and 3 in iix:
-                                            n_BAABA += 1
-                                            window[header.index('BAABA')] = 1
-                                        elif 0 in iix and 2 in iix:
-                                            n_BABAA += 1
-                                            window[header.index('BABAA')] = 1
-                                        elif 0 in iix and 1 in iix:
-                                            n_BBAAA += 1
-                                            window[header.index('BBAAA')] = 1
-                                    elif count_sum == 3:
-                                        # ABBBA, BABBA, BBABA, BBBAA
-                                        iix = np.where(count[1] == 1)[0]
-                                        if 1 in iix and 2 in iix and 3 in iix:
-                                            n_ABBBA += 1
-                                            window[header.index('ABBBA')] = 1
-                                        elif 0 in iix and 2 in iix and 3 in iix:
-                                            n_BABBA += 1
-                                            window[header.index('BABBA')] = 1
-                                        elif 0 in iix and 1 in iix and 3 in iix:
-                                            n_BBABA += 1
-                                            window[header.index('BBABA')] = 1
-                                        elif 0 in iix and 1 in iix and 2 in iix:
-                                            n_BBBAA += 1
-                                            window[header.index('BBBAA')] = 1
-                                    elif count_sum == 4:
-                                        n_BBBBA += 1
-                                        window[header.index('BBBBA')] = 1
-                                    else:
-                                        raise ValueError("pattern not recognized")
-                                    t1t2dict[chrom][int(pos)].append(window)
+        for its in range(iterations):
+            i = np.random.choice(q_ix[0], 1)
+            j = np.random.choice(q_ix[1], 1)
+            k = np.random.choice(q_ix[2], 1)
+            n_AAAAA = 0
+            n_AAABA = 0
+            n_AABAA = 0
+            n_AABBA = 0
+            n_ABAAA = 0
+            n_ABABA = 0
+            n_ABBAA = 0
+            n_ABBBA = 0
+            n_BAAAA = 0
+            n_BAABA = 0
+            n_BABAA = 0
+            n_BABBA = 0
+            n_BBAAA = 0
+            n_BBABA = 0
+            n_BBBAA = 0
+            n_BBBBA = 0
+            callable_pos = 0
+            for pos in vcfdict[chrom].keys():
+                marray = np.array(vcfdict[chrom][pos])
+                m = np.array([marray[i-9], marray[j-9], marray[k-9], marray[-1]])
+                if -1 not in m:
+                    window = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                    header = ['AAAAA', 'AAABA', 'AABAA', 'AABBA',
+                              'ABAAA', 'ABABA', 'ABBAA', 'ABBBA',
+                              'BAAAA', 'BAABA', 'BABAA', 'BABBA',
+                              'BBAAA', 'BBABA', 'BBBAA', 'BBBBA']
+                    callable_pos += 1
+                    count = np.where(m == 0)
+                    count_sum = sum(count[1][0:4])  # sum only first 3 entries
+                    count_len = len(count[1])  # 4 zeros
+                    if count_len == 5:
+                        if m[4, 1] != 0:
+                            if count_sum == 0:
+                                # 'AAAAA'
+                                n_AAAAA += 1
+                                window[header.index('AAAAA')] = 1
+                            elif count_sum == 1:
+                                # AAABA, AABAA, ABAAA, BAAAA, BBBBA
+                                iix = np.where(count[1] == 1)[0]
+                                if 0 in iix:
+                                    n_BAAAA += 1
+                                    window[header.index('BAAAA')] = 1
+                                elif 1 in iix:
+                                    n_ABAAA += 1
+                                    window[header.index('ABAAA')] = 1
+                                elif 2 in iix:
+                                    n_AABAA += 1
+                                    window[header.index('AABAA')] = 1
+                                elif 3 in iix:
+                                    n_AAABA += 1
+                                    window[header.index('AAABA')] = 1
+                            elif count_sum == 2:
+                                # AABBA, ABABA, ABBAA, BAABA, BABAA, BBAAA
+                                iix = np.where(count[1] == 1)[0]
+                                if 2 in iix and 3 in iix:
+                                    n_AABBA += 1
+                                    window[header.index('AABBA')] = 1
+                                elif 1 in iix and 3 in iix:
+                                    n_ABABA += 1
+                                    window[header.index('ABABA')] = 1
+                                elif 1 in iix and 2 in iix:
+                                    n_ABBAA += 1
+                                    window[header.index('ABBAA')] = 1
+                                elif 0 in iix and 3 in iix:
+                                    n_BAABA += 1
+                                    window[header.index('BAABA')] = 1
+                                elif 0 in iix and 2 in iix:
+                                    n_BABAA += 1
+                                    window[header.index('BABAA')] = 1
+                                elif 0 in iix and 1 in iix:
+                                    n_BBAAA += 1
+                                    window[header.index('BBAAA')] = 1
+                            elif count_sum == 3:
+                                # ABBBA, BABBA, BBABA, BBBAA
+                                iix = np.where(count[1] == 1)[0]
+                                if 1 in iix and 2 in iix and 3 in iix:
+                                    n_ABBBA += 1
+                                    window[header.index('ABBBA')] = 1
+                                elif 0 in iix and 2 in iix and 3 in iix:
+                                    n_BABBA += 1
+                                    window[header.index('BABBA')] = 1
+                                elif 0 in iix and 1 in iix and 3 in iix:
+                                    n_BBABA += 1
+                                    window[header.index('BBABA')] = 1
+                                elif 0 in iix and 1 in iix and 2 in iix:
+                                    n_BBBAA += 1
+                                    window[header.index('BBBAA')] = 1
+                            elif count_sum == 4:
+                                n_BBBBA += 1
+                                window[header.index('BBBBA')] = 1
+                            else:
+                                raise ValueError("pattern not recognized")
+                            t1t2dict[chrom][int(pos)].append(window)
     return(t1t2dict)
 
 
