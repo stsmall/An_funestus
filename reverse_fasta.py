@@ -73,5 +73,5 @@ if __name__ == "__main__":
 
    #3R = phase["3L_3R"][46586561:].reverse
    #3La = phase["3L_3R"][0:46586455]
-   #2R = phase["2L_2R"][0:545617112]
+   #2R = phase["2L_2R"][0:54617112]
    #2L = phase["2L_2R"][54617112:].reverse

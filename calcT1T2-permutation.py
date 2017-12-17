@@ -176,7 +176,10 @@ def foil4(vcfdict, quartet, q_ix, samplelist, iterations):
                               'BABA', 'BBAA', 'BBBA']
                     callable_pos += 1
                     count = np.where(m == 0)
-                    count_sum = sum(count[1][0:3])  # only first 3
+                    try:
+                        count_sum = sum(count[1][0:3])  # only first 3
+                    except IndexError:
+                        import ipdb;ipdb.set_trace()
                     count_len = len(count[1])  # 4 zeros
                     if count_len == 4:
                         if m[3, 1] != 0:
