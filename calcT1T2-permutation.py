@@ -19,6 +19,10 @@ parser.add_argument('-v', "--vcfFile", type=str, required=True,
 parser.add_argument('-g', "--groups", nargs='+',
                     required=True, help="quartet of species to calculate,"
                     " assumes form: P1 P2 P3. can be given multiple times")
+parser.add_argument('-s', "--size", type=int, default=0,
+                    help="size of window for T1, T2 calculations")
+parser.add_argument('-I', "--iterations", type=int, default=100,
+                    help="number of iterations")
 parser.add_argument("--dlm", type=str, default=".",
                     help="delimeter denoting species")
 args = parser.parse_args()
@@ -127,7 +131,7 @@ def DfoilTble(t1t2dict, size, ntaxa):
     return(None)
 
 
-def foil4(vcfdict, quartet, q_ix, samplelist, iterations=100):
+def foil4(vcfdict, quartet, q_ix, samplelist, iterations):
     """Calculates the divergence between (1,2) as:
         T2 = (1/N) * ((n_ABAA + n_BAAA) / 2).
       Calculates the divergence between (1,2),3 as:
@@ -256,7 +260,7 @@ def foil4(vcfdict, quartet, q_ix, samplelist, iterations=100):
     return(t1t2dict)
 
 
-def foil5(vcfdict, quartet, q_ix, samplelist):
+def foil5(vcfdict, quartet, q_ix, samplelist, iterations):
     """Count pattern in VCF for DFOIL
 
     Parameters
@@ -375,10 +379,12 @@ def foil5(vcfdict, quartet, q_ix, samplelist):
 if __name__ == "__main__":
     quart = args.groups
     vcfFile = args.vcfFile
+    size = args.size
     qdict, q_ix, samplelist = loadvcf(vcfFile, quart, args.dlm)
     if len(quart) == 5:
-        t1t2dict = foil5(qdict, quart, q_ix, samplelist)
+        t1t2dict = foil5(qdict, quart, q_ix, samplelist, args.iterations)
     elif len(quart) == 4:
-        t1t2dict = foil4(qdict, quart, q_ix, samplelist)
+        t1t2dict = foil4(qdict, quart, q_ix, samplelist, args.iterations)
     else:
         raise ValueError("quartet must be 4 or 5 taxa")
+    DfoilTble(t1t2dict, size, len(quart))
