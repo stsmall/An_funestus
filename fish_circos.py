@@ -72,7 +72,7 @@ def addmaptoaln(infile, ddfish):
                     f.write("{}\n".format(line))
                 elif line.strip().split()[0].isdigit():
                     x = line.strip().split()
-                    if any([x[-1] in k for k in ddfish.values()]):
+                    if any([x[-2] in k for k in ddfish.values()]):
                         for key in ddfish.keys():
                             if x[-2] in ddfish[key]:
                                 chrom = "{}_{}".format(key, x[-2])
