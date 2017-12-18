@@ -31,7 +31,7 @@ def fixPGTPID(vcf):
                 if (len(x[3]) > 1):
                     # skip ref allele that are insertions
                     pass
-                elif any([len(i) > 1 for i in x.split(",")]):
+                elif any([len(i) > 1 for i in x[4].split(",")]):
                     pass
                 elif ("*" not in x[4]) and (len(formats) > 1) and ("<NON_REF>" not in x[4]):
                     if "." in x[4]:
