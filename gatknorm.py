@@ -28,8 +28,10 @@ def fixPGTPID(vcf):
                 formats = x[8].split(":")
                 if x[5] == 'inf':
                     x[5] = '500'
-                if (len(x[3]) > 1) or (len(x[4]) > 1):
+                if (len(x[3]) > 1):
                     # skip ref allele that are insertions
+                    pass
+                elif any([len(i) > 1 for i in x.split(",")]):
                     pass
                 elif ("*" not in x[4]) and (len(formats) > 1) and ("<NON_REF>" not in x[4]):
                     if "." in x[4]:
