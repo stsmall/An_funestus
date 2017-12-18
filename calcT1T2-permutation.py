@@ -95,6 +95,7 @@ def DfoilTble(t1t2dict, size, ntaxa):
                 divergence.append(posmean)
             div = np.array(divergence)
             sites = len(divergence)
+            #sites = np.sum(div, axis=1)
             div_sum = np.sum(div, axis=0)
             divstr = map(str, div_sum)
             d.write("{}\t{}\t{}\n".format(chrom, sites, '\t'.join(divstr)))
@@ -111,6 +112,7 @@ def DfoilTble(t1t2dict, size, ntaxa):
                         # AAAA, AABA, ABAA, ABBA, BAAA, BABA, BBAA, BBBA
                         div = np.array(divergence)
                         sites = len(divergence)
+                        #sites = np.sum(div, axis=1)
                         div_sum = np.sum(div, axis=0)
                         try:
                             divstr = map(str, div_sum)
@@ -127,7 +129,7 @@ def DfoilTble(t1t2dict, size, ntaxa):
                 else:
                     posmean = np.mean(np.array(posdict[pos]), axis=0)
                     divergence.append(posmean)
-    d.close
+    d.close()
     return(None)
 
 
