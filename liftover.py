@@ -65,7 +65,6 @@ def headerVCF(vcfRef, outStream):
         for line in vcf:
             if line.startswith('##'):
                 outStream.write(line)
-                continue
             else:
                 break
     return(outstream)
@@ -224,6 +223,8 @@ def reorientGT(x, ref_a, alt_a):
                 gt = sample.split(":")
                 if ("./." in gt[0]) or (gt[0] == '.'):
                     x[i + 9] = "./.:.:.:.:."
+                elif (".|." in gt[0]):
+                    x[i + 9] = ".|.:.:.:.:."
                 else:
                     gt[0] = gt[0].replace("0", "1")  # change all 0s to 1s
                     ad = gt[formats.index('AD')]
@@ -239,11 +240,13 @@ def reorientGT(x, ref_a, alt_a):
                     gt = sample.split(":")
                     if ("./." in gt[0]) or (gt[0] == '.'):
                         x[i + 9] = "./.:.:.:.:."
+                    elif (".|." in gt[0]):
+                        x[i + 9] = ".|.:.:.:.:."
                     else:
-                        if "0/0" in gt[0]:
-                            gt[0] = '1/1'
-                        elif "1/1" in gt[0]:
-                            gt[0] = '0/0'
+                        if "0/0" in gt[0] or "0|0" in gt[0]:
+                            gt[0] = gt[0].replace("0", "1")
+                        elif "1/1" in gt[0] or "1|1" in gt[0]:
+                            gt[0] = gt[0].replace("1", "0")
                         # fix formating
                         ad = gt[formats.index('AD')]
                         dp = gt[formats.index('DP')]
@@ -266,6 +269,8 @@ def reorientGT(x, ref_a, alt_a):
                     gt = sample.split(":")
                     if ("./." in gt[0]) or (gt[0] == '.'):
                         x[i + 9] = "./.:.:.:.:."
+                    elif (".|." in gt[0]):
+                        x[i + 9] = ".|.:.:.:.:."
                     else:
                         gt[0] = gt[0].replace("1", "2")
                         gt[0] = gt[0].replace("0", "1")
@@ -290,11 +295,13 @@ def reorientGT(x, ref_a, alt_a):
                     gt = sample.split(":")
                     if ("./." in gt[0]) or (gt[0] == '.'):
                         x[i + 9] = "./.:.:.:.:."
+                    elif (".|." in gt[0]):
+                        x[i + 9] = ".|.:.:.:.:."
                     else:
                         if '0/0' in gt[0]:
-                            gt[0] = '1/1'
+                            gt[0] = gt[0].replace("0", "1")
                         elif '1/1' in gt[0]:
-                            gt[0] = '0/0'
+                            gt[0] = gt[0].replace("1", "0")
                         ad = gt[formats.index('AD')]
                         dp = gt[formats.index('DP')]
                         gq = gt[formats.index('GQ')]
@@ -312,6 +319,8 @@ def reorientGT(x, ref_a, alt_a):
                     gt = sample.split(":")
                     if ("./." in gt[0]) or (gt[0] == '.'):
                         x[i + 9] = "./.:.:.:.:."
+                    elif (".|." in gt[0]):
+                        x[i + 9] = ".|.:.:.:.:."
                     else:
                         # change all 0 to 1, all 1 to 2
                         gt[0] = gt[0].replace("1", "2")
@@ -332,6 +341,8 @@ def reorientGT(x, ref_a, alt_a):
                 gt = sample.split(":")
                 if ("./." in gt[0]) or (gt[0] == '.'):
                     x[i + 9] = "./.:.:.:.:."
+                elif (".|." in gt[0]):
+                    x[i + 9] = ".|.:.:.:.:."
                 else:
                     # change all 0 to 1, all 1 to 2
                     gt[0] = gt[0].replace("1", "2")
