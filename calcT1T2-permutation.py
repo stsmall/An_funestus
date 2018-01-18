@@ -170,6 +170,7 @@ def foil4(vcfdict, quartet, q_ix, samplelist, iterations, callabledict):
             n_BABA = 0  #
             n_BBAA = 0
             n_BBBA = 0  #
+            callable_pos = 0
             countlist = []
             for pos in vcfdict[chrom].keys():
                 marray = np.array(vcfdict[chrom][pos])
@@ -185,6 +186,7 @@ def foil4(vcfdict, quartet, q_ix, samplelist, iterations, callabledict):
                         import ipdb;ipdb.set_trace()
                     count_len = len(count[1])  # 4 zeros
                     if count_len == 4:
+                        callable_pos += 1
                         if m[3, 1] != 0:
                             if count_sum == 0:
                                 n_AAAA += 1
@@ -220,23 +222,23 @@ def foil4(vcfdict, quartet, q_ix, samplelist, iterations, callabledict):
                             t1t2dict[chrom][int(pos)].append(window)
             # 'AAAA', 'AABA', 'ABAA', 'ABBA', 'BAAA', 'BABA', 'BBAA', 'BBBA'
             # 0        1        2      3        4       5      6       7
-            if callabledict[chrom] > 0:
+            if callable_pos > 0:
                 # P1 P2 P3 O; BAAA, ABAA, BBAA
                 t2_inner = (n_ABAA + n_BAAA) / 2
-                t2_1 = t2_inner / callabledict[chrom]
-                t1_1 = (t2_inner + n_BBAA) / callabledict[chrom]
+                t2_1 = t2_inner / callable_pos
+                t1_1 = (t2_inner + n_BBAA) / callable_pos
                 # t1se, t2se = blockSE(t1t2dict, 2, 4, 6)
 
                 # P1 P3 P2 O; BAAA AABA BABA
                 t2_inner = (n_BAAA + n_AABA) / 2
-                t2_2 = t2_inner / callabledict[chrom]
-                t1_2 = (t2_inner + n_BABA) / callabledict[chrom]
+                t2_2 = t2_inner / callable_pos
+                t1_2 = (t2_inner + n_BABA) / callable_pos
                 # t1se, t2se = blockSE(t1t2dict, 4, 1, 5)
 
                 # P2 P3 P1 O; ABAA AABA ABBA
                 t2_inner = (n_ABAA + n_AABA) / 2
-                t2_3 = t2_inner / callabledict[chrom]
-                t1_3 = (t2_inner + n_ABBA) / callabledict[chrom]
+                t2_3 = t2_inner / callable_pos
+                t1_3 = (t2_inner + n_ABBA) / callable_pos
                 # t1se, t2se = blockSE(t1t2dict, 2, 1, 3)
             t1list.append([t1_1, t1_2, t1_3])
             t2list.append([t2_1, t2_2, t2_3])
