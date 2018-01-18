@@ -36,6 +36,7 @@ def loadvcf(vcFile, quart, dlm):
     """
     print("loading vcf file...")
     qdict = defaultdict(dict)
+    d = {}
     callabledict = defaultdict(lambda: 0, d)
     with open(vcfFile, 'r') as vcf:
         for line in vcf:
