@@ -14,6 +14,6 @@ for fa in fasta_files:
         with open(fa, 'r') as fa_in:
             for line in fa_in:
                 if line.startswith(">"):
-                    out.write(">{}\n".format(fa.split(".")[0]))
+                    out.write(">{}\n".format("_".join(fa.split(".")[0:3])))
                 else:
                     out.write(line)

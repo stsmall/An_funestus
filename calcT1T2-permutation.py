@@ -36,6 +36,7 @@ def loadvcf(vcFile, quart, dlm):
     """
     print("loading vcf file...")
     qdict = defaultdict(dict)
+    callabledict = defaultdict(lambda: 0, d)
     with open(vcfFile, 'r') as vcf:
         for line in vcf:
             if line.startswith("#CHROM"):
@@ -54,6 +55,7 @@ def loadvcf(vcFile, quart, dlm):
                     count_list = []
                     polarize = x[q_ix[-1][0]].split(":")[0]
                     if "." not in polarize:
+                        callabledict[chrom] += 1
                         for sample in range(9, len(x)):
                             ref = 0  # check for missing
                             alt = 0  # check for missing
@@ -63,14 +65,14 @@ def loadvcf(vcFile, quart, dlm):
                             if ref == 0 and alt == 0:
                                 ref = -1
                                 alt = -1
-                            if "0/0" in polarize:
+                            if "0/0" in polarize or "0|0" in polarize:
                                 count_list.append([alt, ref])
-                            elif "1/1" in polarize:
+                            elif "1/1" in polarize or "1|1" in polarize:
                                 count_list.append([ref, alt])
-                        if "0/1" not in polarize:
+                        if "0/1" not in polarize or "0|1" not in polarize or "1|0" not in polarize:
                             # if ancestral is not polymorphic
                             qdict[chrom][pos] = (count_list)
-    return(qdict, q_ix, samplelist)
+    return(qdict, q_ix, samplelist, callabledict)
 
 
 def DfoilTble(t1t2dict, size, ntaxa):
@@ -133,7 +135,7 @@ def DfoilTble(t1t2dict, size, ntaxa):
     return(None)
 
 
-def foil4(vcfdict, quartet, q_ix, samplelist, iterations):
+def foil4(vcfdict, quartet, q_ix, samplelist, iterations, callabledict):
     """Calculates the divergence between (1,2) as:
         T2 = (1/N) * ((n_ABAA + n_BAAA) / 2).
       Calculates the divergence between (1,2),3 as:
@@ -167,7 +169,6 @@ def foil4(vcfdict, quartet, q_ix, samplelist, iterations):
             n_BABA = 0  #
             n_BBAA = 0
             n_BBBA = 0  #
-            callable_pos = 0
             countlist = []
             for pos in vcfdict[chrom].keys():
                 marray = np.array(vcfdict[chrom][pos])
@@ -176,7 +177,6 @@ def foil4(vcfdict, quartet, q_ix, samplelist, iterations):
                     window = [0, 0, 0, 0, 0, 0, 0, 0]
                     header = ['AAAA', 'AABA', 'ABAA', 'ABBA', 'BAAA',
                               'BABA', 'BBAA', 'BBBA']
-                    callable_pos += 1
                     count = np.where(m == 0)
                     try:
                         count_sum = sum(count[1][0:3])  # only first 3
@@ -219,23 +219,23 @@ def foil4(vcfdict, quartet, q_ix, samplelist, iterations):
                             t1t2dict[chrom][int(pos)].append(window)
             # 'AAAA', 'AABA', 'ABAA', 'ABBA', 'BAAA', 'BABA', 'BBAA', 'BBBA'
             # 0        1        2      3        4       5      6       7
-            if callable_pos > 0:
+            if callabledict[chrom] > 0:
                 # P1 P2 P3 O; BAAA, ABAA, BBAA
                 t2_inner = (n_ABAA + n_BAAA) / 2
-                t2_1 = t2_inner / callable_pos
-                t1_1 = (t2_inner + n_BBAA) / callable_pos
+                t2_1 = t2_inner / callabledict[chrom]
+                t1_1 = (t2_inner + n_BBAA) / callabledict[chrom]
                 # t1se, t2se = blockSE(t1t2dict, 2, 4, 6)
 
                 # P1 P3 P2 O; BAAA AABA BABA
                 t2_inner = (n_BAAA + n_AABA) / 2
-                t2_2 = t2_inner / callable_pos
-                t1_2 = (t2_inner + n_BABA) / callable_pos
+                t2_2 = t2_inner / callabledict[chrom]
+                t1_2 = (t2_inner + n_BABA) / callabledict[chrom]
                 # t1se, t2se = blockSE(t1t2dict, 4, 1, 5)
 
                 # P2 P3 P1 O; ABAA AABA ABBA
                 t2_inner = (n_ABAA + n_AABA) / 2
-                t2_3 = t2_inner / callable_pos
-                t1_3 = (t2_inner + n_ABBA) / callable_pos
+                t2_3 = t2_inner / callabledict[chrom]
+                t1_3 = (t2_inner + n_ABBA) / callabledict[chrom]
                 # t1se, t2se = blockSE(t1t2dict, 2, 1, 3)
             t1list.append([t1_1, t1_2, t1_3])
             t2list.append([t2_1, t2_2, t2_3])
@@ -385,11 +385,11 @@ if __name__ == "__main__":
     quart = args.groups
     vcfFile = args.vcfFile
     size = args.size
-    qdict, q_ix, samplelist = loadvcf(vcfFile, quart, args.dlm)
+    qdict, q_ix, samplelist, calldict = loadvcf(vcfFile, quart, args.dlm)
     if len(quart) == 5:
-        t1t2dict = foil5(qdict, quart, q_ix, samplelist, args.iterations)
+        t1t2dict = foil5(qdict, quart, q_ix, samplelist, args.iterations, calldict)
     elif len(quart) == 4:
-        t1t2dict = foil4(qdict, quart, q_ix, samplelist, args.iterations)
+        t1t2dict = foil4(qdict, quart, q_ix, samplelist, args.iterations, calldict)
     else:
         raise ValueError("quartet must be 4 or 5 taxa")
     DfoilTble(t1t2dict, size, len(quart))
