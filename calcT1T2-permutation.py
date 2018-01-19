@@ -87,7 +87,8 @@ def DfoilTble(t1t2dict, size, ntaxa):
                    'ABAAA', 'ABABA', 'ABBAA', 'ABBBA',
                    'BAAAA', 'BAABA', 'BABAA', 'BABBA',
                    'BBAAA', 'BBABA', 'BBBAA', 'BBBBA']
-    d = open("dfoil.tbl", 'w')
+    chrom = list(t1t2dict.keys().pop())
+    d = open("{}.dfoil.tbl".format(chrom), 'w')
     if size == 0:
         d.write("#chrom\tsites\t{}\n".format('\t'.join(headers)))
         for chrom in t1t2dict.keys():
@@ -170,8 +171,8 @@ def foil4(vcfdict, quartet, q_ix, samplelist, iterations, callabledict):
             n_BABA = 0  #
             n_BBAA = 0
             n_BBBA = 0  #
-            callable_pos = 0
             countlist = []
+            callable_pos = len(vcfdict[chrom].keys())
             for pos in vcfdict[chrom].keys():
                 marray = np.array(vcfdict[chrom][pos])
                 m = np.array([marray[i-9], marray[j-9], marray[k-9], marray[-1]])
@@ -186,7 +187,6 @@ def foil4(vcfdict, quartet, q_ix, samplelist, iterations, callabledict):
                         import ipdb;ipdb.set_trace()
                     count_len = len(count[1])  # 4 zeros
                     if count_len == 4:
-                        callable_pos += 1
                         if m[3, 1] != 0:
                             if count_sum == 0:
                                 n_AAAA += 1
@@ -246,9 +246,9 @@ def foil4(vcfdict, quartet, q_ix, samplelist, iterations, callabledict):
                               n_BABA, n_BBAA, n_BBBA])
         # averages w/ SE
         reps = len(t1list)
-        np.savetxt("t1array.out", t1list)
-        np.savetxt("t2array.out", t2list)
-        np.savetxt("counts.out", countlist)
+        np.savetxt("{}.t1array.out".format(chrom), t1list)
+        np.savetxt("{}.t2array.out".format(chrom), t2list)
+        np.savetxt("{}.counts.out".format(chrom), countlist)
         t1_1, t1_2, t1_3 = zip(*t1list)
         t2_1, t2_2, t2_3 = zip(*t2list)
         t1se = (np.std(t1_1)) / np.sqrt(reps)
@@ -265,6 +265,7 @@ def foil4(vcfdict, quartet, q_ix, samplelist, iterations, callabledict):
                 chrom, p1, p3, p2, np.mean(t1_2), t1ase, p1, p3, np.mean(t2_2), t2ase))
         print("{}\t({},{}),{} : {}+-{}\t({},{}) : {}+-{}\n".format(
                 chrom, p2, p3, p1, np.mean(t1_3), t1bse, p2, p3, np.mean(t2_3), t2bse))
+    print("Callable positions for {}: {}".format(chrom, callable_pos))
     return(t1t2dict)
 
 
