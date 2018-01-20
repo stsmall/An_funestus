@@ -49,7 +49,7 @@ def loadvcf(vcFile, quart, dlm):
                 x = line.strip().split()
                 if "," in x[4]:
                     # skip triallelic sites
-                    continue
+                    pass
                 else:
                     chrom = x[0]
                     pos = x[1]
@@ -178,7 +178,8 @@ def foil4(vcfdict, quartet, q_ix, samplelist, iterations, callabledict):
                 try:
                     m = np.array([marray[i-9], marray[j-9], marray[k-9], marray[-1]])
                 except IndexError:
-                    import ipdb; ipdb.set_trace()
+                    continue
+                    print(pos)
                 if -1 not in m:
                     window = [0, 0, 0, 0, 0, 0, 0, 0]
                     header = ['AAAA', 'AABA', 'ABAA', 'ABBA', 'BAAA',
