@@ -138,6 +138,7 @@ def loadTransfer(transfersFile):
             newchrom = x[4]
             newpos_e = x[7]
             try:
+                import ipdb;ipdb.set_trace()
                 transdict[chrom][pos_e]
                 dups += 1
                 d.write("{}\t{}\t{}\t{}\n".format(chrom, pos_e, newchrom,
