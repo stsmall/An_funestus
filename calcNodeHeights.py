@@ -10,18 +10,21 @@ from __future__ import division
 # from IPython.display import HTML
 import numpy as np
 from ete3 import PhyloTree
+import matplotlib.pyplot as plt
 import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-t', "--treefile", type=str, required=True,
                     help="treefile in newick, 1 per line")
-parser.add_argument('-g', "--groups", nargs='+',
+parser.add_argument('-g', "--groups", nargs='+', action='append',
                     required=True, help="quartet of species to calculate,"
                     " assumes form: P1 P2 P3. can be given multiple times")
 parser.add_argument('-w', "--windows", type=str,
                     help="coordinates for each tree")
-parser.add_argument("--dlm", type=str, default=".",
+parser.add_argument("--dlm", type=str, default="_",
                     help="delimeter denoting species")
+parser.add_argument("-o", "--outgroup", type=str,
+                    help="outgroup species for rooting")
 args = parser.parse_args()
 
 
@@ -62,9 +65,9 @@ def WriteTrees(treelist):
     file: file, writes out tree objects in nexus format
 
     """
-    f = open("rooted_trees.nex", 'a')
+    f = open("rooted_trees.nex", 'w')
     for t in treelist:
-        t.write(outfile=f)
+        f.write("{}\n".format(t.write()))
     f.close()
     return(None)
 
@@ -72,7 +75,7 @@ def WriteTrees(treelist):
 def cMono(tree, taxon):
     """Checks if samples are monophyletic in tree
     """
-    return(tree.check_monophyly(values=[taxon], target_attr="species")[0])
+    return(tree.check_monophyly(values=taxon, target_attr="species")[0])
 
 
 def AgeAndSupport(treelist, taxon):
@@ -104,9 +107,37 @@ def AgeAndSupport(treelist, taxon):
     return(taxdict)
 
 
-def PlotStats(taxdict):
+def AgeStats(taxdict, quart):
     """Plot histogram and stats for branch lengths and support
     """
+    # age hist
+    for i in taxdict.keys():
+        age = taxdict[i][0]
+        ma = np.mean(age)  # mean age
+        nt = len(age)  # num trees
+        print("\n{0}, numtrees {1}, meanage {2:.6f}".format(quart[i], nt, ma))
+        label = "".join([j[0] for j in quart[i]])
+        plt.hist(age, bins=30, alpha=0.5, label=label)
+    plt.legend(loc='upper right')
+    plt.ylabel("node age")
+    plt.savefig("NodeHeight.pdf")
+    plt.clf()
+    return(None)
+
+
+def SupportStats(taxdict, quart):
+    # support hist
+    for i in taxdict.keys():
+        supp = taxdict[i][1]
+        nt = len(supp)  # num trees
+        ms = np.mean(supp)  # mean support
+        print("\n{0}, numtrees {1}, meansupport {2:.2f}".format(quart[i], nt, ms))
+        label = "".join([j[0] for j in quart[i]])
+        plt.hist(supp, bins=30, alpha=0.5, label=label)
+    plt.legend(loc='upper right')
+    plt.ylabel("support")
+    plt.savefig("NodeSupport.pdf")
+    plt.clf()
     return(None)
 
 
@@ -143,3 +174,5 @@ if __name__ == "__main__":
     treelist = LoadTrees(args.treefile, quart, args.outgroup, args.dlm)
     WriteTrees(treelist)
     taxdict = AgeAndSupport(treelist, quart)
+    AgeStats(taxdict, quart)
+    SupportStats(taxdict, quart)
