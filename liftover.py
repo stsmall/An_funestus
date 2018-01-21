@@ -139,14 +139,17 @@ def loadTransfer(transfersFile):
             newpos_e = x[7]
             try:
                 transdict[chrom][pos_e]
-                dups += 1
-                d.write("{}\t{}\t{}\t{}\n".format(chrom, pos_e, newchrom,
-                                                  newpos_e))  # paralog
-                d.write("{}\t{}\t{}\t{}\n".format(chrom, pos_e,
-                                                  transdict[chrom][pos_e][0],
-                                                  transdict[chrom][pos_e][1]))
-                paralog.append([chrom, pos_e])
-                import ipdb;ipdb.set_trace()
+                if transdict[chrom][pos_e][0] != chrom:
+                    # overwrite
+                    transdict[chrom][pos_e] = (newchrom, newpos_e, orient)
+                else:
+                    dups += 1
+                    d.write("{}\t{}\t{}\t{}\n".format(chrom, pos_e, newchrom,
+                                                      newpos_e))  # paralog
+                    d.write("{}\t{}\t{}\t{}\n".format(chrom, pos_e,
+                                                      transdict[chrom][pos_e][0],
+                                                      transdict[chrom][pos_e][1]))
+                    paralog.append([chrom, pos_e])
             except KeyError:
                 transdict[chrom][pos_e] = (newchrom, newpos_e, orient)
     d.close()
