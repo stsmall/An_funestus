@@ -73,7 +73,7 @@ def loadvcf(vcFile, quart, dlm):
                         if "0/1" not in polarize or "0|1" not in polarize or "1|0" not in polarize:
                             # if ancestral is not polymorphic
                             qdict[chrom][pos] = (count_list)
-                        import ipdb;ipdb.set_trace()
+    import ipdb;ipdb.set_trace()
     return(qdict, q_ix, samplelist, callabledict)
 
 
