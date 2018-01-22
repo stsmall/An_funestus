@@ -82,7 +82,9 @@ def AgeAndSupport(treelist, taxon):
     """Calculates the support and node age if groups in taxon are monophyletic
     """
     taxdict = {}
-    for i, tax in enumerate(taxon):
+    agelist = []
+    supportlist = []
+    for tax in taxon:
         nodesupport = []
         nodeage = []
         for t in treelist:
@@ -103,7 +105,13 @@ def AgeAndSupport(treelist, taxon):
 #                nd = t2.get_common_ancestor(ix)
 #                nd.dist
 #                nd.support
-        taxdict[i] = (nodeage, nodesupport)
+            else:
+                nodeage.append(np.nan)
+                nodesupport.append(np.nan)
+        agelist.append(nodeage)
+        supportlist.append(nodesupport)
+    taxdict["age"] = agelist
+    taxdict["support"] = supportlist
     return(taxdict)
 
 
@@ -111,12 +119,13 @@ def AgeStats(taxdict, quart):
     """Plot histogram and stats for branch lengths and support
     """
     # age hist
-    for i in taxdict.keys():
-        age = taxdict[i][0]
-        ma = np.mean(age)  # mean age
-        nt = len(age)  # num trees
-        print("\n{0}, numtrees {1}, meanage {2:.6f}".format(quart[i], nt, ma))
-        label = "".join([j[0] for j in quart[i]])
+    for pop, age in enumerate(taxdict['age']):
+        ma = np.nanmean(age)  # mean age
+        nt = np.count_nonzero(~np.isnan(age))  # num trees
+        print("\n{0}, numtrees {1}, meanage {2:.6f}".format(quart[pop], nt, ma))
+        label = "".join([j[0] for j in quart[pop]])
+        age = np.array(age)
+        age = age[~np.isnan(age)]
         plt.hist(age, bins=30, alpha=0.5, label=label)
     plt.legend(loc='upper right')
     plt.ylabel("node age")
@@ -127,12 +136,13 @@ def AgeStats(taxdict, quart):
 
 def SupportStats(taxdict, quart):
     # support hist
-    for i in taxdict.keys():
-        supp = taxdict[i][1]
-        nt = len(supp)  # num trees
-        ms = np.mean(supp)  # mean support
-        print("\n{0}, numtrees {1}, meansupport {2:.2f}".format(quart[i], nt, ms))
-        label = "".join([j[0] for j in quart[i]])
+    for pop, supp in enumerate(taxdict['support']):
+        ms = np.nanmean(supp)  # mean age
+        nt = np.count_nonzero(~np.isnan(supp))  # num trees
+        print("\n{0}, numtrees {1}, meansupport {2:.2f}".format(quart[pop], nt, ms))
+        label = "".join([j[0] for j in quart[pop]])
+        supp = np.array(supp)
+        supp = supp[~np.isnan(supp)]
         plt.hist(supp, bins=30, alpha=0.5, label=label)
     plt.legend(loc='upper right')
     plt.ylabel("support")
@@ -141,31 +151,28 @@ def SupportStats(taxdict, quart):
     return(None)
 
 
-def SupportFilt(treelist, quart):
-    """Collapses nodes or make polytomy with support below threshold
-    """
-    return(None)
-
-
-def ParseWin(windows):
+def WindowStats(windows, taxdict, quart):
     """
     """
     winlist = []
+    f = open("window_stats.tsv", 'w')
     with open(windows, 'r') as win:
-        win.next()
+        header = win.next()
         for line in win:
-            x = line.strip().split()
-            winlist.append("{}-{}".format(x[1], x[2]))
-    winarray = np.ones(len(winlist), dtype=bool)
-    return(winlist, winarray)
-
-
-def TreesTable(treelist, winlist, winarray, nh1, nh2):
-    """Print windowed statistics for trees, also print corresponding trees
-    """
-    # remove trees with low support
-    # write rerooted trees
-    # mask winlist and treelist using winarray T/F
+            winlist.append(line.rstrip("\n"))
+    label = []
+    for tax in quart:
+        label.append("".join([j[0] for j in tax]))
+    f.write("Summary\t{}\t{}\n".format(header.rstrip("\n"), "\t".join(label)))
+    nage = zip(*taxdict['age'])
+    nsupp = zip(*taxdict['support'])
+    try:
+        for i, age in enumerate(nage):
+            f.write("NodeHeight\t{}\t{}\n".format(winlist[i], "\t".join(map(str, age))))
+            f.write("NodeSupport\t{}\t{}\n".format(winlist[i], "\t".join(map(str, nsupp[i]))))
+    except TypeError:
+        import ipdb;ipdb.set_trace()
+    f.close()
     return(None)
 
 
@@ -176,3 +183,6 @@ if __name__ == "__main__":
     taxdict = AgeAndSupport(treelist, quart)
     AgeStats(taxdict, quart)
     SupportStats(taxdict, quart)
+    if args.windows:
+        WindowStats(args.windows, taxdict, quart)
+
