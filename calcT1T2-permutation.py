@@ -89,8 +89,7 @@ def DfoilTble(t1t2dict, size, ntaxa):
                    'ABAAA', 'ABABA', 'ABBAA', 'ABBBA',
                    'BAAAA', 'BAABA', 'BABAA', 'BABBA',
                    'BBAAA', 'BBABA', 'BBBAA', 'BBBBA']
-    chrom = list(t1t2dict.keys().pop())
-    d = open("{}.dfoil.tbl".format(chrom), 'w')
+    d = open("dfoil.tbl", 'w')
     if size == 0:
         d.write("#chrom\tsites\t{}\n".format('\t'.join(headers)))
         for chrom in t1t2dict.keys():

@@ -144,7 +144,7 @@ def loadTransfer(transfersFile):
                     transdict[chrom][pos_e] = (newchrom, newpos_e, orient)
                 else:
                     dups += 1
-                    d.write("{}\t{}\t{}\t{}\n".format(chrom, pos_e, newchrom,
+                    d.write("\n{}\t{}\t{}\t{}\n".format(chrom, pos_e, newchrom,
                                                       newpos_e))  # paralog
                     d.write("{}\t{}\t{}\t{}\n".format(chrom, pos_e,
                                                       transdict[chrom][pos_e][0],
