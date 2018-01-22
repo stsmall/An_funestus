@@ -137,12 +137,12 @@ def loadTransfer(transfersFile):
             pos_e = x[3]
             newchrom = x[4]
             newpos_e = x[7]
-            try:
-                transdict[chrom][pos_e]
+            if pos_e in transdict[chrom].keys():
                 if transdict[chrom][pos_e][0] != chrom:
                     # overwrite
                     transdict[chrom][pos_e] = (newchrom, newpos_e, orient)
                 else:
+                    # dont overwrite so only first instance
                     dups += 1
                     d.write("\n{}\t{}\t{}\t{}\n".format(chrom, pos_e, newchrom,
                                                       newpos_e))  # paralog
@@ -150,16 +150,10 @@ def loadTransfer(transfersFile):
                                                       transdict[chrom][pos_e][0],
                                                       transdict[chrom][pos_e][1]))
                     paralog.append([chrom, pos_e])
-            except KeyError:
+            else:
                 transdict[chrom][pos_e] = (newchrom, newpos_e, orient)
     d.close()
     print("Duplicate entries: {}".format(dups))
-    for i in paralog:
-        chrom, pos = i
-        try:
-            del transdict[chrom][pos]
-        except KeyError:
-            pass
     return(transdict)
 
 
