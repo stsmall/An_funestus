@@ -226,52 +226,52 @@ def foil4(vcfdict, quartet, q_ix, samplelist, iterations, callabledict):
                             else:
                                 raise ValueError("unknown pattern")
                             t1t2dict[chrom][int(pos)].append(window)
-            # 'AAAA', 'AABA', 'ABAA', 'ABBA', 'BAAA', 'BABA', 'BBAA', 'BBBA'
-            # 0        1        2      3        4       5      6       7
-            if callable_pos > 0:
-                # P1 P2 P3 O; BAAA, ABAA, BBAA
-                t2_inner = (n_ABAA + n_BAAA) / 2
-                t2_1 = t2_inner / callable_pos
-                t1_1 = (t2_inner + n_BBAA) / callable_pos
-                # t1se, t2se = blockSE(t1t2dict, 2, 4, 6)
-
-                # P1 P3 P2 O; BAAA AABA BABA
-                t2_inner = (n_BAAA + n_AABA) / 2
-                t2_2 = t2_inner / callable_pos
-                t1_2 = (t2_inner + n_BABA) / callable_pos
-                # t1se, t2se = blockSE(t1t2dict, 4, 1, 5)
-
-                # P2 P3 P1 O; ABAA AABA ABBA
-                t2_inner = (n_ABAA + n_AABA) / 2
-                t2_3 = t2_inner / callable_pos
-                t1_3 = (t2_inner + n_ABBA) / callable_pos
-                # t1se, t2se = blockSE(t1t2dict, 2, 1, 3)
-            t1list.append([t1_1, t1_2, t1_3])
-            t2list.append([t2_1, t2_2, t2_3])
-            countlist.append([n_AAAA, n_AABA, n_ABAA, n_ABBA, n_BAAA,
-                              n_BABA, n_BBAA, n_BBBA])
-        # averages w/ SE
-        reps = len(t1list)
-        np.savetxt("{}.t1array.out".format(chrom), t1list)
-        np.savetxt("{}.t2array.out".format(chrom), t2list)
-        np.savetxt("{}.counts.out".format(chrom), countlist)
-        t1_1, t1_2, t1_3 = zip(*t1list)
-        t2_1, t2_2, t2_3 = zip(*t2list)
-        t1se = (np.std(t1_1)) / np.sqrt(reps)
-        t2se = (np.std(t2_1)) / np.sqrt(reps)
-        t1ase = (np.std(t1_2)) / np.sqrt(reps)
-        t2ase = (np.std(t2_2)) / np.sqrt(reps)
-        t1bse = (np.std(t1_3)) / np.sqrt(reps)
-        t2bse = (np.std(t2_3)) / np.sqrt(reps)
-        countmean = np.mean(countlist, axis=0)
-        print("{}\n{}\n".format(header, countmean))
-        print("{}\t({},{}),{} : {} +-{}\t({},{}) : {} +-{}\n".format(
-              chrom, p1, p2, p3, np.mean(t1_1), t1se, p1, p2, np.mean(t2_1), t2se))
-        print("{}\t({},{}),{} : {}+-{}\t({},{}) : {}+-{}\n".format(
-                chrom, p1, p3, p2, np.mean(t1_2), t1ase, p1, p3, np.mean(t2_2), t2ase))
-        print("{}\t({},{}),{} : {}+-{}\t({},{}) : {}+-{}\n".format(
-                chrom, p2, p3, p1, np.mean(t1_3), t1bse, p2, p3, np.mean(t2_3), t2bse))
-    print("Callable positions for {}: {}".format(chrom, callable_pos))
+#            # 'AAAA', 'AABA', 'ABAA', 'ABBA', 'BAAA', 'BABA', 'BBAA', 'BBBA'
+#            # 0        1        2      3        4       5      6       7
+#            if callable_pos > 0:
+#                # P1 P2 P3 O; BAAA, ABAA, BBAA
+#                t2_inner = (n_ABAA + n_BAAA) / 2
+#                t2_1 = t2_inner / callable_pos
+#                t1_1 = (t2_inner + n_BBAA) / callable_pos
+#                # t1se, t2se = blockSE(t1t2dict, 2, 4, 6)
+#
+#                # P1 P3 P2 O; BAAA AABA BABA
+#                t2_inner = (n_BAAA + n_AABA) / 2
+#                t2_2 = t2_inner / callable_pos
+#                t1_2 = (t2_inner + n_BABA) / callable_pos
+#                # t1se, t2se = blockSE(t1t2dict, 4, 1, 5)
+#
+#                # P2 P3 P1 O; ABAA AABA ABBA
+#                t2_inner = (n_ABAA + n_AABA) / 2
+#                t2_3 = t2_inner / callable_pos
+#                t1_3 = (t2_inner + n_ABBA) / callable_pos
+#                # t1se, t2se = blockSE(t1t2dict, 2, 1, 3)
+#            t1list.append([t1_1, t1_2, t1_3])
+#            t2list.append([t2_1, t2_2, t2_3])
+#            countlist.append([n_AAAA, n_AABA, n_ABAA, n_ABBA, n_BAAA,
+#                              n_BABA, n_BBAA, n_BBBA])
+#        # averages w/ SE
+#        reps = len(t1list)
+#        np.savetxt("{}.t1array.out".format(chrom), t1list)
+#        np.savetxt("{}.t2array.out".format(chrom), t2list)
+#        np.savetxt("{}.counts.out".format(chrom), countlist)
+#        t1_1, t1_2, t1_3 = zip(*t1list)
+#        t2_1, t2_2, t2_3 = zip(*t2list)
+#        t1se = (np.std(t1_1)) / np.sqrt(reps)
+#        t2se = (np.std(t2_1)) / np.sqrt(reps)
+#        t1ase = (np.std(t1_2)) / np.sqrt(reps)
+#        t2ase = (np.std(t2_2)) / np.sqrt(reps)
+#        t1bse = (np.std(t1_3)) / np.sqrt(reps)
+#        t2bse = (np.std(t2_3)) / np.sqrt(reps)
+#        countmean = np.mean(countlist, axis=0)
+#        print("{}\n{}\n".format(header, countmean))
+#        print("{}\t({},{}),{} : {} +-{}\t({},{}) : {} +-{}\n".format(
+#              chrom, p1, p2, p3, np.mean(t1_1), t1se, p1, p2, np.mean(t2_1), t2se))
+#        print("{}\t({},{}),{} : {}+-{}\t({},{}) : {}+-{}\n".format(
+#                chrom, p1, p3, p2, np.mean(t1_2), t1ase, p1, p3, np.mean(t2_2), t2ase))
+#        print("{}\t({},{}),{} : {}+-{}\t({},{}) : {}+-{}\n".format(
+#                chrom, p2, p3, p1, np.mean(t1_3), t1bse, p2, p3, np.mean(t2_3), t2bse))
+#    print("Callable positions for {}: {}".format(chrom, callable_pos))
     return(t1t2dict)
 
 
