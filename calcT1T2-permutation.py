@@ -161,6 +161,7 @@ def foil4(vcfdict, quartet, q_ix, samplelist, iterations, callabledict):
         t1list = []
         t2list = []
         for its in range(iterations):
+            print("Performing iteration {} ...".format(its))
             i = np.random.choice(q_ix[0], 1)[0]
             j = np.random.choice(q_ix[1], 1)[0]
             k = np.random.choice(q_ix[2], 1)[0]
