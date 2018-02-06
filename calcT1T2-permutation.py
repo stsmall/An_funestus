@@ -28,7 +28,7 @@ parser.add_argument("--dlm", type=str, default=".",
 args = parser.parse_args()
 
 # TODO: allele freq for D rather than count
-
+# TODO: fix foil5
 
 def loadvcf(vcFile, quart, dlm):
     """Creates a dictionary object from a vcffile only including species in the
