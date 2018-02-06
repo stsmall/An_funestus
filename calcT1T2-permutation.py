@@ -229,6 +229,8 @@ def foil4(vcfdict, quartet, q_ix, samplelist, iterations, callabledict):
     # 0        1        2      3        4       5      6       7
     divsum = np.sum(divarray, axis=1)
     sites = np.sum(divsum)
+    print("Sites : {}".format(sites))
+    print("Sites len : {}".format(len(vcfdict[chrom].keys())))
     ix = [[2, 4, 6], [1, 2, 3], [1, 4, 5]]
     for pat in ix:
         i, j, k = pat
