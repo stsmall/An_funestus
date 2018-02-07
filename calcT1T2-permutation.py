@@ -233,6 +233,7 @@ def foil4(vcfdict, quartet, q_ix, samplelist, iterations, callabledict):
     print("Sites len : {}".format(len(vcfdict[chrom].keys())))
     ix = [[2, 4, 6], [1, 2, 3], [1, 4, 5]]
     for pat in ix:
+        import ipdb;ipdb.set_trace()
         i, j, k = pat
         t2_inner = (divsum[i] + divsum[j]) / 2
         t2 = t2_inner / sites

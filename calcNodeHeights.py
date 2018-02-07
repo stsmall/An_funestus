@@ -26,6 +26,8 @@ parser.add_argument("--dlm", type=str, default="_",
 parser.add_argument("-o", "--outgroup", type=str,
                     help="outgroup species for rooting")
 args = parser.parse_args()
+# TODO: Finish rogue tree
+# TODO: add BL iterator to get mean PW distance
 
 
 def LoadTrees(treefile, quart, outgroup, dlm):
