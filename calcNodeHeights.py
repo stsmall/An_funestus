@@ -11,6 +11,7 @@ from __future__ import division
 import numpy as np
 from ete3 import PhyloTree
 import matplotlib.pyplot as plt
+from itertools import combinations
 import argparse
 
 parser = argparse.ArgumentParser()
@@ -27,7 +28,6 @@ parser.add_argument("-o", "--outgroup", type=str,
                     help="outgroup species for rooting")
 args = parser.parse_args()
 # TODO: Finish rogue tree
-# TODO: add BL iterator to get mean PW distance
 
 
 def LoadTrees(treefile, quart, outgroup, dlm):
@@ -129,6 +129,31 @@ def AgeAndSupport(treelist, taxon):
     return(taxdict)
 
 
+def pairwiseDistance(treelist, taxon):
+    """Iterative distance for each individual regardless of monophyly
+    """
+    taxon = set([val for sublist in taxon for val in sublist])
+    splist = []
+    for tax in combinations(taxon, 2):
+        sp1 = tax[0]
+        sp2 = tax[1]
+        splist.append("{}_{}".format(sp1, sp2))
+    pwdistlist = []
+    for t in treelist:
+        distlist = []
+        for tax in combinations(taxon, 2):
+            sp1 = t.search_nodes(species=tax[0])
+            sp2 = t.search_nodes(species=tax[1])
+            pwlist = []
+            for s1 in sp1:
+                for s2 in sp2:
+                    pwlist.append(t.get_distance(s1, s2))
+            distlist.append(np.mean(pwlist))
+        pwdistlist.append(distlist)
+    import ipdb; ipdb.set_trace()
+    return(pwdistlist, splist)
+
+
 def FilterTree(treelist):
     """Return the MRCA of all leafs/tips
     """
@@ -180,12 +205,13 @@ def SupportStats(taxdict, quart):
     return(None)
 
 
-def WindowStats(windows, taxdict, quart, root_height, sum_support):
+def WindowStats(windows, taxdict, quart, root_height, sum_support, splist, distlist):
     """
     """
     winlist = []
     f = open("window_stats.tsv", 'w')
     r = open("tree_stats.tsv", 'w')
+    k = open("pwdist.tsv", 'w')
     with open(windows, 'r') as win:
         header = win.next()
         for line in win:
@@ -195,6 +221,7 @@ def WindowStats(windows, taxdict, quart, root_height, sum_support):
         label.append("".join([j[0] for j in tax]))
     f.write("Summary\t{}\t{}\n".format(header.rstrip("\n"), "\t".join(label)))
     r.write("{}\trootHeight\tmeanSupport\n".format(header.rstrip("\n")))
+    k.write("{}\t{}\n".format(header.rstrip("\n"), "\t".join(splist)))
     nage = zip(*taxdict['age'])
     nsupp = zip(*taxdict['support'])
     try:
@@ -202,10 +229,12 @@ def WindowStats(windows, taxdict, quart, root_height, sum_support):
             f.write("NodeHeight\t{}\t{}\n".format(winlist[i], "\t".join(map(str, age))))
             f.write("NodeSupport\t{}\t{}\n".format(winlist[i], "\t".join(map(str, nsupp[i]))))
             r.write("{}\t{}\t{}\n".format(winlist[i], root_height[i], sum_support[i]))
+            k.write("{}\t{}\n".format(winlist[i], "\t".join(map(str, distlist[i]))))
     except TypeError:
         import ipdb;ipdb.set_trace()
     f.close()
     r.close()
+    k.close()
     return(None)
 
 
@@ -217,8 +246,9 @@ if __name__ == "__main__":
     AgeStats(taxdict, quart)
     SupportStats(taxdict, quart)
     root_height, sum_support = FilterTree(treelist)
+    splist, distlist = pairwiseDistance(treelist, quart)
     if args.windows:
-        WindowStats(args.windows, taxdict, quart, root_height, sum_support)
+        WindowStats(args.windows, taxdict, quart, root_height, sum_support, splist, distlist)
 
 ##test tree
 #t='(rivulorum_F790:0.1188,(((longipalpusC_551_12634:6e-09,(longipalpusC_13:6e-09,(longipalpusC_16:6e-09,longipalpusC_551_12533:6e-09)0.921:6e-09)0.909:5e-09)0.014:0.00222105,(longipalpusC_15:6e-09,(longipalpusC_12:6e-09,(longipalpusC_11:0.00112065,(longipalpusC_4:6e-09,(parensis_KwaF762:5e-09,((parensis_KwaF761:6e-09,parensis_KwaF766:6e-09)0.92:6e-09,(parensis_KwaF767:0,parensis_KwaF768:0,parensis_KwaF769:0,parensis_KwaF835:0,parensis_KwaF851:0)1:6e-09)0:6e-09)0.583:6e-09)0.292:0.00110003)0:2.27e-07)0:5e-09)0.711:2.305e-05)0.955:0.00882347,(((((vaneedeni_KwaF782:6e-09,vaneedeni_KwaF780:6e-09)0.921:6e-09,vaneedeni_KwaF774:6e-09)0:6e-09,(vaneedeni_KwaF784:6e-09,vaneedeni_KwaF783:6e-09)0.767:6e-09)0.889:5e-09,(vaneedeni_KwaF775:6e-09,(vaneedeni_KwaF773:6e-09,vaneedeni_KwaF786:0.00112541)0.367:5e-09)1:7.08e-07)0.995:0.0102093,((funestuscf_MALAF105_7:0,funestuscf_MALAF99_4:0,funestuscf_MALF98_2:0)1:0.00447164,((funestus_MozF123:6e-09,((((funestus_MozF35:0,funestus_MozF804:0,funestus_Zam281:0)1:6e-09,funestus_TanF561:6e-09)0.936:5e-09,funestus_TanF601:6e-09)0.395:6e-09,funestus_MozF29:6e-09)0.405:0.00334382)0.646:6e-09,(funestus_GhaF264:6e-09,(funestus_Ken4590:6e-09,(funestus_GhaF265:6e-09,(funestus_Ugf399:6e-09,(funestus_Ugf403:6e-09,(funestus_MozF260:6e-09,funestus_Ugf401:6e-09)0.731:5e-09)0.85:6e-09)0.133:0.00222583)0.459:6e-09)0:5e-09)0.453:6e-09)0.894:0.00222803)0.789:6e-09)0.726:0.00356974)1:0.1188);'

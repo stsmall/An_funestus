@@ -105,7 +105,7 @@ def DfoilTble(t1t2dict, size, ntaxa):
             divstr = map(str, div_sum)
             d.write("{}\t{}\t{}\n".format(chrom, sites, '\t'.join(divstr)))
     else:
-        d.write("#chrom\tstart\tend\tsites\t{}\n".format('\t'.join(headers)))
+        d.write("chrom\tstart\tend\tsites\t{}\n".format('\t'.join(headers)))
         start = 1
         end = size
         for chrom in t1t2dict.keys():
