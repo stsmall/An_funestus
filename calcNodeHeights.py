@@ -150,7 +150,6 @@ def pairwiseDistance(treelist, taxon):
                     pwlist.append(t.get_distance(s1, s2))
             distlist.append(np.mean(pwlist))
         pwdistlist.append(distlist)
-    import ipdb; ipdb.set_trace()
     return(pwdistlist, splist)
 
 
@@ -246,7 +245,7 @@ if __name__ == "__main__":
     AgeStats(taxdict, quart)
     SupportStats(taxdict, quart)
     root_height, sum_support = FilterTree(treelist)
-    splist, distlist = pairwiseDistance(treelist, quart)
+    distlist, splist = pairwiseDistance(treelist, quart)
     if args.windows:
         WindowStats(args.windows, taxdict, quart, root_height, sum_support, splist, distlist)
 
