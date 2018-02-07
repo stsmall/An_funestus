@@ -158,7 +158,7 @@ def foil4(vcfdict, quartet, q_ix, samplelist, iterations, callabledict):
     p1, p2, p3, p4 = quartet
     t1t2dict = defaultdict(lambda: defaultdict(lambda: []))
     for chrom in vcfdict.keys():
-        divarray = np.zeros(iterations, 8)
+        divarray = np.zeros([iterations, 8])
         for its in range(iterations):
             print("Performing iteration {} ...".format(its))
             i = np.random.choice(q_ix[0], 1)[0]
