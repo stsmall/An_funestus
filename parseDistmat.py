@@ -96,10 +96,14 @@ def printDistmat(pwmatrix, vdc, dlm, outgroup, header, winlist):
     for p in combinations(vert, 2):
         spcomb.append("{}_{}".format(p[0], p[1]))
     f.write("{}\t{}\n".format(header.rstrip("\n"), "\t".join(spcomb)))
-    ipdb.set_trace()
-
-
-
+    for i, m in enumerate(pwmatrix):
+        distlist = []
+        for j in range(int(digit)):
+            distlist.append(m[:, j][j+1:])
+            # below is better but couldnt get the names to come out correct
+            # distarray = pwmatrix[i][np.tril_indices(count, -1)]
+        distarray = np.concatenate(distlist).ravel()
+        f.write("{}\t{}\n".format(winlist[i], "\t".join(map(str, distarray))))
     f.close()
     return(None)
 
