@@ -25,11 +25,9 @@ def psl2tln(pslFile):
         for line in psl:
             x = line.split()
             f.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(x[9], x[8][0],
-                                                              int(x[11])-1,
-                                                              x[11], x[13],
-                                                              x[8][1],
-                                                              int(x[15])-1,
-                                                              x[15]))
+                                                              x[11], x[12],
+                                                              x[13], x[8][1],
+                                                              x[15], x[16]))
     f.close()
     return(None)
 
