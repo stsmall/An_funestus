@@ -24,7 +24,7 @@ def psl2tln(pslFile):
     with open(pslFile, 'r') as psl:
         for line in psl:
             x = line.split()
-            f.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(x[9], x[8[0]],
+            f.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(x[9], x[8][0],
                                                               int(x[11])-1,
                                                               x[11], x[13],
                                                               x[8][1],
