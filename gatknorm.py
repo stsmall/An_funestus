@@ -93,7 +93,7 @@ def fixPGTPID(vcf):
                     else:
                         f.write(line)
                 else:
-                    print(line)
+                    v.write(line)
                     pass
     f.close()
     v.close()
