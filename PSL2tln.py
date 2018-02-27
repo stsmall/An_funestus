@@ -3,7 +3,8 @@
 """
 Created on Sat Feb 24 15:08:11 2018
 
-awk 'OFS = "\t",$4 = $3 + 1' BEDGRAPH | cut -f 1,3- > QUERY.bed
+##awk 'OFS = "\t",$4 = $3 + 1' BEDGRAPH | cut -f 1,3- > QUERY.bed
+sed '1d' BEDGRAPH > BED
 halLiftover --inMemory --outPSLWithName --noDupes FOO.hal QUERY QUERY.bed SUBJECT OUT.bed
 PSL2tln.py OUT.bed
 
@@ -24,10 +25,10 @@ def psl2tln(pslFile):
     with open(pslFile, 'r') as psl:
         for line in psl:
             x = line.split()
-            f.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(x[9], x[8][0],
-                                                              x[11], x[12],
-                                                              x[13], x[8][1],
-                                                              x[15], x[16]))
+            f.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(x[10], x[9][0],
+                                                              x[12], x[13],
+                                                              x[14], x[9][1],
+                                                              x[16], x[17]))
     f.close()
     return(None)
 
