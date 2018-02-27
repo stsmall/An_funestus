@@ -18,6 +18,7 @@ def fixPGTPID(vcf):
        this function removes them since they are a pain in the ass. if they
        contain phase information, that info is copied to the genotype
     """
+    v = open(vcf + '.trash', 'w')
     f = open(vcf + '.fix', 'w')
     with open(vcf, 'r') as vcffile:
         for line in vcffile:
@@ -27,13 +28,20 @@ def fixPGTPID(vcf):
                 x = line.split()
                 formats = x[8].split(":")
                 if x[5] == 'inf':
+                    # quality field is INF
                     x[5] = '500'
                 if (len(x[3]) > 1):
-                    # skip ref allele that are insertions
+                    # skip ref allele that are complex insertions
+                    v.write(line)
                     pass
                 elif any([len(i) > 1 for i in x[4].split(",")]):
+                    # skip alt alleles that are complex insertions
+                    v.write(line)
                     pass
                 elif ("*" not in x[4]) and (len(formats) > 1) and ("<NON_REF>" not in x[4]):
+                    # * doesnt actually give the ALT base
+                    # *,<NON_REF> does not give ALT base
+                    # format fields are ocassionally just GT with no other information
                     if "." in x[4]:
                         # fix invariant
                         for sample in range(9, len(x)):
@@ -57,6 +65,8 @@ def fixPGTPID(vcf):
                         x[8] = "GT:AD:DP:GQ:PL"
                         newsite = "\t".join(x)
                         if newsite.count("./.") == len(range(9, len(x))):
+                            # every gt is missing
+                            v.write(line)
                             pass
                         else:
                             f.write("{}\n".format(newsite))
@@ -75,12 +85,18 @@ def fixPGTPID(vcf):
                         x[8] = "GT:AD:DP:GQ:PL"
                         newsite = "\t".join(x)
                         if newsite.count("./.") == len(range(9, len(x))):
+                            # every gt is missing
+                            v.write(line)
                             pass
                         else:
                             f.write("{}\n".format(newsite))
                     else:
                         f.write(line)
+                else:
+                    print(line)
+                    pass
     f.close()
+    v.close()
     return(None)
 
 
