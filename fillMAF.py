@@ -24,6 +24,8 @@ parser.add_argument('-M', '--major', action='store_true',
                     help='call major allel if het based on coverage')
 parser.add_argument('-R', '--rand', action='store_true',
                     help='choose random allele at hets')
+parser.add_argument('-N', '--Nasmissing', action='store_true',
+                    help='add N as missing, default is ref')
 args = parser.parse_args()
 
 
@@ -101,7 +103,7 @@ def IUPAC(ALLELE):
     return(ALLELE)
 
 
-def getVCFnucleotide(vcfFile, iupac, rand, major):
+def getVCFnucleotide(vcfFile, iupac, rand, major, Nasmissing):
     """Get allele from VCF
     """
     vcfdict = defaultdict(dict)
@@ -144,7 +146,10 @@ def getVCFnucleotide(vcfFile, iupac, rand, major):
                                             else:
                                                 allele = x[af_ix + 3]
                                         except ValueError:
-                                            ipdb.set_trace()
+                                            if Nasmissing:
+                                                allele = "N"
+                                            else:
+                                                allele = x[3]
                                 vcfdict[samples[i+9]]["{}_{}".format(x[0], x[1])] = allele
     return(vcfdict)
 
@@ -196,7 +201,7 @@ def fillMaf(mafdict, mafFile):
 
 if __name__ == "__main__":
     mafdict = getMAFambig(args.mafFile)
-    vcfdict = getVCFnucleotide(args.vcfList, args.iupac, args.rand, args.major)
+    vcfdict = getVCFnucleotide(args.vcfList, args.iupac, args.rand, args.major, args.Nasmissing)
     ######
     ipdb.set_trace()
     mafdict = replaceMaf(vcfdict, mafdict)
