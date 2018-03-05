@@ -64,10 +64,7 @@ def getMAFambig(mafFile):
                 line = next(maf)
                 while line.startswith("s"):
                     x = line.split()
-                    try:
-                        ind, chrom = x[1].split(".")
-                    except ValueError:
-                        ipdb.set_trace()
+                    ind, chrom = x[1].split(".")[:2]
                     block_key = "{}".format("_".join(x[1:6]))
                     coord, poslist = transCoord(x[2:])  # coord is list of N in block
                     mafdict[ind][chrom].append([block_key, coord, poslist, "N"])
