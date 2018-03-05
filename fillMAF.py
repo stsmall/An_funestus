@@ -31,17 +31,20 @@ def transCoord(coord):
     """Translates maf coordinates to VCF format
     """
     p = re.compile("N")
-    start, aln, strand, length, seq = coord
+    start, aln, strand, int(length), seq = coord
     pos_list = []
+    poslist = []
     # find all "N", return coords as list
     seq1 = seq.replace("-", "")
     for m in p.finditer(seq1):
-        pos_list.append(m.start())
+        pos_list.append(m.start())  # in vcf coords
+    for m in p.finditer(seq):
+        poslist.append(m.start())  # in maf coords
     if "-" in strand:
         n_list = [length - i for i in pos_list]
     else:
         n_list = [i + 1 for i in pos_list]
-    return(n_list, pos_list)
+    return(n_list, poslist)
 
 
 def getMAFambig(mafFile):
