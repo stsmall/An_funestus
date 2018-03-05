@@ -101,47 +101,48 @@ def IUPAC(ALLELE):
     return(ALLELE)
 
 
-def getVCFnucleotide(vcfList, iupac, rand, major):
+def getVCFnucleotide(vcfFile, iupac, rand, major):
     """Get allele from VCF
     """
     vcfdict = defaultdict(dict)
-    for vcf in vcfList:
-        with open(vcf, 'r') as v:
-            for line in v:
-                if not line.startswith("##"):
-                    if line.startswith("#CHROM"):
-                        samples = line.split()
-                    else:
-                        x = line.split()
-                        for i, s in enumerate(x[9:]):
-                            gt = s.split(":")
-                            if gt[0].count("1") == 2:
-                                allele = x[4]
-                            elif gt[0].count("0") == 2:
-                                allele = x[3]
-                            else:
-                                allele = x[3] + x[4]
-                            if len(allele) > 1:
-                                if iupac:
-                                    allele = IUPAC(allele)
-                                elif rand:
-                                    allele = random.choice(allele)
-                                elif major:
-                                    # find AD field
-                                    af = map(int, gt[1].split(","))
-                                    # max of AD
-                                    af_ix = af.index(max(af))
-                                    # stupid tri-allelic
-                                    if len(af) > 2:
-                                        if af_ix == 0:
-                                            allele = x[3]
-                                        elif af_ix == 1:
-                                            allele = x[4].split(",")[0]
+    with open(vcfFile, 'r') as vcfList:
+        for vcf in vcfList:
+            with open(vcf, 'r') as v:
+                for line in v:
+                    if not line.startswith("##"):
+                        if line.startswith("#CHROM"):
+                            samples = line.split()
+                        else:
+                            x = line.split()
+                            for i, s in enumerate(x[9:]):
+                                gt = s.split(":")
+                                if gt[0].count("1") == 2:
+                                    allele = x[4]
+                                elif gt[0].count("0") == 2:
+                                    allele = x[3]
+                                else:
+                                    allele = x[3] + x[4]
+                                if len(allele) > 1:
+                                    if iupac:
+                                        allele = IUPAC(allele)
+                                    elif rand:
+                                        allele = random.choice(allele)
+                                    elif major:
+                                        # find AD field
+                                        af = map(int, gt[1].split(","))
+                                        # max of AD
+                                        af_ix = af.index(max(af))
+                                        # stupid tri-allelic
+                                        if len(af) > 2:
+                                            if af_ix == 0:
+                                                allele = x[3]
+                                            elif af_ix == 1:
+                                                allele = x[4].split(",")[0]
+                                            else:
+                                                allele = x[4].split(",")[1]
                                         else:
-                                            allele = x[4].split(",")[1]
-                                    else:
-                                        allele = x[af_ix + 3]
-                            vcfdict[samples[i+9]]["{}_{}".format(x[0], x[1])] = allele
+                                            allele = x[af_ix + 3]
+                                vcfdict[samples[i+9]]["{}_{}".format(x[0], x[1])] = allele
     return(vcfdict)
 
 
