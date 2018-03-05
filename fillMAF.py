@@ -128,20 +128,23 @@ def getVCFnucleotide(vcfFile, iupac, rand, major):
                                     elif rand:
                                         allele = random.choice(allele)
                                     elif major:
-                                        # find AD field
-                                        af = map(int, gt[1].split(","))
-                                        # max of AD
-                                        af_ix = af.index(max(af))
-                                        # stupid tri-allelic
-                                        if len(af) > 2:
-                                            if af_ix == 0:
-                                                allele = x[3]
-                                            elif af_ix == 1:
-                                                allele = x[4].split(",")[0]
+                                        try:
+                                            # find AD field
+                                            af = map(int, gt[1].split(","))
+                                            # max of AD
+                                            af_ix = af.index(max(af))
+                                            # stupid tri-allelic
+                                            if len(af) > 2:
+                                                if af_ix == 0:
+                                                    allele = x[3]
+                                                elif af_ix == 1:
+                                                    allele = x[4].split(",")[0]
+                                                else:
+                                                    allele = x[4].split(",")[1]
                                             else:
-                                                allele = x[4].split(",")[1]
-                                        else:
-                                            allele = x[af_ix + 3]
+                                                allele = x[af_ix + 3]
+                                        except ValueError:
+                                            ipdb.set_trace()
                                 vcfdict[samples[i+9]]["{}_{}".format(x[0], x[1])] = allele
     return(vcfdict)
 
