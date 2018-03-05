@@ -183,6 +183,7 @@ def fillMaf(mafdict, mafFile):
 
 if __name__ == "__main__":
     mafdict = getMAFambig(args.mafFile)
+    import ipdb;ipdb.set_trace()
     vcfdict = getVCFnucleotide(args.vcfList, args.iupac, args.rand, args.major)
     mafdict = replaceMaf(vcfdict, mafdict)
     fillMaf(mafdict, args.mafFile)
