@@ -3,6 +3,13 @@
 """
 Created on Mon Mar  5 11:42:48 2018
 fillMAF.py MAF vcf.list
+
+suggestions:
+    hal2maf
+    filterDuplicates
+    maffilter: subset, concant, etc ...
+    fillMAF.py
+    maffilter: windows
 @author: stsmall
 """
 
@@ -150,7 +157,8 @@ def getVCFnucleotide(vcfFile, iupac, rand, major, Nasmissing):
                                                 allele = "N"
                                             else:
                                                 allele = x[3]
-                                vcfdict[samples[i+9]]["{}_{}".format(x[0], x[1])] = allele
+                                indname = samples[i+9].replace(".", "_")
+                                vcfdict[indname]["{}_{}".format(x[0], x[1])] = allele
     return(vcfdict)
 
 
