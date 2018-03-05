@@ -64,15 +64,18 @@ def getMAFambig(mafFile):
     mafdict = defaultdict(lambda: defaultdict(lambda: []))
     with open(mafFile, 'r') as maf:
         for line in maf:
-            if line.startswith("a"):
-                line = next(maf)
-                while line.startswith("s"):
-                    x = line.split()
-                    ind, chrom = x[1].split(".")[:2]
-                    block_key = "{}".format("_".join(x[1:6]))
-                    coord, poslist = transCoord(x[2:])  # coord is list of N in block
-                    mafdict[ind][chrom].append([block_key, coord, poslist, "N"])
+            try:
+                if line.startswith("a"):
                     line = next(maf)
+                    while line.startswith("s"):
+                        x = line.split()
+                        ind, chrom = x[1].split(".")[:2]
+                        block_key = "{}".format("_".join(x[1:6]))
+                        coord, poslist = transCoord(x[2:])  # coord is list of N in block
+                        mafdict[ind][chrom].append([block_key, coord, poslist, "N"])
+                        line = next(maf)
+            except StopIteration:
+                break
     return(mafdict)
 
 
