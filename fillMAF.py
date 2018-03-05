@@ -10,6 +10,7 @@ import argparse
 from collections import defaultdict
 import re
 import random
+import ipdb
 
 parser = argparse.ArgumentParser()
 
@@ -64,6 +65,8 @@ def getMAFambig(mafFile):
                 while line.startswith("s"):
                     x = line.split()
                     ind, chrom = x[1].split(".")
+                    ######
+                    ipdb.set_trace()
                     block_key = "{}_{}_{}_{}_{}".format(x[1:6])
                     coord, poslist = transCoord(x[2:])  # coord is list of N in block
                     mafdict[ind][chrom].append([block_key, coord, poslist, "N"])
@@ -167,7 +170,7 @@ def fillMaf(mafdict, mafFile):
                     ind, chrom = x[1].split(".")
                     seq = list(x[-1])
                     # find block key in mafdict list
-                    block_key = x[2]+"_"+x[3]+"_"+x[4]+"_"+x[5]
+                    block_key = x[1]+"_"+x[2]+"_"+x[3]+"_"+x[4]+"_"+x[5]
                     blocklist = zip(*mafdict[ind][chrom][0])[0]
                     i = blocklist.index(block_key)
                     coord = mafdict[ind][chrom][0][i]
@@ -183,7 +186,8 @@ def fillMaf(mafdict, mafFile):
 
 if __name__ == "__main__":
     mafdict = getMAFambig(args.mafFile)
-    import ipdb;ipdb.set_trace()
+    ######
+    ipdb.set_trace()
     vcfdict = getVCFnucleotide(args.vcfList, args.iupac, args.rand, args.major)
     mafdict = replaceMaf(vcfdict, mafdict)
     fillMaf(mafdict, args.mafFile)
