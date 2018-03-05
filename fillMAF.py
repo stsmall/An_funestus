@@ -31,7 +31,8 @@ def transCoord(coord):
     """Translates maf coordinates to VCF format
     """
     p = re.compile("N")
-    start, aln, strand, int(length), seq = coord
+    start, aln, strand, length, seq = coord
+    length = int(length)
     pos_list = []
     poslist = []
     # find all "N", return coords as list
