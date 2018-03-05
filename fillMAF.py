@@ -175,7 +175,10 @@ def replaceMaf(vcfdict, mafdict):
                         a += vcfdict[ind][chrom+"_"+str(p)]
                     except KeyError:
                         continue
-                mafdict[ind][chrom][0][i][-1] = a
+                try:
+                    mafdict[ind][chrom][0][i][-1] = a
+                except TypeError:
+                    ipdb.set_trace()
     return(mafdict)
 
 
