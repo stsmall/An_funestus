@@ -171,7 +171,10 @@ def replaceMaf(vcfdict, mafdict):
                 pos = coord[1]
                 a = ''
                 for p in pos:
-                    a += vcfdict[ind][chrom+"_"+str(p)]
+                    try:
+                        a += vcfdict[ind][chrom+"_"+str(p)]
+                    except KeyError:
+                        continue
                 mafdict[ind][chrom][0][i][-1] = a
     return(mafdict)
 
