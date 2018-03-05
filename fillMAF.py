@@ -72,7 +72,8 @@ def getMAFambig(mafFile):
                         ind, chrom = x[1].split(".")[:2]
                         block_key = "{}".format("_".join(x[1:6]))
                         coord, poslist = transCoord(x[2:])  # coord is list of N in block
-                        mafdict[ind][chrom].append([block_key, coord, poslist, "N"])
+                        if coord:
+                            mafdict[ind][chrom].append([block_key, coord, poslist, "N"])
                         line = next(maf)
             except StopIteration:
                 break
