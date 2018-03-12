@@ -164,6 +164,8 @@ def foil4(vcfdict, quartet, q_ix, samplelist, iterations, callabledict):
             i = np.random.choice(q_ix[0], 1)[0]
             j = np.random.choice(q_ix[1], 1)[0]
             k = np.random.choice(q_ix[2], 1)[0]
+            import ipdb;ipdb.set_trace()
+            print("{},{},{},{}".format(samplelist[i-9], samplelist[j-9], samplelist[k-9], samplelist[-1]))
             n_AAAA = 0  #
             n_AABA = 0  #
             n_ABAA = 0
@@ -176,7 +178,6 @@ def foil4(vcfdict, quartet, q_ix, samplelist, iterations, callabledict):
                 marray = np.array(vcfdict[chrom][pos])
                 try:
                     m = np.array([marray[i-9], marray[j-9], marray[k-9], marray[-1]])
-                    print("{},{},{},{}".format(samplelist[i-9], samplelist[j-9], samplelist[k-9], samplelist[-1]))
                 except IndexError:
                     continue
                     print(pos)
