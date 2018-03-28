@@ -33,6 +33,7 @@ def choose_duplicates(transferFile):
                 transdict[chrom][pos_e] = line
             except KeyError:
                 # duplicate
+                import ipdb;ipdb.set_trace()
                 first_line = transdict[chrom][pos_e]
                 if chrom in first_line.split()[0]:
                     pass
