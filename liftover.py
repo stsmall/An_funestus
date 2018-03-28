@@ -123,13 +123,9 @@ def loadTransfer(transfersFile):
         is 'chrom' : 'pos' : ('newchrom', 'newpos', 'orientation')
 
     """
-    dups = 0
-    paralog = []
-    d = open("paralog.mask.out", 'w')
     print("loading transfer file ...")
     transdict = defaultdict(dict)
     with open(transfersFile, 'r') as transfer:
-        transfer.next()  # skip header
         for line in transfer:
             x = line.strip().split()
             chrom = x[0]
@@ -141,22 +137,10 @@ def loadTransfer(transfersFile):
             orient_t = x[5]  # this can be positive or negative
             newpos_e = x[7]
             try:
-                transdict[chrom][pos_e]
-                if transdict[chrom][pos_e][0] != chrom:
-                    # overwrite
-                    transdict[chrom][pos_e] = (newchrom, newpos_e, orient_t)
-                else:
-                    dups += 1
-                    d.write("\n{}\t{}\t{}\t{}\n".format(chrom, pos_e, newchrom,
-                                                        newpos_e))  # paralog
-                    d.write("{}\t{}\t{}\t{}\n".format(chrom, pos_e,
-                                                      transdict[chrom][pos_e][0],
-                                                      transdict[chrom][pos_e][1]))
-                    paralog.append([chrom, pos_e])
-            except KeyError:
+                transdict[chrom][pos_e]  # does this exist, likely no
                 transdict[chrom][pos_e] = (newchrom, newpos_e, orient_t)
-    d.close()
-    print("Duplicate entries: {}".format(dups))
+            except KeyError:
+                print("Key Exists")
     return(transdict)
 
 
