@@ -189,7 +189,6 @@ def windowPattern(windict, size, chrom):
 if __name__ == "__main__":
     groups = args.groups
     quart_ix = [list(map(int, x)) for x in groups]
-    import ipdb;ipdb.set_trace()
     outgroup_ix = int(args.outgroup)
     vcfFile = args.vcfFile
     size = args.size
