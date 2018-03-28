@@ -54,27 +54,28 @@ def calct1t2(AAAA, BAAA, ABAA, AABA, BBAA, ABBA, BABA, BBBA):
     t1list = []
     t2list = []
     sites = AAAA + BAAA + ABAA + AABA + BBAA + ABBA + BABA + BBBA
-    # BAAA,ABAA,BBAA
-    t2_inner = (BAAA + ABAA) / 2
-    t2 = t2_inner / sites
-    t1 = (t2_inner + BBAA) / sites
-    t1list.append(t1)
-    t2list.append(t2)
-
-    # ABAA, AABA, ABBA
-    t2_inner = (ABAA + AABA) / 2
-    t2 = t2_inner / sites
-    t1 = (t2_inner + ABBA) / sites
-    t1list.append(t1)
-    t2list.append(t2)
-
-    # BAAA,AABA, BABA
-    t2_inner = (BAAA + AABA) / 2
-    t2 = t2_inner / sites
-    t1 = (t2_inner + BABA) / sites
-    t1list.append(t1)
-    t2list.append(t2)
-
+    if sites != 0:
+        # BAAA,ABAA,BBAA
+        t2_inner = (BAAA + ABAA) / 2
+        t2 = t2_inner / sites
+        t1 = (t2_inner + BBAA) / sites
+        t1list.append(t1)
+        t2list.append(t2)
+        # ABAA, AABA, ABBA
+        t2_inner = (ABAA + AABA) / 2
+        t2 = t2_inner / sites
+        t1 = (t2_inner + ABBA) / sites
+        t1list.append(t1)
+        t2list.append(t2)
+        # BAAA,AABA, BABA
+        t2_inner = (BAAA + AABA) / 2
+        t2 = t2_inner / sites
+        t1 = (t2_inner + BABA) / sites
+        t1list.append(t1)
+        t2list.append(t2)
+    else:
+        t1list = [0, 0, 0]
+        t2list = [0, 0, 0]
     return(t1list, t2list)
 
 
