@@ -104,7 +104,7 @@ def countPattern(callset, sample_ix, outgroup):
         pos_sub = pos[keep]
         count_array = gt_sub.is_hom_alt()
         pattern_array = np.packbits(count_array, axis=1)
-        calc_patterns = np.unqiue(pattern_array, return_counts=True)
+        calc_patterns = np.unique(pattern_array, return_counts=True)
         d = {n: calc_patterns[1][i] for i, n in enumerate(calc_patterns[0])}
         # total counts
         AAAA = d[0] + d[240]  # FFFF TTTT 240 and 0
@@ -141,7 +141,7 @@ def windowPattern(windict, size, chrom):
             end_ix = start_ix + 1
             try:
                 pattern_array = windict[k][1][start_ix:end_ix]
-                calc_patterns = np.unqiue(pattern_array, return_counts=True)
+                calc_patterns = np.unique(pattern_array, return_counts=True)
                 d = {n: calc_patterns[1][i] for i, n in enumerate(calc_patterns[0])}
                 # total counts
                 AAAA = d[0] + d[240]  # FFFF TTTT 240 and 0
@@ -155,7 +155,7 @@ def windowPattern(windict, size, chrom):
                 # t1, t2 = calct1t2(AAAA, BAAA, ABAA, AABA, BBAA, ABBA, BABA, BBBA)
             except IndexError:
                 pattern_array = windict[k][1][start_ix:]
-                calc_patterns = np.unqiue(pattern_array, return_counts=True)
+                calc_patterns = np.unique(pattern_array, return_counts=True)
                 d = {n: calc_patterns[1][i] for i, n in enumerate(calc_patterns[0])}
                 # total counts
                 AAAA = d[0] + d[240]  # FFFF TTTT 240 and 0
