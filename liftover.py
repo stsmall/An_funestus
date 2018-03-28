@@ -138,9 +138,9 @@ def loadTransfer(transfersFile):
             newpos_e = x[7]
             try:
                 transdict[chrom][pos_e]  # does this exist, likely no
-                transdict[chrom][pos_e] = (newchrom, newpos_e, orient_t)
-            except KeyError:
                 print("Key Exists")
+            except KeyError:
+                transdict[chrom][pos_e] = (newchrom, newpos_e, orient_t)
     return(transdict)
 
 
