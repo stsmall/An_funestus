@@ -6,6 +6,8 @@ calcT1T2.py -t trees -v vcf -g group --nodes
 Calculates the T1 and T2 divergence times in a quartet
 @author: stsmall
 """
+from __future__ import print_function
+from __future__ import division
 import numpy as np
 import allel
 import h5py
@@ -34,7 +36,7 @@ def loadvcf(vcfFile):
     """Reads VCF using scikit-allel, object is stored as pandas DF
     """
     print("loading vcf file...")
-    print(allel.__version__)
+    print("using scitkit allele version:", allel.__version__)
     h5 = "{}h5".format(vcfFile.strip("vcf"))
     if os.path.isfile(h5):
         callset = h5py.File(h5, 'r')
@@ -79,6 +81,7 @@ def calct1t2(AAAA, BAAA, ABAA, AABA, BBAA, ABBA, BABA, BBBA):
 def countPattern(callset, sample_ix, outgroup):
     """Count patterns for all samples
     """
+    print("counting patterns in file...")
     gt = allel.GenotypeArray(callset['calldata/GT'])
     pos = allel.SortedIndex(callset['variants/POS'])
     # remove any sites where outgroup is ./. or 0/1
@@ -90,8 +93,10 @@ def countPattern(callset, sample_ix, outgroup):
     t1t2dict = defaultdict(list)
     windict = {}
     permute = 1
-    i, j, k = sample_ix
-    for quartet in product(i, j, k):
+    g1, g2, g3 = sample_ix
+    quartet = list(product(g1, g2, g3))
+    for quart in quartet:
+        i, j, k = quart
         gt_sub = gt.take([i, j, k, outgroup], axis=1)
         keep = gt_sub.is_hom().all(axis=1)
         gt_sub = gt_sub.compress(keep, axis=0)
@@ -122,6 +127,7 @@ def countPattern(callset, sample_ix, outgroup):
 def windowPattern(windict, size, chrom):
     """
     """
+    print("printing patterns to file...")
     patterndict = defaultdict(list)
     # windowT1 = defaultdict(list)
     # windowT2 = defaultdict(list)
