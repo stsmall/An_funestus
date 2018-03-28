@@ -85,6 +85,7 @@ def countPattern(callset, sample_ix, outgroup):
     gt = allel.GenotypeArray(callset['calldata/GT'])
     pos = allel.SortedIndex(callset['variants/POS'])
     # remove any sites where outgroup is ./. or 0/1
+    import ipdb;ipdb.set_trace()
     keep = gt[:, outgroup].is_hom() & gt.count_alleles().is_biallelic()
     gt = gt.compress(keep, axis=0)
     pos = pos[keep]
@@ -98,7 +99,6 @@ def countPattern(callset, sample_ix, outgroup):
     for quart in quartet:
         i, j, k = quart
         gt_sub = gt.take([i, j, k, outgroup], axis=1)
-        import ipdb;ipdb.set_trace()
         keep = gt_sub.is_hom().all(axis=1)
         gt_sub = gt_sub.compress(keep, axis=0)
         pos_sub = pos[keep]
