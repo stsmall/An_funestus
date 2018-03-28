@@ -30,10 +30,7 @@ def choose_duplicates(transferFile):
             pos_e = x[7]
             try:
                 transdict[chrom][pos_e]
-                transdict[chrom][pos_e] = line
-            except KeyError:
                 # duplicate
-                import ipdb;ipdb.set_trace()
                 first_line = transdict[chrom][pos_e]
                 if chrom in first_line.split()[0]:
                     pass
@@ -42,6 +39,8 @@ def choose_duplicates(transferFile):
                 else:
                     pass
                 paralog.write("{}\n{}".format(transdict[chrom][pos_e], line))
+           except KeyError:
+                transdict[chrom][pos_e] = line
     paralog.close()
     return(transdict)
 
