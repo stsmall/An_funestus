@@ -105,7 +105,6 @@ def countPattern(callset, sample_ix, outgroup):
         pattern_array = np.packbits(count_array, axis=1)
         calc_patterns = np.unique(pattern_array, return_counts=True)
         d = {n: calc_patterns[1][i] for i, n in enumerate(calc_patterns[0])}
-        import ipdb;ipdb.set_trace()
         # total counts
         AAAA = d.get(0, 0) + d.get(240, 0)  # FFFF TTTT 240 and 0
         BAAA = d.get(112, 0) + d.get(128, 0)  # FTTT + TFFF 112 and 128
