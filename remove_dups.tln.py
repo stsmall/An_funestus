@@ -38,7 +38,7 @@ def choose_duplicates(transferFile):
                     transdict[chrom][pos_e] = line
                 else:
                     pass
-                paralog.write("{}\n{}".format(transdict[chrom][pos_e], line))
+                paralog.write("{}{}\n".format(transdict[chrom][pos_e], line))
             except KeyError:
                 transdict[chrom][pos_e] = line
     paralog.close()
