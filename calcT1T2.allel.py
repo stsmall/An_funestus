@@ -82,7 +82,7 @@ def countPattern(callset, sample_ix, outgroup):
     gt = allel.GenotypeArray(callset['calldata/GT'])
     pos = allel.SortedIndex(callset['variants/POS'])
     # remove any sites where outgroup is ./. or 0/1
-    keep = gt[:, outgroup].is_hom()
+    keep = gt[:, outgroup].is_hom() & gt.count_alleles().is_biallelic()
     gt = gt.compress(keep, axis=0)
     pos = pos[keep]
     # permute among all sample indexes, list of lists
