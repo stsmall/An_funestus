@@ -21,7 +21,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-v', "--vcfFile", type=str, required=True,
                     help="vcf file of variants")
 parser.add_argument('-g', "--groups", nargs='+', action="append",
-                    required=True, type=int, help="index of group"
+                    required=True, help="index of group"
                     "-g 1,2,3,4,5 -g 6,7,8,9,10 -g 11,12,13,14,15")
 parser.add_argument('-o', "--outgroup", required=True,
                     help="index of outgroup")
@@ -188,6 +188,7 @@ def windowPattern(windict, size, chrom):
 
 if __name__ == "__main__":
     quart_ix = args.groups
+    import ipdb;ipdb.set_trace()
     outgroup_ix = args.outgroup
     vcfFile = args.vcfFile
     size = args.size
