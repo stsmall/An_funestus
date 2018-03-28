@@ -107,14 +107,14 @@ def countPattern(callset, sample_ix, outgroup):
         d = {n: calc_patterns[1][i] for i, n in enumerate(calc_patterns[0])}
         import ipdb;ipdb.set_trace()
         # total counts
-        AAAA = d[0] + d[240]  # FFFF TTTT 240 and 0
-        BAAA = d[112] + d[128]  # FTTT + TFFF 112 and 128
-        ABAA = d[176] + d[64]  # TFTT + FTFF 176 and 64
-        AABA = d[208] + d[32]  # TTFT + FFTF 208 and 32
-        BBAA = d[48] + d[192]  # FFTT + TTFF 48 and 192
-        ABBA = d[144] + d[96]  # TFFT + FTTF 144 and 96
-        BABA = d[80] + d[160]  # FTFT + TFTF 80 and 160
-        BBBA = d[224] + d[16]  # FFFT + TTTF 224 and 16
+        AAAA = d.get(0) + d.get(240)  # FFFF TTTT 240 and 0
+        BAAA = d.get(112) + d.get(128)  # FTTT + TFFF 112 and 128
+        ABAA = d.get(176) + d.get(64)  # TFTT + FTFF 176 and 64
+        AABA = d.get(208) + d.get(32)  # TTFT + FFTF 208 and 32
+        BBAA = d.get(48) + d.get(192)  # FFTT + TTFF 48 and 192
+        ABBA = d.get(144) + d.get(96)  # TFFT + FTTF 144 and 96
+        BABA = d.get(80) + d.get(160)  # FTFT + TFTF 80 and 160
+        BBBA = d.get(224) + d.get(16)  # FFFT + TTTF 224 and 16
         # t1t2 calc
         t1, t2 = calct1t2(AAAA, BAAA, ABAA, AABA, BBAA, ABBA, BABA, BBBA)
         t1t2dict["t1"].append(t1)
@@ -144,28 +144,28 @@ def windowPattern(windict, size, chrom):
                 calc_patterns = np.unique(pattern_array, return_counts=True)
                 d = {n: calc_patterns[1][i] for i, n in enumerate(calc_patterns[0])}
                 # total counts
-                AAAA = d[0] + d[240]  # FFFF TTTT 240 and 0
-                BAAA = d[112] + d[128]  # FTTT + TFFF 112 and 128
-                ABAA = d[176] + d[64]  # TFTT + FTFF 176 and 64
-                AABA = d[208] + d[32]  # TTFT + FFTF 208 and 32
-                BBAA = d[48] + d[192]  # FFTT + TTFF 48 and 192
-                ABBA = d[144] + d[96]  # TFFT + FTTF 144 and 96
-                BABA = d[80] + d[160]  # FTFT + TFTF 80 and 160
-                BBBA = d[224] + d[16]  # FFFT + TTTF 224 and 16
+                AAAA = d.get(0) + d.get(240)  # FFFF TTTT 240 and 0
+                BAAA = d.get(112) + d.get(128)  # FTTT + TFFF 112 and 128
+                ABAA = d.get(176) + d.get(64)  # TFTT + FTFF 176 and 64
+                AABA = d.get(208) + d.get(32)  # TTFT + FFTF 208 and 32
+                BBAA = d.get(48) + d.get(192)  # FFTT + TTFF 48 and 192
+                ABBA = d.get(144) + d.get(96)  # TFFT + FTTF 144 and 96
+                BABA = d.get(80) + d.get(160)  # FTFT + TFTF 80 and 160
+                BBBA = d.get(224) + d.get(16)  # FFFT + TTTF 224 and 16
                 # t1, t2 = calct1t2(AAAA, BAAA, ABAA, AABA, BBAA, ABBA, BABA, BBBA)
             except IndexError:
                 pattern_array = windict[k][1][start_ix:]
                 calc_patterns = np.unique(pattern_array, return_counts=True)
                 d = {n: calc_patterns[1][i] for i, n in enumerate(calc_patterns[0])}
                 # total counts
-                AAAA = d[0] + d[240]  # FFFF TTTT 240 and 0
-                BAAA = d[112] + d[128]  # FTTT + TFFF 112 and 128
-                ABAA = d[176] + d[64]  # TFTT + FTFF 176 and 64
-                AABA = d[208] + d[32]  # TTFT + FFTF 208 and 32
-                BBAA = d[48] + d[192]  # FFTT + TTFF 48 and 192
-                ABBA = d[144] + d[96]  # TFFT + FTTF 144 and 96
-                BABA = d[80] + d[160]  # FTFT + TFTF 80 and 160
-                BBBA = d[224] + d[16]  # FFFT + TTTF 224 and 16
+                AAAA = d.get(0) + d.get(240)  # FFFF TTTT 240 and 0
+                BAAA = d.get(112) + d.get(128)  # FTTT + TFFF 112 and 128
+                ABAA = d.get(176) + d.get(64)  # TFTT + FTFF 176 and 64
+                AABA = d.get(208) + d.get(32)  # TTFT + FFTF 208 and 32
+                BBAA = d.get(48) + d.get(192)  # FFTT + TTFF 48 and 192
+                ABBA = d.get(144) + d.get(96)  # TFFT + FTTF 144 and 96
+                BABA = d.get(80) + d.get(160)  # FTFT + TFTF 80 and 160
+                BBBA = d.get(224) + d.get(16)  # FFFT + TTTF 224 and 16
                 # t1, t2 = calct1t2(AAAA, BAAA, ABAA, AABA, BBAA, ABBA, BABA, BBBA)
             # windowT1[end].append(t1)
             # windowT2[end].append(t2)
