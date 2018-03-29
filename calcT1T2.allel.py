@@ -136,10 +136,10 @@ def windowPattern(windict, size, chrom):
         start = 0
         step = size
         end = start + size
-        last = windict[k][0][-1]
-        print(last)
+        pos_array = windict[k][0]
+        last = pos_array[-1]
         while end < last:
-            start_ix = bisect.bisect_left(windict[k], start)
+            start_ix = bisect.bisect_left(pos_array, start)
             end_ix = start_ix + 1
             try:
                 pattern_array = windict[k][1][start_ix:end_ix]
