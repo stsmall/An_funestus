@@ -182,11 +182,11 @@ def windowPattern(windict, size, chrom):
     headers = ['AAAA', 'AABA', 'ABAA', 'ABBA',
                'BAAA', 'BABA', 'BBAA', 'BBBA']
     # headers = ["ABC", "BCA", "ACB", "AB", "BC", "AC"]
-    wfile.write("chrom\tpos{}\n".format('\t'.join(headers)))
+    wfile.write("chrom\tpos\t{}\n".format('\t'.join(headers)))
     ordered_keys = sorted(list(patterndict.keys()))
     for pos in ordered_keys:
         count_mean = np.mean(list(zip(*patterndict[pos])), axis=1)
-        wfile.write("{}\t{}\t{}\n".format(chrom, pos, count_mean))
+        wfile.write("{}\t{}\t{}\n".format(chrom, pos, "\t".join(map(str, count_mean))))
     wfile.close()
     return(None)
 
