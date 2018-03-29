@@ -136,6 +136,7 @@ def windowPattern(windict, size, chrom):
         start = 0
         step = size
         end = start + size
+        import ipdb;ipdb.set_trace()
         while end < windict[k][0][-1]:
             start_ix = bisect.bisect_left(windict[k], start)
             end_ix = start_ix + 1
