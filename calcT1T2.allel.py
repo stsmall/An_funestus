@@ -195,6 +195,7 @@ def windowPattern(windict, size, chrom):
 
 
 if __name__ == "__main__":
+    dfoil = False
     groups = args.groups
     quart_ix = [list(map(int, x)) for x in groups]
     outgroup_ix = int(args.outgroup)
@@ -210,4 +211,5 @@ if __name__ == "__main__":
     print("AB: {}".format(np.mean(m)))
     print("BC: {}".format(np.mean(n)))
     print("AC: {}".format(np.mean(p)))
-    windowPattern(windict, size, chrom)
+    if dfoil:
+        windowPattern(windict, size, chrom)
