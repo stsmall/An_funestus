@@ -135,7 +135,6 @@ def windowPattern(windict, size, chrom):
     patterndict = defaultdict(list)
     # windowT1 = defaultdict(list)
     # windowT2 = defaultdict(list)
-    import ipdb;ipdb.set_trace()
     for k in windict.keys():
         start = 0
         step = size
