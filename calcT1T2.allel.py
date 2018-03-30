@@ -147,7 +147,6 @@ def windowPattern(windict, size, chrom):
         while end < last:
             start_ix = bisect.bisect_left(pos_array, start)
             end_ix = bisect.bisect_left(pos_array, end)
-            import ipdb;ipdb.set_trace()
             try:
                 pattern_array = windict[k][1][start_ix:end_ix]
                 calc_patterns = np.unique(pattern_array, return_counts=True)
@@ -189,6 +188,7 @@ def windowPattern(windict, size, chrom):
     wfile.write("chrom\tpos\t{}\n".format('\t'.join(headers)))
     ordered_keys = sorted(list(patterndict.keys()))
     for pos in ordered_keys:
+        import ipdb;ipdb.set_trace()
         count_mean = np.mean(list(zip(*patterndict[pos])), axis=1)
         wfile.write("{}\t{}\t{}\n".format(chrom, pos, "\t".join(map(str, count_mean))))
     wfile.close()
