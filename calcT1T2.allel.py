@@ -177,7 +177,7 @@ def windowPattern(windict, size, chrom):
                 # t1, t2 = calct1t2(AAAA, BAAA, ABAA, AABA, BBAA, ABBA, BABA, BBBA)
             # windowT1[end].append(t1)
             # windowT2[end].append(t2)
-            patterndict[pos_array[end_ix]].append((AAAA, BAAA, ABAA, AABA, BBAA, ABBA, BABA, BBBA))
+            patterndict[end].append((AAAA, BAAA, ABAA, AABA, BBAA, ABBA, BABA, BBBA))
             start += step
             end += step
     # write to file
@@ -188,7 +188,6 @@ def windowPattern(windict, size, chrom):
     wfile.write("chrom\tpos\t{}\n".format('\t'.join(headers)))
     ordered_keys = sorted(list(patterndict.keys()))
     for pos in ordered_keys:
-        import ipdb;ipdb.set_trace()
         count_mean = np.mean(list(zip(*patterndict[pos])), axis=1)
         wfile.write("{}\t{}\t{}\n".format(chrom, pos, "\t".join(map(str, count_mean))))
     wfile.close()
