@@ -178,7 +178,7 @@ def windowPattern(windict, size, chrom):
                 # t1, t2 = calct1t2(AAAA, BAAA, ABAA, AABA, BBAA, ABBA, BABA, BBBA)
             # windowT1[end].append(t1)
             # windowT2[end].append(t2)
-            patterndict[end].append((AAAA, BAAA, ABAA, AABA, BBAA, ABBA, BABA, BBBA))
+            patterndict[pos_array[end_ix]].append((AAAA, BAAA, ABAA, AABA, BBAA, ABBA, BABA, BBBA))
             start += step
             end += step
     # write to file
