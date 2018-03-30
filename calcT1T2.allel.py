@@ -42,6 +42,7 @@ def loadvcf(vcfFile):
         callset = h5py.File(h5, 'r')
     else:
         callset = allel.read_vcf(vcfFile)
+        print("creating h5 for faster loading")
         allel.vcf_to_hdf5(vcfFile, h5)
     # assert len(set(callset['variants/CHROM'])) == 1
     chrom = callset['variants/CHROM'][0]
@@ -96,7 +97,9 @@ def countPattern(callset, sample_ix, outgroup):
     permute = 1
     g1, g2, g3 = sample_ix
     quartet = list(product(g1, g2, g3))
+    print("total number of combinations: {}".format(len(quartet)))
     for quart in quartet:
+        print("permutation number {}".format(permute))
         i, j, k = quart
         gt_sub = gt.take([i, j, k, outgroup], axis=1)
         keep = gt_sub.is_hom().all(axis=1)
