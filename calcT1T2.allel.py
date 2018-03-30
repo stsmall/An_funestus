@@ -147,7 +147,7 @@ def windowPattern(windict, size, chrom):
             continue
         while end < last:
             start_ix = bisect.bisect_left(pos_array, start)
-            end_ix = start_ix + 1
+            end_ix = bisect.bisect_left(pos_array, end)
             try:
                 pattern_array = windict[k][1][start_ix:end_ix]
                 calc_patterns = np.unique(pattern_array, return_counts=True)
