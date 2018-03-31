@@ -141,12 +141,11 @@ def countPatternsFast(callset, pops, outgroup):
     gtB = gt.take(pops[1], axis=1)
     htB = gtB.to_haplotypes()
     if len(pops[1]) == 1:
-        hap2 = pops[1]
+        hap2 = list(range(len(pops[1])))
         for hap1 in list(range(len(pops[0]))):
             ma = htA[:, [hap1]].count_alleles(max_allele=1)
             mb = htB[:, hap2].count_alleles(max_allele=1)
             jsfs = allel.joint_sfs(ma[:, 1], mb[:, 1])
-            import ipdb;ipdb.set_trace()
             n1 = jsfs[0, 2] + jsfs[1, 0]
             n2 = jsfs[0, 1] + jsfs[1, 1]
             n3 = jsfs[0, 0] + jsfs[1, 2]
