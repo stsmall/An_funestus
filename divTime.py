@@ -145,7 +145,6 @@ def countPatternsFast(callset, pops, outgroup):
         for hap1 in list(range(len(pops[0]))):
             ma = htA[:, [hap1]].count_alleles(max_allele=1)
             mb = htB[:, hap2].count_alleles(max_allele=1)
-            import ipdb;ipdb.set_trace()
             jsfs = allel.joint_sfs(ma[:, 1], mb[:, 1])
             n1 = jsfs[0, 2] + jsfs[1, 0]
             n2 = jsfs[0, 1] + jsfs[1, 1]
