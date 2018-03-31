@@ -27,7 +27,7 @@ parser.add_argument('-p', "--pops", nargs='+', action="append",
 parser.add_argument('-o', "--outgroup", help="index of outgroup")
 parser.add_argument('-psmc', "--piecewise", help="use psmc for population"
                      "size changes, if None then assumes constant")
-parser.add_argument('-N0', "--effectivesize", required=True,
+parser.add_argument('-N0', "--effectivesize", type=int, required=True,
                      help="pop effective size")
 parser.add_argument('-j', "--divtime", help="a boundary where j < Tdiv < j+1"
                      "in coalescent units")
