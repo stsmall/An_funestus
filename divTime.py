@@ -121,7 +121,6 @@ def countPatternsFast(callset, pops, outgroup):
     clist = []
     klist = []
     gt = allel.GenotypeArray(callset['calldata/GT'])
-    import ipdb;ipdb.set_trace()
     if outgroup:
         # filter on outgroup pop
         acs = gt[:, outgroup].count_alleles(max_allele=1)
@@ -143,6 +142,7 @@ def countPatternsFast(callset, pops, outgroup):
     htB = gtB.to_haplotypes()
     for hap1 in list(range(len(pops[0]))):
         for hap2 in list(combinations(range(len(pops[1])), 2)):
+            import ipdb;ipdb.set_trace()
             ma = htA[:, [hap1]].count_alleles()
             mb = htB[:, hap2].count_alleles()
             jsfs = allel.joint_sfs(ma[:, 1], mb[:, 1])
