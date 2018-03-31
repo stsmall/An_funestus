@@ -13,7 +13,9 @@ from math import log as log
 from math import exp as exp
 from scipy.optimize import minimize
 from scipy.stats import multivariate_normal as mnorm
-from itertools import product
+from itertools import combinations
+import os.path
+import h5py
 import argparse
 
 parser = argparse.ArgumentParser()
@@ -22,16 +24,31 @@ parser.add_argument('-v', "--vcfFile", type=str, required=True,
 parser.add_argument('-p', "--pops", nargs='+', action="append",
                     required=True, help="index of populations"
                     "-p 1 2 3 -g 6 7 8 -p 11 12 13")
-parser.add_argument('-o', "--outgroup", required=True,
-                    help="index of outgroup")
+parser.add_argument('-o', "--outgroup", help="index of outgroup")
 parser.add_arguement('-psmc', "--piecewise", help="use psmc for population"
                      "size changes, if None then assumes constant")
-parser.add_arguement('-N0', "--effectivesize", help="pop effective size")
+parser.add_arguement('-N0', "--effectivesize", required=True,
+                     help="pop effective size")
 parser.add_arguement('-j', "--divtime", help="a boundary where j < Tdiv < j+1"
                      "in coalescent units")
 parser.add_arguement("--mle", action="store_true", help="use MLE, default is"
                      "fast approx. MLE requires larger popsizes")
 args = parser.parse_args()
+
+
+def loadvcf(vcfFile):
+    """Reads VCF using scikit-allel, object is stored as pandas DF
+    """
+    print("loading vcf file...")
+    print("using scitkit allele version:", allel.__version__)
+    h5 = "{}h5".format(vcfFile.strip("vcf"))
+    if os.path.isfile(h5):
+        callset = h5py.File(h5, 'r')
+    else:
+        callset = allel.read_vcf(vcfFile)
+        print("creating h5 for faster loading")
+        allel.vcf_to_hdf5(vcfFile, h5)
+    return(callset)
 
 
 def estimation(obs, fun, init, method='Nelder-Mead'):
@@ -58,41 +75,84 @@ def estimCandK(n1, n2, n3):
     return(c, k)
 
 
-def countPatternsMLE(vcfFile, pops, outgroup):
+def countPatternsMLE(callset, pops, outgroup):
     """Count patterns from VCF
     """
     # use allel to load a vcf, then count patterns of n1,n2,n3 for each
     # combination and estimating k1 and c.
-    for combinations in pops:  # 1 from popA, 2 from popB
-        # n1 S/SS, s/ss
-        n1list.append(n1)
-        # n2 S/Ss, s/Ss
-        n2list.append(n2)
-        # n3 S/ss, s/SS
-        n3list.append(n3)
-    c, k = estimCandK(n1, n2, n3)
+    n1list = []
+    n2list = []
+    n3list = []
+    gt = allel.GenotypeArray(callset['calldata/GT'])
+    if outgroup:
+        # filter on outgroup pop
+        acs = gt.count_alleles(subpop=outgroup, max_allele=1)
+        flt = acs.is_segregating()
+    else:
+        # filter without using outgroup using sampled pops
+        subpops = {"popA": pops[0],
+                   "popB": pops[1]
+                   }
+        acs = gt.count_alleles_subpops(subpops, max_allele=1)
+        acu = allel.AlleleCountsArray(acs["popA"][:] + acs["popB"][:])
+        flt = acu.is_segregating()
+    # remove non-segrating
+    gt = gt.compress(flt, axis=0)
+    # make gt arrays for each subpop, then haplotype arrays
+    gtA = gt.take(pops[0], axis=1)
+    htA = gtA.to_haplotypes()
+    gtB = gt.take(pops[1], axis=1)
+    htB = gtB.to_haplotypes()
+    for hap1 in list(range(len(pops[0]))):
+        for hap2 in list(combinations(range(len(pops[1])), 2)):
+            ma = htA[:, [hap1]].count_alleles()
+            mb = htB[:, hap2].count_alleles()
+            jsfs = allel.joint_sfs(ma[:, 1], mb[:, 1])
+            n1list.append(jsfs[0, 2] + jsfs[1, 0])
+            n2list.append(jsfs[0, 1] + jsfs[1, 1])
+            n3list.append(jsfs[0, 0] + jsfs[1, 2])
+    c, k = estimCandK(n1list, n2list, n3list)
     return(c, k)
 
 
-def countPatternsFast(vcfFile, pops, outgroup):
+def countPatternsFast(callset, pops, outgroup):
     """Count patterns from VCF
     """
-    # use allel to load a vcf, then count patterns of n1,n2,n3 for each
-    # combination and estimating k1 and c.
     clist = []
     klist = []
-    for combinations in pops:  # 1 from popA, 2 from popB
-        # n1 S/SS, s/ss
-        n1 =
-        # n2 S/Ss, s/Ss
-        n2 =
-        # n3 S/ss, s/SS
-        n3 =
-        # fast approx
-        k_hat = .75 * ((2*n3m + n2m) / (n1m + n2m + n3m))
-        c_hat = (2*n3m - n2m) / (2*n3m + n2m)
-        clist.append(c_hat)
-        klist.append(k_hat)
+    gt = allel.GenotypeArray(callset['calldata/GT'])
+    if outgroup:
+        # filter on outgroup pop
+        acs = gt.count_alleles(subpop=outgroup, max_allele=1)
+        flt = acs.is_segregating()
+    else:
+        # filter without using outgroup using sampled pops
+        subpops = {"popA": pops[0],
+                   "popB": pops[1]
+                   }
+        acs = gt.count_alleles_subpops(subpops, max_allele=1)
+        acu = allel.AlleleCountsArray(acs["popA"][:] + acs["popB"][:])
+        flt = acu.is_segregating()
+    # remove non-segrating
+    gt = gt.compress(flt, axis=0)
+    # make gt arrays for each subpop, then haplotype arrays
+    gtA = gt.take(pops[0], axis=1)
+    htA = gtA.to_haplotypes()
+    gtB = gt.take(pops[1], axis=1)
+    htB = gtB.to_haplotypes()
+    for hap1 in list(range(len(pops[0]))):
+        for hap2 in list(combinations(range(len(pops[1])), 2)):
+            ma = htA[:, [hap1]].count_alleles()
+            mb = htB[:, hap2].count_alleles()
+            jsfs = allel.joint_sfs(ma[:, 1], mb[:, 1])
+            n1 = jsfs[0, 2] + jsfs[1, 0]
+            n2 = jsfs[0, 1] + jsfs[1, 1]
+            n3 = jsfs[0, 0] + jsfs[1, 2]
+            # fast approx
+            k_hat = .75 * ((2*n3 + n2) / (n1 + n2 + n3))
+            c_hat = (2*n3 - n2) / (2*n3 + n2)
+            clist.append(c_hat)
+            klist.append(k_hat)
     return(np.mean(clist), np.mean(klist))
 
 
@@ -100,16 +160,24 @@ def estimDiv(c, k, psmc, j, N0):
     """Estimate divergence using eq 12
     """
     if psmc:
+        try:
+            assert j is True
+        except AssertionError:
+            print('PSMC require divTime option, defaulting to Constant')
+            T_hat = -2*N0*log(1-c)  # assumes constant popsize
+            print("{}".format(T_hat))
+        # check MSlatkins mathematica code for setting this up
         # check format of psmc, should be time in coalescent and then theta
         # msmc needs to be transformed to match psmc input
-        with open(psmc, 'r') as pw:
-            for line in pw:
-                pass
-        psmc_t = [0, 1, 2, 3, 4, 5]
-        psmc_N = [100, 200, 300, 500, 600]
-        prodNis = [exp(-((psmc_t[t+1] - psmc_t[t]) / 2*N)) for t, N in enumerate(psmc_N[:j])]
-        T_hat = 1 - exp((T - psmc_t[j]) / 2*psmc_N[j]) * prodNis  # numerically solve for T
-        print("{}".format(T_hat/2*N0))
+#        with open(psmc, 'r') as pw:
+#            for line in pw:
+#                pass
+#        psmc_t = [0, 1, 2, 3, 4, 5]
+#        psmc_N = [100, 200, 300, 500, 600]
+#        prodNis = [exp(-((psmc_t[t+1] - psmc_t[t]) / 2*N)) for t, N in enumerate(psmc_N[:j])]
+#        # not sure how to do numerical solving in python
+#        T_hat = 1 - exp((T - psmc_t[j]) / 2*psmc_N[j]) * prodNis  # numerically solve for T
+#        print("{}".format(T_hat/2*N0))
     else:
         T_hat = -2*N0*log(1-c)  # assumes constant popsize
         print("{}".format(T_hat))
@@ -118,10 +186,11 @@ def estimDiv(c, k, psmc, j, N0):
 
 if __name__ == "__main__":
     popset = args.pops
-    pop_ix = [list(map(int, x)) for x in popset]
+    pop_ix = [tuple(map(int, x)) for x in popset]
     outgroup_ix = map(int, args.outgroup)
+    callset = loadvcf(args.vcfFile)
     if args.mle:
-        c, k = countPatternsMLE(args.vcfFile, pop_ix, outgroup_ix)
+        c, k = countPatternsMLE(callset, pop_ix, outgroup_ix)
     else:
-        c, k = countPatternsFast(args.vcfFile, pop_ix, outgroup_ix)
+        c, k = countPatternsFast(callset, pop_ix, outgroup_ix)
     T_hat = estimDiv(c, k, args.piecewise, args.divtime, args.effectivesize)
