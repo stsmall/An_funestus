@@ -123,7 +123,8 @@ def countPatternsFast(callset, pops, outgroup):
     gt = allel.GenotypeArray(callset['calldata/GT'])
     if outgroup:
         # filter on outgroup pop
-        acs = gt.count_alleles(subpop=outgroup, max_allele=1)
+        import ipdb;ipdb.set_trace()
+        acs = gt[:, outgroup].count_alleles(max_allele=1)
         flt = acs.is_segregating()
     else:
         # filter without using outgroup using sampled pops
@@ -187,7 +188,10 @@ def estimDiv(c, k, psmc, j, N0):
 if __name__ == "__main__":
     popset = args.pops
     pop_ix = [tuple(map(int, x)) for x in popset]
-    outgroup_ix = map(int, args.outgroup)
+    if args.outgroup:
+        outgroup_ix = map(int, args.outgroup)
+    else:
+        outgroup_ix = ''
     callset = loadvcf(args.vcfFile)
     if args.mle:
         c, k = countPatternsMLE(callset, pop_ix, outgroup_ix)
