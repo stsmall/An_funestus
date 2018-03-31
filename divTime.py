@@ -123,7 +123,6 @@ def countPatternsFast(callset, pops, outgroup):
     gt = allel.GenotypeArray(callset['calldata/GT'])
     if outgroup:
         # filter on outgroup pop
-        import ipdb;ipdb.set_trace()
         acs = gt[:, outgroup].count_alleles(max_allele=1)
         flt = acs.is_segregating()
     else:
