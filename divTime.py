@@ -187,7 +187,8 @@ def estimDiv(c, k, psmc, j, N0):
 
 if __name__ == "__main__":
     popset = args.pops
-    pop_ix = [tuple(map(int, x)) for x in popset]
+    # pop_ix = [tuple(map(int, x)) for x in popset]
+    pop_ix = [list(map(int, x)) for x in popset]
     if args.outgroup:
         outgroup_ix = list(map(int, args.outgroup))
     else:
