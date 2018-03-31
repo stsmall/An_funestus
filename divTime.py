@@ -25,13 +25,13 @@ parser.add_argument('-p', "--pops", nargs='+', action="append",
                     required=True, help="index of populations"
                     "-p 1 2 3 -g 6 7 8 -p 11 12 13")
 parser.add_argument('-o', "--outgroup", help="index of outgroup")
-parser.add_arguement('-psmc', "--piecewise", help="use psmc for population"
+parser.add_argument('-psmc', "--piecewise", help="use psmc for population"
                      "size changes, if None then assumes constant")
-parser.add_arguement('-N0', "--effectivesize", required=True,
+parser.add_argument('-N0', "--effectivesize", required=True,
                      help="pop effective size")
-parser.add_arguement('-j', "--divtime", help="a boundary where j < Tdiv < j+1"
+parser.add_argument('-j', "--divtime", help="a boundary where j < Tdiv < j+1"
                      "in coalescent units")
-parser.add_arguement("--mle", action="store_true", help="use MLE, default is"
+parser.add_argument("--mle", action="store_true", help="use MLE, default is"
                      "fast approx. MLE requires larger popsizes")
 args = parser.parse_args()
 
