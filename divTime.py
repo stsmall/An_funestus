@@ -121,6 +121,7 @@ def countPatternsFast(callset, pops, outgroup):
     clist = []
     klist = []
     gt = allel.GenotypeArray(callset['calldata/GT'])
+    import ipdb;ipdb.set_trace()
     if outgroup:
         # filter on outgroup pop
         acs = gt[:, outgroup].count_alleles(max_allele=1)
