@@ -20,7 +20,6 @@ import argparse
 
 # TODO: Numerical solver; PSMC/MSMC conversion
 # TODO: MLE check on k0, k1, c; email Slatkin
-# TODO: include CI using block resampling in allele; --block --block_size
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-v', "--vcfFile", type=str, required=True,
@@ -33,10 +32,8 @@ parser.add_argument('-psmc', "--piecewise", help="use psmc for population"
                     "size changes, if None then assumes constant")
 parser.add_argument('-j', "--divtime", help="a boundary where j < Tdiv < j+1"
                     "in coalescent units")
-parser.add_argument("--block", action="store_true",
-                    help="block bootstraps, default is random sample")
-parser.add_argument("--block_size", type=int, default=10000,
-                    help="size of block boostrap")
+parser.add_argument("--boots", type=int, default=100,
+                    help="number of bootstraps")
 parser.add_argument("--mle", action="store_true", help="use MLE, default is"
                     "fast approx. MLE requires larger popsizes")
 args = parser.parse_args()
@@ -193,28 +190,21 @@ def estimDiv(c, k, psmc, j):
     return(T_hat)
 
 
-def calcCI(gt, pops, psmc, j, block, block_size):
+def calcCI(gt, pops, psmc, j, boots):
     """
     """
     T_hatlist = []
-    if block:
-        for b in range(100):
-            # use pos information to resample blocks
-            c, k = countN1N2N3Fast(gt, pops)
-            T_hatlist.append(estimDiv(c, k, psmc, j))
-    else:
-        # random resampling
-        for b in range(100):
-            # randomly resample gt
-            import ipdb;ipdb.set_trace()
-            indices = np.nonzero(gt)
-            indices_rs = np.random.choice(indices, size=len(indices), replace=True)
-            gt = gt.take(indices_rs, axis=0)
-            c, k = countN1N2N3Fast(gt, pops)
-            T_hatlist.append(estimDiv(c, k, psmc, j))
+    # random resampling
+    for b in range(boots):
+        # randomly resample gt
+        indices_rs = np.random.randin(0, len(gt), (1, len(gt), boots), dtype=np.uint64)
+        gt = gt.take(indices_rs[0][b], axis=0)
+        c, k = countN1N2N3Fast(gt, pops)
+        T_hatlist.append(estimDiv(c, k, psmc, j))
     # quantiles
-
-    return(None)
+    t_lowCI = np.percentile(T_hatlist, 0.025)
+    t_highCI = np.percentile(T_hatlist, 0.975)
+    return(t_lowCI, t_highCI)
 
 
 if __name__ == "__main__":
@@ -234,5 +224,5 @@ if __name__ == "__main__":
     else:
         c, k = countN1N2N3Fast(gt, pop_ix)
     T_hat = estimDiv(c, k, psmc, j)
-    t_LCI, t_HCI = calcCI(gt, pop_ix, psmc, j, args.block, args.block_size)
+    t_LCI, t_HCI = calcCI(gt, pop_ix, psmc, j, args.boots)
     print("{} in 2Ne gens ({} - {})".format(T_hat, t_LCI, t_HCI))
