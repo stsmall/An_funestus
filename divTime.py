@@ -139,9 +139,12 @@ def countN1N2N3Fast(gt, pops):
             ma = htA[:, [hap1]].count_alleles(max_allele=1)
             mb = htB[:, hap2].count_alleles(max_allele=1)
             jsfs = allel.joint_sfs(ma[:, 1], mb[:, 1])
-            n1 = jsfs[0, 2] + jsfs[1, 0]
-            n2 = jsfs[0, 1] + jsfs[1, 1]
-            n3 = jsfs[0, 0] + jsfs[1, 2]
+            try:
+                n1 = jsfs[0, 2] + jsfs[1, 0]
+                n2 = jsfs[0, 1] + jsfs[1, 1]
+                n3 = jsfs[0, 0] + jsfs[1, 2]
+            except IndexError:
+                import ipdb;ipdb.set_trace()
             # fast approx
             k_hat = .75 * ((2*n3 + n2) / (n1 + n2 + n3))
             c_hat = (2*n3 - n2) / (2*n3 + n2)
@@ -153,9 +156,12 @@ def countN1N2N3Fast(gt, pops):
                 ma = htA[:, [hap1]].count_alleles(max_allele=1)
                 mb = htB[:, hap2].count_alleles(max_allele=1)
                 jsfs = allel.joint_sfs(ma[:, 1], mb[:, 1])
-                n1 = jsfs[0, 2] + jsfs[1, 0]
-                n2 = jsfs[0, 1] + jsfs[1, 1]
-                n3 = jsfs[0, 0] + jsfs[1, 2]
+                try:
+                    n1 = jsfs[0, 2] + jsfs[1, 0]
+                    n2 = jsfs[0, 1] + jsfs[1, 1]
+                    n3 = jsfs[0, 0] + jsfs[1, 2]
+                except IndexError:
+                    import ipdb;ipdb.set_trace()
                 # fast approx
                 k_hat = .75 * ((2*n3 + n2) / (n1 + n2 + n3))
                 c_hat = (2*n3 - n2) / (2*n3 + n2)
