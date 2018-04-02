@@ -198,7 +198,7 @@ def calcCI(gt, pops, psmc, j, boots):
     # random resampling
     for b in range(boots):
         # randomly resample gt
-        indices_rs = np.random.randint(0, len(gt), (1, len(gt), boots), dtype=np.uint64)
+        indices_rs = np.random.randint(0, len(gt), (1, len(gt), boots))
         gt = gt.take(indices_rs[0][b], axis=0)
         c, k = countN1N2N3Fast(gt, pops)
         T_hatlist.append(estimDiv(c, k, psmc, j))
