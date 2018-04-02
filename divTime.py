@@ -211,10 +211,10 @@ def calcCI(gt, pops, psmc, j, boots):
     print("Running bootstraps...")
     T_hatlist = []
     # random resampling
-    indices_rs = np.random.randint(0, len(gt), (1, len(gt), boots))
+    indices_rs = np.random.randint(0, len(gt), (1, boots, len(gt)))
     for b in range(boots):
-        gt = gt.take(indices_rs[0][b], axis=0)
         import ipdb;ipdb.set_trace()
+        gt = gt.take(indices_rs[0][b], axis=0)
         c, k = countN1N2N3Fast(gt, pops)
         T_hatlist.append(estimDiv(c, k, psmc, j))
     # quantiles
