@@ -138,18 +138,17 @@ def countN1N2N3Fast(gt, pops):
         for hap1 in list(range(len(pops[0]))):
             ma = htA[:, [hap1]].count_alleles(max_allele=1)
             mb = htB[:, hap2].count_alleles(max_allele=1)
-            z = np.zeros((2, 3), dtype=int)
             jsfs = allel.joint_sfs(ma[:, 1], mb[:, 1])
             try:
                 n1 = jsfs[0, 2] + jsfs[1, 0]
                 n2 = jsfs[0, 1] + jsfs[1, 1]
                 n3 = jsfs[0, 0] + jsfs[1, 2]
             except IndexError:
-                import ipdb;ipdb.set_trace()
+                z = np.zeros((2, 3), dtype=int)
                 z[:jsfs.shape[0], :jsfs.shape[1]] = jsfs
-                n1 = jsfs[0, 2] + jsfs[1, 0]
-                n2 = jsfs[0, 1] + jsfs[1, 1]
-                n3 = jsfs[0, 0] + jsfs[1, 2]
+                n1 = z[0, 2] + z[1, 0]
+                n2 = z[0, 1] + z[1, 1]
+                n3 = z[0, 0] + z[1, 2]
             # fast approx
             k_hat = .75 * ((2*n3 + n2) / (n1 + n2 + n3))
             c_hat = (2*n3 - n2) / (2*n3 + n2)
@@ -167,12 +166,11 @@ def countN1N2N3Fast(gt, pops):
                     n2 = jsfs[0, 1] + jsfs[1, 1]
                     n3 = jsfs[0, 0] + jsfs[1, 2]
                 except IndexError:
-                    print("else statement")
-                    import ipdb;ipdb.set_trace()
+                    z = np.zeros((2, 3), dtype=int)
                     z[:jsfs.shape[0], :jsfs.shape[1]] = jsfs
-                    n1 = jsfs[0, 2] + jsfs[1, 0]
-                    n2 = jsfs[0, 1] + jsfs[1, 1]
-                    n3 = jsfs[0, 0] + jsfs[1, 2]
+                    n1 = z[0, 2] + z[1, 0]
+                    n2 = z[0, 1] + z[1, 1]
+                    n3 = z[0, 0] + z[1, 2]
                 # fast approx
                 k_hat = .75 * ((2*n3 + n2) / (n1 + n2 + n3))
                 c_hat = (2*n3 - n2) / (2*n3 + n2)
@@ -213,9 +211,8 @@ def calcCI(gt, pops, psmc, j, boots):
     print("Running bootstraps...")
     T_hatlist = []
     # random resampling
+    indices_rs = np.random.randint(0, len(gt), (1, len(gt), boots))
     for b in range(boots):
-        # randomly resample gt
-        indices_rs = np.random.randint(0, len(gt), (1, len(gt), boots))
         gt = gt.take(indices_rs[0][b], axis=0)
         c, k = countN1N2N3Fast(gt, pops)
         T_hatlist.append(estimDiv(c, k, psmc, j))
