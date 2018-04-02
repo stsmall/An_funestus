@@ -18,6 +18,10 @@ import os.path
 import h5py
 import argparse
 
+# TODO: Numerical solver; PSMC/MSMC conversion
+# TODO: MLE check on k0, k1, c; email Slatkin
+# TODO: include CI using block resampling in allele; --block --block_size
+
 parser = argparse.ArgumentParser()
 parser.add_argument('-v', "--vcfFile", type=str, required=True,
                     help="vcf file of variants")
@@ -26,13 +30,15 @@ parser.add_argument('-p', "--pops", nargs='+', action="append",
                     "-p 1 2 3 -g 6 7 8 -p 11 12 13")
 parser.add_argument('-o', "--outgroup", help="index of outgroup")
 parser.add_argument('-psmc', "--piecewise", help="use psmc for population"
-                     "size changes, if None then assumes constant")
-parser.add_argument('-N0', "--effectivesize", type=int, required=True,
-                     help="pop effective size")
+                    "size changes, if None then assumes constant")
 parser.add_argument('-j', "--divtime", help="a boundary where j < Tdiv < j+1"
-                     "in coalescent units")
+                    "in coalescent units")
+parser.add_argument("--block", action="store_true",
+                    help="block bootstraps, default is random sample")
+parser.add_argument("--block_size", type=int, default=10000,
+                    help="size of block boostrap")
 parser.add_argument("--mle", action="store_true", help="use MLE, default is"
-                     "fast approx. MLE requires larger popsizes")
+                    "fast approx. MLE requires larger popsizes")
 args = parser.parse_args()
 
 
@@ -49,6 +55,27 @@ def loadvcf(vcfFile):
         print("creating h5 for faster loading")
         allel.vcf_to_hdf5(vcfFile, h5)
     return(callset)
+
+
+def filterGT(callset, pops, outgroup):
+    """Count patterns from VCF
+    """
+    gt = allel.GenotypeArray(callset['calldata/GT'])
+    if outgroup:
+        # filter on outgroup pop
+        acs = gt[:, outgroup].count_alleles(max_allele=1)
+        flt = acs.is_segregating()
+    else:
+        # filter without using outgroup using sampled pops
+        subpops = {"popA": pops[0],
+                   "popB": pops[1]
+                   }
+        acs = gt.count_alleles_subpops(subpops, max_allele=1)
+        acu = allel.AlleleCountsArray(acs["popA"][:] + acs["popB"][:])
+        flt = acu.is_segregating()
+    # remove non-segrating
+    gt = gt.compress(flt, axis=0)
+    return(gt)
 
 
 def estimation(obs, fun, init, method='Nelder-Mead'):
@@ -75,7 +102,7 @@ def estimCandK(n1, n2, n3):
     return(c, k)
 
 
-def countPatternsMLE(callset, pops, outgroup):
+def countN1N2N3MLE(gt, pops):
     """Count patterns from VCF
     """
     # use allel to load a vcf, then count patterns of n1,n2,n3 for each
@@ -83,22 +110,6 @@ def countPatternsMLE(callset, pops, outgroup):
     n1list = []
     n2list = []
     n3list = []
-    gt = allel.GenotypeArray(callset['calldata/GT'])
-    if outgroup:
-        # filter on outgroup pop
-        acs = gt.count_alleles(subpop=outgroup, max_allele=1)
-        flt = acs.is_segregating()
-    else:
-        # filter without using outgroup using sampled pops
-        subpops = {"popA": pops[0],
-                   "popB": pops[1]
-                   }
-        acs = gt.count_alleles_subpops(subpops, max_allele=1)
-        acu = allel.AlleleCountsArray(acs["popA"][:] + acs["popB"][:])
-        flt = acu.is_segregating()
-    # remove non-segrating
-    gt = gt.compress(flt, axis=0)
-    # make gt arrays for each subpop, then haplotype arrays
     gtA = gt.take(pops[0], axis=1)
     htA = gtA.to_haplotypes()
     gtB = gt.take(pops[1], axis=1)
@@ -115,26 +126,11 @@ def countPatternsMLE(callset, pops, outgroup):
     return(c, k)
 
 
-def countPatternsFast(callset, pops, outgroup):
-    """Count patterns from VCF
+def countN1N2N3Fast(gt, pops):
+    """
     """
     clist = []
     klist = []
-    gt = allel.GenotypeArray(callset['calldata/GT'])
-    if outgroup:
-        # filter on outgroup pop
-        acs = gt[:, outgroup].count_alleles(max_allele=1)
-        flt = acs.is_segregating()
-    else:
-        # filter without using outgroup using sampled pops
-        subpops = {"popA": pops[0],
-                   "popB": pops[1]
-                   }
-        acs = gt.count_alleles_subpops(subpops, max_allele=1)
-        acu = allel.AlleleCountsArray(acs["popA"][:] + acs["popB"][:])
-        flt = acu.is_segregating()
-    # remove non-segrating
-    gt = gt.compress(flt, axis=0)
     # make gt arrays for each subpop, then haplotype arrays
     gtA = gt.take(pops[0], axis=1)
     htA = gtA.to_haplotypes()
@@ -171,7 +167,7 @@ def countPatternsFast(callset, pops, outgroup):
     return(np.mean(clist), np.mean(klist))
 
 
-def estimDiv(c, k, psmc, j, N0):
+def estimDiv(c, k, psmc, j):
     """Estimate divergence using eq 12
     """
     if psmc:
@@ -179,8 +175,7 @@ def estimDiv(c, k, psmc, j, N0):
             assert j is True
         except AssertionError:
             print('PSMC require divTime option, defaulting to Constant')
-            T_hat = -2*N0*log(1-c)  # assumes constant popsize
-            print("{}".format(T_hat))
+            T_hat = -log(1-c)  # assumes constant popsize
         # check MSlatkins mathematica code for setting this up
         # check format of psmc, should be time in coalescent and then theta
         # msmc needs to be transformed to match psmc input
@@ -194,9 +189,32 @@ def estimDiv(c, k, psmc, j, N0):
 #        T_hat = 1 - exp((T - psmc_t[j]) / 2*psmc_N[j]) * prodNis  # numerically solve for T
 #        print("{}".format(T_hat/2*N0))
     else:
-        T_hat = -2*N0*log(1-c)  # assumes constant popsize
-        print("{}".format(T_hat))
+        T_hat = -log(1-c)  # assumes constant popsize
     return(T_hat)
+
+
+def calcCI(gt, pops, psmc, j, block, block_size):
+    """
+    """
+    T_hatlist = []
+    if block:
+        for b in range(100):
+            # use pos information to resample blocks
+            c, k = countN1N2N3Fast(gt, pops)
+            T_hatlist.append(estimDiv(c, k, psmc, j))
+    else:
+        # random resampling
+        for b in range(100):
+            # randomly resample gt
+            import ipdb;ipdb.set_trace()
+            indices = np.nonzero(gt)
+            indices_rs = np.random.choice(indices, size=len(indices), replace=True)
+            gt = gt.take(indices_rs, axis=0)
+            c, k = countN1N2N3Fast(gt, pops)
+            T_hatlist.append(estimDiv(c, k, psmc, j))
+    # quantiles
+
+    return(None)
 
 
 if __name__ == "__main__":
@@ -208,8 +226,11 @@ if __name__ == "__main__":
     else:
         outgroup_ix = ''
     callset = loadvcf(args.vcfFile)
+    gt = filterGT(callset, pop_ix, outgroup_ix)
     if args.mle:
-        c, k = countPatternsMLE(callset, pop_ix, outgroup_ix)
+        c, k = countN1N2N3MLE(gt, pop_ix)
     else:
-        c, k = countPatternsFast(callset, pop_ix, outgroup_ix)
-    T_hat = estimDiv(c, k, args.piecewise, args.divtime, args.effectivesize)
+        c, k = countN1N2N3Fast(gt, pop_ix)
+    T_hat = estimDiv(c, k, args.piecewise, args.divtime)
+    t_LCI, t_HCI = calcCI(gt, pop_ix, args.psmc, args.divtime, args.block, args.block_size)
+    print("{} in 2Ne gens ({} - {})".format(T_hat, t_LCI, t_HCI))
