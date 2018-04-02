@@ -213,7 +213,6 @@ def calcCI(gt, pops, psmc, j, boots):
     # random resampling
     indices_rs = np.random.randint(0, len(gt), (1, boots, len(gt)))
     for b in range(boots):
-        import ipdb;ipdb.set_trace()
         gt = gt.take(indices_rs[0][b], axis=0)
         c, k = countN1N2N3Fast(gt, pops)
         T_hatlist.append(estimDiv(c, k, psmc, j))
