@@ -219,6 +219,8 @@ def calcCI(gt, pops, psmc, j, block, block_size):
 
 if __name__ == "__main__":
     popset = args.pops
+    psmc = args.piecewise
+    j = args.divtime
     # pop_ix = [tuple(map(int, x)) for x in popset]
     pop_ix = [list(map(int, x)) for x in popset]
     if args.outgroup:
@@ -231,6 +233,6 @@ if __name__ == "__main__":
         c, k = countN1N2N3MLE(gt, pop_ix)
     else:
         c, k = countN1N2N3Fast(gt, pop_ix)
-    T_hat = estimDiv(c, k, args.piecewise, args.divtime)
-    t_LCI, t_HCI = calcCI(gt, pop_ix, args.psmc, args.divtime, args.block, args.block_size)
+    T_hat = estimDiv(c, k, psmc, j)
+    t_LCI, t_HCI = calcCI(gt, pop_ix, psmc, j, args.block, args.block_size)
     print("{} in 2Ne gens ({} - {})".format(T_hat, t_LCI, t_HCI))
