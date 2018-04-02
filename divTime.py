@@ -167,6 +167,8 @@ def countN1N2N3Fast(gt, pops):
                     n2 = jsfs[0, 1] + jsfs[1, 1]
                     n3 = jsfs[0, 0] + jsfs[1, 2]
                 except IndexError:
+                    print("else statement")
+                    import ipdb;ipdb.set_trace()
                     z[:jsfs.shape[0], :jsfs.shape[1]] = jsfs
                     n1 = jsfs[0, 2] + jsfs[1, 0]
                     n2 = jsfs[0, 1] + jsfs[1, 1]
