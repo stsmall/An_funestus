@@ -18,7 +18,6 @@ import os.path
 import h5py
 import argparse
 
-# TODO: Numerical solver; PSMC/MSMC conversion
 # TODO: MLE check on k0, k1, c; email Slatkin
 
 parser = argparse.ArgumentParser()
@@ -29,9 +28,8 @@ parser.add_argument('-p', "--pops", nargs='+', action="append",
                     "-p 1 2 3 -g 6 7 8 -p 11 12 13")
 parser.add_argument('-o', "--outgroup", help="index of outgroup")
 parser.add_argument('-psmc', "--piecewise", help="use psmc for population"
-                    "size changes, if None then assumes constant")
-parser.add_argument('-j', "--divtime", help="a boundary where j < Tdiv < j+1"
-                    "in coalescent units")
+                    "size changes, if None then assumes constant. First run"
+                    "MSMC2ms-sts.py --msmc FOO")
 parser.add_argument("--boots", type=int, default=100,
                     help="number of bootstraps")
 parser.add_argument("--mle", action="store_true", help="use MLE, default is"
@@ -179,33 +177,31 @@ def countN1N2N3Fast(gt, pops):
     return(np.mean(clist), np.mean(klist))
 
 
-def estimDiv(c, k, psmc, j):
+def estimDiv(c, psmc, r, t):
     """Estimate divergence using eq 12
     """
+    N0 = 0
     if psmc:
-        try:
-            assert j is True
-        except AssertionError:
-            print('PSMC require divTime option, defaulting to Constant')
-            T_hat = -log(1-c)  # assumes constant popsize
-        # check MSlatkins mathematica code for setting this up
-        # check format of psmc, should be time in coalescent and then theta
-        # msmc needs to be transformed to match psmc input
-#        with open(psmc, 'r') as pw:
-#            for line in pw:
-#                pass
-#        psmc_t = [0, 1, 2, 3, 4, 5]
-#        psmc_N = [100, 200, 300, 500, 600]
-#        prodNis = [exp(-((psmc_t[t+1] - psmc_t[t]) / 2*N)) for t, N in enumerate(psmc_N[:j])]
-#        # not sure how to do numerical solving in python
-#        T_hat = 1 - exp((T - psmc_t[j]) / 2*psmc_N[j]) * prodNis  # numerically solve for T
-#        print("{}".format(T_hat/2*N0))
+        if not r:
+            # parse psmc
+            f = open(psmc, 'r')
+            line = f.readline().split("-eN ")
+            t = [float(i.split()[0]) for i in line[1:]]
+            r = [float(i.split()[1]) for i in line[1:]]
+            N0 = float(line[0].split()[1]) / float(line[0].split()[4])
+        i = 0
+        nc = 1.0
+        while (1-nc*exp(-(t[i+1]-t[i])/r[i])) < c:
+            nc *= exp(-(t[i+1]-t[i])/r[i])
+            i += 1
+        j = i
+        T_hat = -r[j]*log((1-c) / nc) + t[j]
     else:
         T_hat = -log(1-c)  # assumes constant popsize
-    return(T_hat)
+    return(r, t, N0, T_hat)
 
 
-def calcCI(gt, pops, psmc, j, boots):
+def calcCI(gt, pops, psmc, boots, r, t):
     """
     """
     print("Running bootstraps...")
@@ -213,10 +209,11 @@ def calcCI(gt, pops, psmc, j, boots):
     # random resampling
     indices_rs = np.random.randint(0, len(gt), (1, boots, len(gt)))
     for b in range(boots):
-        print("bootstrap number {}".format(b))
+        print("bootstrap number {}".format(b+1))
         gt = gt.take(indices_rs[0][b], axis=0)
         c, k = countN1N2N3Fast(gt, pops)
-        T_hatlist.append(estimDiv(c, k, psmc, j))
+        r, t, N0, T_hat = estimDiv(c, psmc, r, t)
+        T_hatlist.append(T_hat)
     # quantiles
     t_lowCI = np.percentile(T_hatlist, 0.025)
     t_highCI = np.percentile(T_hatlist, 0.975)
@@ -239,6 +236,9 @@ if __name__ == "__main__":
         c, k = countN1N2N3MLE(gt, pop_ix)
     else:
         c, k = countN1N2N3Fast(gt, pop_ix)
-    T_hat = estimDiv(c, k, psmc, j)
-    t_LCI, t_HCI = calcCI(gt, pop_ix, psmc, j, args.boots)
+    r = ''
+    t = ''
+    r, t, N0, T_hat = estimDiv(c, psmc, r, t)
+    t_LCI, t_HCI = calcCI(gt, pop_ix, psmc, args.boots, r, t)
     print("{} in 2Ne gens ({} - {})".format(T_hat, t_LCI, t_HCI))
+    print("theta at time 0: {}".format(N0))
