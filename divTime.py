@@ -94,7 +94,7 @@ def estimCandK(n1, n2, n3, mle):
         cons = [{'type': 'ineq', 'fun': lambda x: (1-x[1])+((x[0]*x[1])/3) - 1E-9},
                 {'type': 'ineq', 'fun': lambda x: (2*(1-x[0])*x[1])/3 - 1E-9},
                 {'type': 'ineq', 'fun': lambda x: ((1+x[0])*x[1])/3 - 1E-9}]
-        res = minimize(fun, (c_hat, k_hat), method="TNC", bounds=bnds)
+        res = minimize(fun, (c_hat, k_hat), method="SLSQP", bounds=bnds)
         c, k = res.x
     else:
         c = c_hat
