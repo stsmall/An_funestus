@@ -19,7 +19,6 @@ import allel
 from math import log as log
 from math import exp as exp
 from scipy.optimize import minimize
-from scipy.stats import multivariate_normal as mnorm
 from itertools import combinations
 import os.path
 import h5py
@@ -84,55 +83,26 @@ def filterGT(callset, pops, outgroup):
     return(gt)
 
 
-def estimation(obs, fun, init, method='Nelder-Mead'):
-    mle = lambda param: -np.sum(fun(*[obs, param]))
-    result = minimize(mle, init, method=method)
-    return result.x
-
-
-def estimCandK(n1, n2, n3):
+def estimCandK(n1, n2, n3, mle):
     """ML estimates of k and c
     """
-    obs = np.array([n1, n2, n3])  # this needs to looklike mvn data
-    n3m = np.mean(n3)
-    n2m = np.mean(n2)
-    n1m = np.mean(n1)
-    k_hat = .75 * ((2*n3m + n2m) / (n1m + n2m + n3m))
-    c_hat = (2*n3m - n2m) / (2*n3m + n2m)
-    init = [k_hat, c_hat]
-    # minimize the neg log lk of a mnorm by changing c and k
-    # p1 = (1 - k) + ((c*k) / 3)
-    # p2 = ((2*(1 - c)*k) / 3)
-    # p3 = (((1 + c)*k) / 3)
-    c, k = estimation(obs, lambda ob, p: mnorm.logpdf(ob, [(1 - p[0])+((p[1]*p[0]) / 3), ((2*(1 - p[1])*p[0]) / 3), (((1 + p[1])*p[0]) / 3)]), init)
+    k_hat = .75 * ((2*n3 + n2) / (n1 + n2 + n3))
+    c_hat = (2*n3 - n2) / (2*n3 + n2)
+    if mle:
+        fun = lambda x: -n1*np.log((1-x[1])+(x[0]*x[1])/3) + -n2*np.log((2*(1-x[0])*x[1])/3) + -n3*np.log(((1+x[0])*x[1])/3)
+        bnds = ((1E-9, 1-1E-9), (1E-9, 1-1E-9))
+        cons = [{'type': 'ineq', 'fun': lambda x: (1-x[1])+((x[0]*x[1])/3) - 1E-9},
+                {'type': 'ineq', 'fun': lambda x: (2*(1-x[0])*x[1])/3 - 1E-9},
+                {'type': 'ineq', 'fun': lambda x: ((1+x[0])*x[1])/3 - 1E-9}]
+        res = minimize(fun, (c_hat, k_hat), method="TNC", bounds=bnds)
+        c, k = res.x
+    else:
+        c = c_hat
+        k = k_hat
     return(c, k)
 
 
-def countN1N2N3MLE(gt, pops):
-    """Count patterns from VCF
-    """
-    # use allel to load a vcf, then count patterns of n1,n2,n3 for each
-    # combination and estimating k1 and c.
-    n1list = []
-    n2list = []
-    n3list = []
-    gtA = gt.take(pops[0], axis=1)
-    htA = gtA.to_haplotypes()
-    gtB = gt.take(pops[1], axis=1)
-    htB = gtB.to_haplotypes()
-    for hap1 in list(range(len(pops[0]))):
-        for hap2 in list(combinations(range(len(pops[1])), 2)):
-            ma = htA[:, [hap1]].count_alleles()
-            mb = htB[:, hap2].count_alleles()
-            jsfs = allel.joint_sfs(ma[:, 1], mb[:, 1])
-            n1list.append(jsfs[0, 2] + jsfs[1, 0])
-            n2list.append(jsfs[0, 1] + jsfs[1, 1])
-            n3list.append(jsfs[0, 0] + jsfs[1, 2])
-    c, k = estimCandK(n1list, n2list, n3list)
-    return(c, k)
-
-
-def countN1N2N3Fast(gt, pops):
+def countN1N2N3(gt, pops, mle):
     """
     """
     clist = []
@@ -158,9 +128,7 @@ def countN1N2N3Fast(gt, pops):
                 n1 = z[0, 2] + z[1, 0]
                 n2 = z[0, 1] + z[1, 1]
                 n3 = z[0, 0] + z[1, 2]
-            # fast approx
-            k_hat = .75 * ((2*n3 + n2) / (n1 + n2 + n3))
-            c_hat = (2*n3 - n2) / (2*n3 + n2)
+            c_hat, k_hat = estimCandK(n1, n2, n3, mle)
             clist.append(c_hat)
             klist.append(k_hat)
     else:
@@ -180,9 +148,7 @@ def countN1N2N3Fast(gt, pops):
                     n1 = z[0, 2] + z[1, 0]
                     n2 = z[0, 1] + z[1, 1]
                     n3 = z[0, 0] + z[1, 2]
-                # fast approx
-                k_hat = .75 * ((2*n3 + n2) / (n1 + n2 + n3))
-                c_hat = (2*n3 - n2) / (2*n3 + n2)
+                c_hat, k_hat = estimCandK(n1, n2, n3, mle)
                 clist.append(c_hat)
                 klist.append(k_hat)
     return(np.mean(clist), np.mean(klist))
@@ -226,7 +192,7 @@ def calcCI(gt, pops, psmc, boots, r, t):
     for b in range(boots):
         print("bootstrap number {}".format(b+1))
         gt = gt.take(indices_rs[0][b], axis=0)
-        c, k = countN1N2N3Fast(gt, pops)
+        c, k = countN1N2N3(gt, pops)
         r, t, N0, T_hat = estimDiv(c, psmc, r, t)
         T_hatlist.append(T_hat)
     # quantiles
@@ -246,10 +212,7 @@ if __name__ == "__main__":
         outgroup_ix = ''
     callset = loadvcf(args.vcfFile)
     gt = filterGT(callset, pop_ix, outgroup_ix)
-    if args.mle:
-        c, k = countN1N2N3MLE(gt, pop_ix)
-    else:
-        c, k = countN1N2N3Fast(gt, pop_ix)
+    c, k = countN1N2N3(gt, pop_ix, args.mle)
     print("c_hat = {}; k1_hat = {}".format(c, k))
     r = ''
     t = ''
