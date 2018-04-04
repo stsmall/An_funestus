@@ -197,14 +197,16 @@ def estimDiv(c, psmc, r, t):
             f = open(psmc, 'r')
             line = f.readline().split("-eN ")
             t = [float(i.split()[0]) for i in line[1:]]
+            t.insert(0, 0.0)
             r = [float(i.split()[1]) for i in line[1:]]
             N0 = float(line[0].split()[1]) / float(line[0].split()[4])
+            r.insert(0, N0)
         i = 0
         nc = 1.0
         while (1-nc*exp(-(t[i+1]-t[i])/r[i])) < c:
             nc *= exp(-(t[i+1]-t[i])/r[i])
             i += 1
-            print("c:{}, t[i]:{}, t[i+1]:{}, r[i]:{}, nc:{}".format(c, t[i], t[i+1], r[i], nc))
+            print("i:{}, t[i]:{}, t[i+1]:{}, r[i]:{}, nc:{}".format(i, t[i], t[i+1], r[i], nc))
         j = i
         print("j:{}, nc:{}, 1-nc:{}".format(j, nc, 1-nc))
         T_hat = -r[j]*log((1-c) / nc) + t[j]
