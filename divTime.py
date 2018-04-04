@@ -24,6 +24,9 @@ from itertools import combinations
 import os.path
 import h5py
 import argparse
+import sys
+if sys.version_info[0] < 3:
+    raise "Must be using Python 3"
 
 # TODO: MLE check on k0, k1, c; email Slatkin
 
@@ -230,7 +233,6 @@ def calcCI(gt, pops, psmc, boots, r, t):
 if __name__ == "__main__":
     popset = args.pops
     msmc = args.piecewise
-    j = args.divtime
     # pop_ix = [tuple(map(int, x)) for x in popset]
     pop_ix = [list(map(int, x)) for x in popset]
     if args.outgroup:
