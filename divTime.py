@@ -123,15 +123,15 @@ def countN1N2N3(gt, pops, mle):
             mb = htB[:, hap2].count_alleles(max_allele=1)
             jsfs = allel.joint_sfs(ma[:, 1], mb[:, 1])
             try:
-                n1 = jsfs[0, 2] + jsfs[1, 0]
+                n3 = jsfs[0, 2] + jsfs[1, 0]
                 n2 = jsfs[0, 1] + jsfs[1, 1]
-                n3 = jsfs[0, 0] + jsfs[1, 2]
+                n1 = jsfs[0, 0] + jsfs[1, 2]
             except IndexError:
                 z = np.zeros((2, 3), dtype=int)
                 z[:jsfs.shape[0], :jsfs.shape[1]] = jsfs
-                n1 = z[0, 2] + z[1, 0]
+                n3 = z[0, 2] + z[1, 0]
                 n2 = z[0, 1] + z[1, 1]
-                n3 = z[0, 0] + z[1, 2]
+                n1 = z[0, 0] + z[1, 2]
             c_hat, k_hat = estimCandK(n1, n2, n3, mle)
             clist.append(c_hat)
             klist.append(k_hat)
@@ -144,15 +144,15 @@ def countN1N2N3(gt, pops, mle):
                 jsfs = allel.joint_sfs(ma[:, 1], mb[:, 1])
                 import ipdb;ipdb.set_trace()
                 try:
-                    n1 = jsfs[0, 2] + jsfs[1, 0]
+                    n3 = jsfs[0, 2] + jsfs[1, 0]
                     n2 = jsfs[0, 1] + jsfs[1, 1]
-                    n3 = jsfs[0, 0] + jsfs[1, 2]
+                    n1 = jsfs[0, 0] + jsfs[1, 2]
                 except IndexError:
                     z = np.zeros((2, 3), dtype=int)
                     z[:jsfs.shape[0], :jsfs.shape[1]] = jsfs
-                    n1 = z[0, 2] + z[1, 0]
+                    n3 = z[0, 2] + z[1, 0]
                     n2 = z[0, 1] + z[1, 1]
-                    n3 = z[0, 0] + z[1, 2]
+                    n1 = z[0, 0] + z[1, 2]
                 c_hat, k_hat = estimCandK(n1, n2, n3, mle)
                 clist.append(c_hat)
                 klist.append(k_hat)
