@@ -2,9 +2,16 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu Mar 29 17:41:02 2018
-divTime.py -v VCF -p 1 2 3 4 -p 5 6 7 8 -o 10 11 12 -psmc FILE -N0 10000 --divtime 0.5 [--mle]
-uses method from Theunert and Slatkin : Estimation of population divergence
+Uses method from Theunert and Slatkin : Estimation of population divergence
 times from SNP data and a test for treeness.doi: https://doi.org/10.1101/281881
+
+Usage:
+divTime.py -v VCF -p 1 2 -p 5 6 -o 10 -msmc FILE [--mle] [--boots INT]
+
+IMPORTANT: the file passed as -msmc should be in an ms formatted line.
+You should use MSMC2ms-sts.py --msmc FOO > ms_format.out to make this file.
+script is available at https://github.com/stsmall/Wb_sWGA
+
 @author: stsmall
 """
 import numpy as np
@@ -27,10 +34,10 @@ parser.add_argument('-p', "--pops", nargs='+', action="append",
                     required=True, help="index of populations"
                     "-p 1 2 3 -g 6 7 8 -p 11 12 13")
 parser.add_argument('-o', "--outgroup", help="index of outgroup")
-parser.add_argument('-psmc', "--piecewise", help="use psmc for population"
+parser.add_argument('-msmc', "--piecewise", help="use psmc for population"
                     "size changes, if None then assumes constant. First run"
                     "MSMC2ms-sts.py --msmc FOO")
-parser.add_argument("--boots", type=int, default=100,
+parser.add_argument("--boots", type=int, default=0,
                     help="number of bootstraps")
 parser.add_argument("--mle", action="store_true", help="use MLE, default is"
                     "fast approx. MLE requires larger popsizes")
@@ -222,7 +229,7 @@ def calcCI(gt, pops, psmc, boots, r, t):
 
 if __name__ == "__main__":
     popset = args.pops
-    psmc = args.piecewise
+    msmc = args.piecewise
     j = args.divtime
     # pop_ix = [tuple(map(int, x)) for x in popset]
     pop_ix = [list(map(int, x)) for x in popset]
@@ -238,7 +245,10 @@ if __name__ == "__main__":
         c, k = countN1N2N3Fast(gt, pop_ix)
     r = ''
     t = ''
-    r, t, N0, T_hat = estimDiv(c, psmc, r, t)
-    t_LCI, t_HCI = calcCI(gt, pop_ix, psmc, args.boots, r, t)
-    print("{} in 2Ne gens ({} - {})".format(T_hat, t_LCI, t_HCI))
+    r, t, N0, T_hat = estimDiv(c, msmc, r, t)
+    if args.boots > 0:
+        t_LCI, t_HCI = calcCI(gt, pop_ix, msmc, args.boots, r, t)
+        print("{} in 2Ne gens ({} - {})".format(T_hat, t_LCI, t_HCI))
+    else:
+        print("{} in 2Ne gens".format(T_hat))
     print("theta at time 0: {}".format(N0))
