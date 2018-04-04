@@ -241,7 +241,7 @@ if __name__ == "__main__":
     # pop_ix = [tuple(map(int, x)) for x in popset]
     pop_ix = [list(map(int, x)) for x in popset]
     if args.outgroup:
-        outgroup_ix = list(map(int, args.outgroup))
+        outgroup_ix = [list(map(int, x)) for x in popset]
     else:
         outgroup_ix = ''
     callset = loadvcf(args.vcfFile)
