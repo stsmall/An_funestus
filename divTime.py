@@ -144,7 +144,6 @@ def countN1N2N3(gt, pops, mle):
                 mb = htB[:, hap2].count_alleles(max_allele=1)
                 z = np.zeros((2, 3), dtype=int)
                 jsfs = allel.joint_sfs(ma[:, 1], mb[:, 1])
-                import ipdb;ipdb.set_trace()
                 try:
                     n3 = jsfs[0, 2] + jsfs[1, 0]
                     n2 = jsfs[0, 1] + jsfs[1, 1]
