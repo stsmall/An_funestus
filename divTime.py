@@ -27,8 +27,6 @@ import sys
 if sys.version_info[0] < 3:
     raise "Must be using Python 3"
 
-# TODO: MLE check on k0, k1, c; email Slatkin
-
 parser = argparse.ArgumentParser()
 parser.add_argument('-v', "--vcfFile", type=str, required=True,
                     help="vcf file of variants")
@@ -93,12 +91,14 @@ def estimCandK(n1, n2, n3, mle):
         bnds = ((1E-9, 1-1E-9), (1E-9, 1-1E-9))
         cons = [{'type': 'ineq', 'fun': lambda x: (1-x[1])+((x[0]*x[1])/3) - 1E-9},
                 {'type': 'ineq', 'fun': lambda x: (2*(1-x[0])*x[1])/3 - 1E-9},
-                {'type': 'ineq', 'fun': lambda x: ((1+x[0])*x[1])/3 - 1E-9}]
-        res = minimize(fun, (c_hat, k_hat), method="SLSQP", bounds=bnds)
+                {'type': 'ineq', 'fun': lambda x: ((1+x[0])*x[1])/3 - 1E-9},
+                {'type': 'ineq', 'fun': lambda x: -x[1] + 1}]
+        res = minimize(fun, (c_hat, k_hat), method="SLSQP", constraints=cons, bounds=bnds)
         c, k = res.x
     else:
         c = c_hat
         k = k_hat
+    import ipdb;ipdb.set_trace()
     return(c, k)
 
 
