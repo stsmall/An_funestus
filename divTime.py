@@ -200,7 +200,7 @@ def estimDiv(c, psmc, r, t):
             t.insert(0, 0.0)
             r = [float(i.split()[1]) for i in line[1:]]
             N0 = float(line[0].split()[1]) / float(line[0].split()[4])
-            r.insert(0, N0)
+            r.insert(0, 1.0)
         i = 0
         nc = 1.0
         while (1-nc*exp(-(t[i+1]-t[i])/r[i])) < c:
