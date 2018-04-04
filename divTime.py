@@ -14,6 +14,7 @@ script is available at https://github.com/stsmall/Wb_sWGA
 
 @author: stsmall
 """
+import sys
 if sys.version_info[0] < 3:
     raise "Must be using Python 3"
 import numpy as np
@@ -25,7 +26,7 @@ from itertools import combinations
 import os.path
 import h5py
 import argparse
-import sys
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-v', "--vcfFile", type=str, required=True,
