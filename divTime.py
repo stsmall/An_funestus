@@ -35,7 +35,7 @@ parser.add_argument('-v', "--vcfFile", type=str, required=True,
                     help="vcf file of variants")
 parser.add_argument('-p', "--pops", nargs='+', action="append",
                     required=True, help="index of populations"
-                    "-p 1 2 3 -g 6 7 8 -p 11 12 13")
+                    "-p 1 2 3 -p 6 7 8")
 parser.add_argument('-o', "--outgroup", help="index of outgroup")
 parser.add_argument('-msmc', "--piecewise", help="use psmc for population"
                     "size changes, if None then assumes constant. First run"
@@ -206,9 +206,9 @@ def estimDiv(c, psmc, r, t):
         while (1-nc*exp(-(t[i+1]-t[i])/r[i])) < c:
             nc *= exp(-(t[i+1]-t[i])/r[i])
             i += 1
-            print("i:{}, t[i]:{}, t[i+1]:{}, r[i]:{}, nc:{}".format(i, t[i], t[i+1], r[i], nc))
+            #print("i:{}, t[i]:{}, t[i+1]:{}, r[i]:{}, nc:{}".format(i, t[i], t[i+1], r[i], nc))
         j = i
-        print("j:{}, nc:{}, 1-nc:{}".format(j, nc, 1-nc))
+        print("nc = {}, 1-nc = {}".format(nc, 1-nc))
         T_hat = -r[j]*log((1-c) / nc) + t[j]
     else:
         T_hat = -log(1-c)  # assumes constant popsize
@@ -249,6 +249,7 @@ if __name__ == "__main__":
         c, k = countN1N2N3MLE(gt, pop_ix)
     else:
         c, k = countN1N2N3Fast(gt, pop_ix)
+    print("c_hat = {}; k1_hat = {}".format(c, k))
     r = ''
     t = ''
     r, t, N0, T_hat = estimDiv(c, msmc, r, t)
