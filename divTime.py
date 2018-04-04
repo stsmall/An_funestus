@@ -69,7 +69,6 @@ def filterGT(callset, pops, outgroup):
     gt = allel.GenotypeArray(callset['calldata/GT'])
     if outgroup:
         # filter on outgroup pop
-        import ipdb;ipdb.set_trace()
         acs = gt[:, outgroup].count_alleles(max_allele=1)
         flt = acs.is_segregating()
     else:
@@ -242,7 +241,7 @@ if __name__ == "__main__":
     # pop_ix = [tuple(map(int, x)) for x in popset]
     pop_ix = [list(map(int, x)) for x in popset]
     if args.outgroup:
-        outgroup_ix = [list(map(int, x)) for x in args.outgroup]
+        outgroup_ix = [list(map(int, x)) for x in args.outgroup][0]
     else:
         outgroup_ix = ''
     callset = loadvcf(args.vcfFile)
