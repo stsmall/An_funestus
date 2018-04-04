@@ -94,7 +94,7 @@ def estimCandK(n1, n2, n3, mle):
                 {'type': 'ineq', 'fun': lambda x: (2*(1-x[0])*x[1])/3 - 1E-9},
                 {'type': 'ineq', 'fun': lambda x: ((1+x[0])*x[1])/3 - 1E-9},
                 {'type': 'ineq', 'fun': lambda x: -x[1] + 1}]
-        if k_hat > 1 or c_hat > 1:
+        if k_hat >= 1 or c_hat >= 1 or k_hat <= 0 or c_hat <= 0:
             # res = minimize(fun, (.5, .5), method="TNC", bounds=bnds)
             res = minimize(fun, (np.random.rand(), np.random.rand()), method="SLSQP", constraints=cons, bounds=bnds)
             while not res.success:
