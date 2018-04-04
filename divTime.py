@@ -204,7 +204,9 @@ def estimDiv(c, psmc, r, t):
         while (1-nc*exp(-(t[i+1]-t[i])/r[i])) < c:
             nc *= exp(-(t[i+1]-t[i])/r[i])
             i += 1
+            print("c:{}, t[i]:{}, t[i+1]:{}, r[i]:{}, nc:{}".format(c, t[i], t[i+1], r[i], nc))
         j = i
+        print("j:{}, nc:{}, 1-nc:{}".format(j, nc, 1-nc))
         T_hat = -r[j]*log((1-c) / nc) + t[j]
     else:
         T_hat = -log(1-c)  # assumes constant popsize
@@ -253,4 +255,5 @@ if __name__ == "__main__":
         print("{} in 2Ne gens ({} - {})".format(T_hat, t_LCI, t_HCI))
     else:
         print("{} in 2Ne gens".format(T_hat))
-    print("theta at time 0: {}".format(N0))
+    if N0 > 0:
+        print("theta at time 0: {}".format(N0))
