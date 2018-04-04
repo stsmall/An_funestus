@@ -36,7 +36,8 @@ parser.add_argument('-v', "--vcfFile", type=str, required=True,
 parser.add_argument('-p', "--pops", nargs='+', action="append",
                     required=True, help="index of populations"
                     "-p 1 2 3 -p 6 7 8")
-parser.add_argument('-o', "--outgroup", help="index of outgroup")
+parser.add_argument('-o', "--outgroup", nargs='+', action="append",
+                    help="index of outgroup")
 parser.add_argument('-msmc', "--piecewise", help="use psmc for population"
                     "size changes, if None then assumes constant. First run"
                     "MSMC2ms-sts.py --msmc FOO")
