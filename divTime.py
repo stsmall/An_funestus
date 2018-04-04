@@ -102,7 +102,6 @@ def estimCandK(n1, n2, n3, mle):
     else:
         c = c_hat
         k = k_hat
-    import ipdb;ipdb.set_trace()
     return(c, k)
 
 
