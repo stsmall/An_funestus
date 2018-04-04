@@ -14,6 +14,8 @@ script is available at https://github.com/stsmall/Wb_sWGA
 
 @author: stsmall
 """
+if sys.version_info[0] < 3:
+    raise "Must be using Python 3"
 import numpy as np
 import allel
 from math import log as log
@@ -24,8 +26,6 @@ import os.path
 import h5py
 import argparse
 import sys
-if sys.version_info[0] < 3:
-    raise "Must be using Python 3"
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-v', "--vcfFile", type=str, required=True,
@@ -141,6 +141,7 @@ def countN1N2N3(gt, pops, mle):
                 mb = htB[:, hap2].count_alleles(max_allele=1)
                 z = np.zeros((2, 3), dtype=int)
                 jsfs = allel.joint_sfs(ma[:, 1], mb[:, 1])
+                import ipdb;ipdb.set_trace()
                 try:
                     n1 = jsfs[0, 2] + jsfs[1, 0]
                     n2 = jsfs[0, 1] + jsfs[1, 1]
