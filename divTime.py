@@ -99,6 +99,8 @@ def estimCandK(n1, n2, n3, mle):
             res = minimize(fun, (np.random.rand(), np.random.rand()), method="SLSQP", constraints=cons, bounds=bnds)
             while not res.success:
                 res = minimize(fun, (np.random.rand(), np.random.rand()), method="SLSQP", constraints=cons, bounds=bnds)
+        else:
+            res = minimize(fun, (c_hat, k_hat), method="SLSQP", constraints=cons, bounds=bnds)
         c, k = res.x
     else:
         c = c_hat
