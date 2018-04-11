@@ -31,7 +31,7 @@ def chunkVCF(vcfFile, chunk_size):
                     sitedict[i].append(line)
                     try:
                         line = vcf.next()
-                    except EOFError:
+                    except StopIteration:
                         break
                     j += 1
                 i += 1
