@@ -36,7 +36,7 @@ def chunkVCF(vcfFile, chunk_size):
                     j += 1
                 i += 1
     for k in sitedict.keys():
-        f = open("{}.{}.vcf".format(vcfFile, k), 'w')
+        f = open("{}.chunk_{}".format(vcfFile, k), 'w')
         for h in header:
             f.write(h)
         for snp in sitedict[k]:
