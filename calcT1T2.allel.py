@@ -194,22 +194,139 @@ def windowPattern(windict, size, chrom):
     return(None)
 
 
+def countPatternDFOIL(callset, sample_ix, outgroup):
+    """Count patterns for all samples
+    """
+    print("counting patterns in file...")
+    gt = allel.GenotypeArray(callset['calldata/GT'])
+    pos = allel.SortedIndex(callset['variants/POS'])
+    # remove any sites where outgroup is ./. or 0/1
+    keep = gt[:, outgroup].is_hom() & gt.count_alleles().is_biallelic()
+    gt = gt.compress(keep, axis=0)
+    pos = pos[keep]
+    # permute among all sample indexes, list of lists
+    # [[1,2,3,4,5],[6,7,8,9],[12,14,15,16]]
+    windict = {}
+    permute = 1
+    g1, g2, g3 = sample_ix
+    quartet = list(product(g1, g2, g3))
+    print("total number of combinations: {}".format(len(quartet)))
+    for quart in quartet:
+        print("permutation number {}".format(permute))
+        i, j, k = quart
+        gt_sub = gt.take([i, j, k, outgroup], axis=1)
+        keep = gt_sub.is_hom().all(axis=1)
+        gt_sub = gt_sub.compress(keep, axis=0)
+        pos_sub = pos[keep]
+        count_array = gt_sub.is_hom_alt()
+        pattern_array = np.packbits(count_array, axis=1)
+        # windows
+        windict[permute] = (pos_sub, pattern_array)
+        permute += 1
+    return(windict)
+
+
+def windowPatternDFOIL(windict, size, chrom):
+    """
+    """
+    print("printing patterns to file...")
+    patterndict = defaultdict(list)
+    # windowT1 = defaultdict(list)
+    # windowT2 = defaultdict(list)
+    for k in windict.keys():
+        start = 0
+        step = size
+        end = start + size
+        try:
+            pos_array = windict[k][0]
+            last = pos_array[-1]
+        except IndexError:
+            continue
+        while end < last:
+            start_ix = bisect.bisect_left(pos_array, start)
+            end_ix = bisect.bisect_left(pos_array, end)
+            try:
+                pattern_array = windict[k][1][start_ix:end_ix]
+                calc_patterns = np.unique(pattern_array, return_counts=True)
+                d = {n: calc_patterns[1][i] for i, n in enumerate(calc_patterns[0])}
+                # total counts
+                n_AAAAA = d.get(0, 0) + d.get(248, 0)  # FFFFF TTTTT
+                n_AAABA = d.get(16, 0) + d.get(232, 0)  # FFFTF TTTFT
+                n_AABAA = d.get(32, 0) + d.get(216, 0)  # FFTFF TTFTT
+                n_AABBA = d.get(48, 0) + d.get(200, 0)  # FFTTF TTFFT
+                n_ABAAA = d.get(64, 0) + d.get(184, 0)  # FTFFF TFTTT
+                n_ABABA = d.get(80, 0) + d.get(168, 0)  # FTFTF TFTFT
+                n_ABBAA = d.get(96, 0) + d.get(152, 0)  # FTTFF TFFTT
+                n_ABBBA = d.get(112, 0) + d.get(136, 0)  # FTTTF TFFFT
+                n_BAAAA = d.get(128, 0) + d.get(120, 0)  # TFFFF FTTTT
+                n_BAABA = d.get(144, 0) + d.get(104, 0)  # TFFTF FTTFT
+                n_BABAA = d.get(160, 0) + d.get(88, 0)  # TFTFF FTFTT
+                n_BABBA = d.get(176, 0) + d.get(72, 0)  # TFTTF FTFFT
+                n_BBAAA = d.get(192, 0) + d.get(56, 0)  # TTFFF FFTTT
+                n_BBABA = d.get(208, 0) + d.get(40, 0)  # TTFTF FFTFT
+                n_BBBAA = d.get(224, 0) + d.get(24, 0)  # TTTFF FFFTT
+                n_BBBBA = d.get(8, 0) + d.get(240, 0)  # FFFFT TTTTF
+
+            except IndexError:
+                pattern_array = windict[k][1][start_ix:]
+                calc_patterns = np.unique(pattern_array, return_counts=True)
+                d = {n: calc_patterns[1][i] for i, n in enumerate(calc_patterns[0])}
+                # total counts
+                n_AAAAA = d.get(0, 0) + d.get(248, 0)  # FFFFF TTTTT
+                n_AAABA = d.get(16, 0) + d.get(232, 0)  # FFFTF TTTFT
+                n_AABAA = d.get(32, 0) + d.get(216, 0)  # FFTFF TTFTT
+                n_AABBA = d.get(48, 0) + d.get(200, 0)  # FFTTF TTFFT
+                n_ABAAA = d.get(64, 0) + d.get(184, 0)  # FTFFF TFTTT
+                n_ABABA = d.get(80, 0) + d.get(168, 0)  # FTFTF TFTFT
+                n_ABBAA = d.get(96, 0) + d.get(152, 0)  # FTTFF TFFTT
+                n_ABBBA = d.get(112, 0) + d.get(136, 0)  # FTTTF TFFFT
+                n_BAAAA = d.get(128, 0) + d.get(120, 0)  # TFFFF FTTTT
+                n_BAABA = d.get(144, 0) + d.get(104, 0)  # TFFTF FTTFT
+                n_BABAA = d.get(160, 0) + d.get(88, 0)  # TFTFF FTFTT
+                n_BABBA = d.get(176, 0) + d.get(72, 0)  # TFTTF FTFFT
+                n_BBAAA = d.get(192, 0) + d.get(56, 0)  # TTFFF FFTTT
+                n_BBABA = d.get(208, 0) + d.get(40, 0)  # TTFTF FFTFT
+                n_BBBAA = d.get(224, 0) + d.get(24, 0)  # TTTFF FFFTT
+                n_BBBBA = d.get(8, 0) + d.get(240, 0)  # FFFFT TTTTF
+            patterndict[end].append((n_AAAAA, n_AAABA, n_AABAA, n_AABBA,
+                                     n_ABAAA, n_ABABA, n_ABBAA, n_ABBBA,
+                                     n_BAAAA, n_BAABA, n_BABAA, n_BABBA,
+                                     n_BBAAA, n_BBABA, n_BBBAA, n_BBBBA))
+            start += step
+            end += step
+    # write to file
+    wfile = open("dfoil.tbl", 'w')
+    headers = ['AAAAA', 'AAABA', 'AABAA', 'AABBA',
+               'ABAAA', 'ABABA', 'ABBAA', 'ABBBA',
+               'BAAAA', 'BAABA', 'BABAA', 'BABBA',
+               'BBAAA', 'BBABA', 'BBBAA', 'BBBBA']
+    wfile.write("chrom\tpos\t{}\n".format('\t'.join(headers)))
+    ordered_keys = sorted(list(patterndict.keys()))
+    for pos in ordered_keys:
+        count_mean = np.mean(list(zip(*patterndict[pos])), axis=1)
+        wfile.write("{}\t{}\t{}\n".format(chrom, pos, "\t".join(map(str, count_mean))))
+    wfile.close()
+    return(None)
+
+
 if __name__ == "__main__":
-    dfoil = False
     groups = args.groups
     quart_ix = [list(map(int, x)) for x in groups]
     outgroup_ix = int(args.outgroup)
     vcfFile = args.vcfFile
     size = args.size
     callset, chrom = loadvcf(vcfFile)
-    t1t2dict, windict = countPattern(callset, quart_ix, outgroup_ix)
-    i, j, k = list(zip(*t1t2dict["t1"]))
-    m, n, p = list(zip(*t1t2dict["t2"]))
-    print("(AB)C: {}".format(np.mean(i)))
-    print("(BC)A: {}".format(np.mean(j)))
-    print("(AC)B: {}".format(np.mean(k)))
-    print("AB: {}".format(np.mean(m)))
-    print("BC: {}".format(np.mean(n)))
-    print("AC: {}".format(np.mean(p)))
-    if dfoil:
+    if len(quart_ix) > 3:
+        windict = countPatternDFOIL(callset, quart_ix, outgroup_ix)
+        windowPatternDFOIL(windict, size, chrom)
+    else:
+        t1t2dict, windict = countPattern(callset, quart_ix, outgroup_ix)
+        i, j, k = list(zip(*t1t2dict["t1"]))
+        m, n, p = list(zip(*t1t2dict["t2"]))
+        print("(AB)C: {}".format(np.mean(i)))
+        print("(BC)A: {}".format(np.mean(j)))
+        print("(AC)B: {}".format(np.mean(k)))
+        print("AB: {}".format(np.mean(m)))
+        print("BC: {}".format(np.mean(n)))
+        print("AC: {}".format(np.mean(p)))
         windowPattern(windict, size, chrom)
