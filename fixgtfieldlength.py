@@ -7,8 +7,9 @@ Merging from fastphase seems to muck up the field count, causing errors
     should be added to addphased2vcf.py as a check
 @author: scott
 """
-
+import sys
 import argparse
+assert sys.version_info < (3, 0)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-v', '--vcf',
@@ -26,7 +27,7 @@ def fixGTFieldLength(vcfFile):
                 f.write(line)
             else:
                 x = line.split()
-                for sample in x[9:]:
+                for sample in range(9, len(x[9:])+1):
                     gt = x[sample].split(":")
                     if len(gt) > 5:
                         gt = gt[:5]
