@@ -28,6 +28,7 @@ def fixGTFieldLength(vcfFile):
             else:
                 x = line.split()
                 for sample in range(9, len(x[9:])+1):
+                    import ipdb;ipdb.set_trace()
                     gt = x[sample].split(":")
                     if len(gt) > 5:
                         gt = gt[:5]
