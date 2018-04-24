@@ -300,7 +300,7 @@ def windowPatternDFOIL(windict, size, chrom):
                'ABAAA', 'ABABA', 'ABBAA', 'ABBBA',
                'BAAAA', 'BAABA', 'BABAA', 'BABBA',
                'BBAAA', 'BBABA', 'BBBAA', 'BBBBA']
-    wfile.write("chrom\tpos\t{}\n".format('\t'.join(headers)))
+    wfile.write("#chrom\tpos\t{}\n".format('\t'.join(headers)))
     ordered_keys = sorted(list(patterndict.keys()))
     for pos in ordered_keys:
         count_mean = int(np.round(np.mean(list(zip(*patterndict[pos])), axis=1)))
