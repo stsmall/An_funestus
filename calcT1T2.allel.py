@@ -25,7 +25,7 @@ parser.add_argument('-g', "--groups", nargs='+', action="append",
                     "-g 1 2 3 -g 6 7 8 -g 11 12 13")
 parser.add_argument('-o', "--outgroup", required=True,
                     help="index of outgroup")
-parser.add_argument('-s', "--size", type=int, default=10000,
+parser.add_argument('-s', "--size", type=int, default=0,
                     help="size of window for calculations")
 parser.add_argument('-P', "--permutations", type=int, default=0,
                     help="number of permutations, default is all")
@@ -242,58 +242,84 @@ def windowPatternDFOIL(windict, size, chrom):
             last = pos_array[-1]
         except IndexError:
             continue
-        while end < last:
-            start_ix = bisect.bisect_left(pos_array, start)
-            end_ix = bisect.bisect_left(pos_array, end)
-            try:
-                pattern_array = windict[k][1][start_ix:end_ix]
-                calc_patterns = np.unique(pattern_array, return_counts=True)
-                d = {n: calc_patterns[1][i] for i, n in enumerate(calc_patterns[0])}
-                # total counts
-                n_AAAAA = d.get(0, 0) + d.get(248, 0)  # FFFFF TTTTT
-                n_AAABA = d.get(16, 0) + d.get(232, 0)  # FFFTF TTTFT
-                n_AABAA = d.get(32, 0) + d.get(216, 0)  # FFTFF TTFTT
-                n_AABBA = d.get(48, 0) + d.get(200, 0)  # FFTTF TTFFT
-                n_ABAAA = d.get(64, 0) + d.get(184, 0)  # FTFFF TFTTT
-                n_ABABA = d.get(80, 0) + d.get(168, 0)  # FTFTF TFTFT
-                n_ABBAA = d.get(96, 0) + d.get(152, 0)  # FTTFF TFFTT
-                n_ABBBA = d.get(112, 0) + d.get(136, 0)  # FTTTF TFFFT
-                n_BAAAA = d.get(128, 0) + d.get(120, 0)  # TFFFF FTTTT
-                n_BAABA = d.get(144, 0) + d.get(104, 0)  # TFFTF FTTFT
-                n_BABAA = d.get(160, 0) + d.get(88, 0)  # TFTFF FTFTT
-                n_BABBA = d.get(176, 0) + d.get(72, 0)  # TFTTF FTFFT
-                n_BBAAA = d.get(192, 0) + d.get(56, 0)  # TTFFF FFTTT
-                n_BBABA = d.get(208, 0) + d.get(40, 0)  # TTFTF FFTFT
-                n_BBBAA = d.get(224, 0) + d.get(24, 0)  # TTTFF FFFTT
-                n_BBBBA = d.get(8, 0) + d.get(240, 0)  # FFFFT TTTTF
-
-            except IndexError:
-                pattern_array = windict[k][1][start_ix:]
-                calc_patterns = np.unique(pattern_array, return_counts=True)
-                d = {n: calc_patterns[1][i] for i, n in enumerate(calc_patterns[0])}
-                # total counts
-                n_AAAAA = d.get(0, 0) + d.get(248, 0)  # FFFFF TTTTT
-                n_AAABA = d.get(16, 0) + d.get(232, 0)  # FFFTF TTTFT
-                n_AABAA = d.get(32, 0) + d.get(216, 0)  # FFTFF TTFTT
-                n_AABBA = d.get(48, 0) + d.get(200, 0)  # FFTTF TTFFT
-                n_ABAAA = d.get(64, 0) + d.get(184, 0)  # FTFFF TFTTT
-                n_ABABA = d.get(80, 0) + d.get(168, 0)  # FTFTF TFTFT
-                n_ABBAA = d.get(96, 0) + d.get(152, 0)  # FTTFF TFFTT
-                n_ABBBA = d.get(112, 0) + d.get(136, 0)  # FTTTF TFFFT
-                n_BAAAA = d.get(128, 0) + d.get(120, 0)  # TFFFF FTTTT
-                n_BAABA = d.get(144, 0) + d.get(104, 0)  # TFFTF FTTFT
-                n_BABAA = d.get(160, 0) + d.get(88, 0)  # TFTFF FTFTT
-                n_BABBA = d.get(176, 0) + d.get(72, 0)  # TFTTF FTFFT
-                n_BBAAA = d.get(192, 0) + d.get(56, 0)  # TTFFF FFTTT
-                n_BBABA = d.get(208, 0) + d.get(40, 0)  # TTFTF FFTFT
-                n_BBBAA = d.get(224, 0) + d.get(24, 0)  # TTTFF FFFTT
-                n_BBBBA = d.get(8, 0) + d.get(240, 0)  # FFFFT TTTTF
+        if size == 0:
+            pattern_array = windict[k][1]
+            calc_patterns = np.unique(pattern_array, return_counts=True)
+            d = {n: calc_patterns[1][i] for i, n in enumerate(calc_patterns[0])}
+            # total counts
+            n_AAAAA = d.get(0, 0) + d.get(248, 0)  # FFFFF TTTTT
+            n_AAABA = d.get(16, 0) + d.get(232, 0)  # FFFTF TTTFT
+            n_AABAA = d.get(32, 0) + d.get(216, 0)  # FFTFF TTFTT
+            n_AABBA = d.get(48, 0) + d.get(200, 0)  # FFTTF TTFFT
+            n_ABAAA = d.get(64, 0) + d.get(184, 0)  # FTFFF TFTTT
+            n_ABABA = d.get(80, 0) + d.get(168, 0)  # FTFTF TFTFT
+            n_ABBAA = d.get(96, 0) + d.get(152, 0)  # FTTFF TFFTT
+            n_ABBBA = d.get(112, 0) + d.get(136, 0)  # FTTTF TFFFT
+            n_BAAAA = d.get(128, 0) + d.get(120, 0)  # TFFFF FTTTT
+            n_BAABA = d.get(144, 0) + d.get(104, 0)  # TFFTF FTTFT
+            n_BABAA = d.get(160, 0) + d.get(88, 0)  # TFTFF FTFTT
+            n_BABBA = d.get(176, 0) + d.get(72, 0)  # TFTTF FTFFT
+            n_BBAAA = d.get(192, 0) + d.get(56, 0)  # TTFFF FFTTT
+            n_BBABA = d.get(208, 0) + d.get(40, 0)  # TTFTF FFTFT
+            n_BBBAA = d.get(224, 0) + d.get(24, 0)  # TTTFF FFFTT
+            n_BBBBA = d.get(8, 0) + d.get(240, 0)  # FFFFT TTTTF
             patterndict[end].append((n_AAAAA, n_AAABA, n_AABAA, n_AABBA,
                                      n_ABAAA, n_ABABA, n_ABBAA, n_ABBBA,
                                      n_BAAAA, n_BAABA, n_BABAA, n_BABBA,
                                      n_BBAAA, n_BBABA, n_BBBAA, n_BBBBA))
-            start += step
-            end += step
+        else:
+            while end < last:
+                start_ix = bisect.bisect_left(pos_array, start)
+                end_ix = bisect.bisect_left(pos_array, end)
+                try:
+                    pattern_array = windict[k][1][start_ix:end_ix]
+                    calc_patterns = np.unique(pattern_array, return_counts=True)
+                    d = {n: calc_patterns[1][i] for i, n in enumerate(calc_patterns[0])}
+                    # total counts
+                    n_AAAAA = d.get(0, 0) + d.get(248, 0)  # FFFFF TTTTT
+                    n_AAABA = d.get(16, 0) + d.get(232, 0)  # FFFTF TTTFT
+                    n_AABAA = d.get(32, 0) + d.get(216, 0)  # FFTFF TTFTT
+                    n_AABBA = d.get(48, 0) + d.get(200, 0)  # FFTTF TTFFT
+                    n_ABAAA = d.get(64, 0) + d.get(184, 0)  # FTFFF TFTTT
+                    n_ABABA = d.get(80, 0) + d.get(168, 0)  # FTFTF TFTFT
+                    n_ABBAA = d.get(96, 0) + d.get(152, 0)  # FTTFF TFFTT
+                    n_ABBBA = d.get(112, 0) + d.get(136, 0)  # FTTTF TFFFT
+                    n_BAAAA = d.get(128, 0) + d.get(120, 0)  # TFFFF FTTTT
+                    n_BAABA = d.get(144, 0) + d.get(104, 0)  # TFFTF FTTFT
+                    n_BABAA = d.get(160, 0) + d.get(88, 0)  # TFTFF FTFTT
+                    n_BABBA = d.get(176, 0) + d.get(72, 0)  # TFTTF FTFFT
+                    n_BBAAA = d.get(192, 0) + d.get(56, 0)  # TTFFF FFTTT
+                    n_BBABA = d.get(208, 0) + d.get(40, 0)  # TTFTF FFTFT
+                    n_BBBAA = d.get(224, 0) + d.get(24, 0)  # TTTFF FFFTT
+                    n_BBBBA = d.get(8, 0) + d.get(240, 0)  # FFFFT TTTTF
+
+                except IndexError:
+                    pattern_array = windict[k][1][start_ix:]
+                    calc_patterns = np.unique(pattern_array, return_counts=True)
+                    d = {n: calc_patterns[1][i] for i, n in enumerate(calc_patterns[0])}
+                    # total counts
+                    n_AAAAA = d.get(0, 0) + d.get(248, 0)  # FFFFF TTTTT
+                    n_AAABA = d.get(16, 0) + d.get(232, 0)  # FFFTF TTTFT
+                    n_AABAA = d.get(32, 0) + d.get(216, 0)  # FFTFF TTFTT
+                    n_AABBA = d.get(48, 0) + d.get(200, 0)  # FFTTF TTFFT
+                    n_ABAAA = d.get(64, 0) + d.get(184, 0)  # FTFFF TFTTT
+                    n_ABABA = d.get(80, 0) + d.get(168, 0)  # FTFTF TFTFT
+                    n_ABBAA = d.get(96, 0) + d.get(152, 0)  # FTTFF TFFTT
+                    n_ABBBA = d.get(112, 0) + d.get(136, 0)  # FTTTF TFFFT
+                    n_BAAAA = d.get(128, 0) + d.get(120, 0)  # TFFFF FTTTT
+                    n_BAABA = d.get(144, 0) + d.get(104, 0)  # TFFTF FTTFT
+                    n_BABAA = d.get(160, 0) + d.get(88, 0)  # TFTFF FTFTT
+                    n_BABBA = d.get(176, 0) + d.get(72, 0)  # TFTTF FTFFT
+                    n_BBAAA = d.get(192, 0) + d.get(56, 0)  # TTFFF FFTTT
+                    n_BBABA = d.get(208, 0) + d.get(40, 0)  # TTFTF FFTFT
+                    n_BBBAA = d.get(224, 0) + d.get(24, 0)  # TTTFF FFFTT
+                    n_BBBBA = d.get(8, 0) + d.get(240, 0)  # FFFFT TTTTF
+                patterndict[end].append((n_AAAAA, n_AAABA, n_AABAA, n_AABBA,
+                                         n_ABAAA, n_ABABA, n_ABBAA, n_ABBBA,
+                                         n_BAAAA, n_BAABA, n_BABAA, n_BABBA,
+                                         n_BBAAA, n_BBABA, n_BBBAA, n_BBBBA))
+                start += step
+                end += step
     # write to file
     wfile = open("dfoil.tbl", 'w')
     headers = ['AAAAA', 'AAABA', 'AABAA', 'AABBA',
