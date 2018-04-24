@@ -208,13 +208,13 @@ def countPatternDFOIL(callset, sample_ix, outgroup):
     # [[1,2,3,4,5],[6,7,8,9],[12,14,15,16]]
     windict = {}
     permute = 1
-    g1, g2, g3 = sample_ix
-    quartet = list(product(g1, g2, g3))
+    g1, g2, g3, g4 = sample_ix
+    quartet = list(product(g1, g2, g3, g4))
     print("total number of combinations: {}".format(len(quartet)))
     for quart in quartet:
         print("permutation number {}".format(permute))
-        i, j, k = quart
-        gt_sub = gt.take([i, j, k, outgroup], axis=1)
+        i, j, k, m = quart
+        gt_sub = gt.take([i, j, k, m, outgroup], axis=1)
         keep = gt_sub.is_hom().all(axis=1)
         gt_sub = gt_sub.compress(keep, axis=0)
         pos_sub = pos[keep]
