@@ -8,6 +8,7 @@ Created on Tue Apr 24 16:21:43 2018
 
 import sys
 import argparse
+import re
 assert sys.version_info < (3, 0)
 
 parser = argparse.ArgumentParser()
@@ -35,21 +36,23 @@ def collapseOutgroup(vcfFile, outgroup_ix):
                 gt = []
                 for ix in outgroup_ix:
                     gt.append(x[ix+9])
-                # do something with gt
-                gt_out = "\t".join(gt)
-                homR = gt_out.count("0/0")
-                homA = gt_out.count("1/1")
-                het = gt_out.count("0/1")
-                if homR + homA + het == 0:
-                    gt_con = "./.:.:.:.:."
+                gt_out = " ".join(gt)
+                homR = len(re.findall(r'0\|0|0/0', gt_out))
+                homA = len(re.findall(r'1\|1|1/1', gt_out))
+                het = len(re.findall(r'0\|1|0/1', gt_out))
+                if (homR + homA + het) == 0:
+                    if "|" in line:
+                        gt_con = ".|.:.:.:.:."
+                    else:
+                        gt_con = "./.:.:.:.:."
                 else:
                     o_ix = [homR, homA, het].index(max([homR, homA, het]))
                     if o_ix == 0:
-                        gt_con = next(x for x in gt if '0/0' in x)
+                        gt_con = re.search(r'(0\|0|0/0)[^ ]*', gt_out).group()
                     elif o_ix == 1:
-                        gt_con = next(x for x in gt if '1/1' in x)
+                        gt_con = re.search(r'(1\|1|1/1)[^ ]*', gt_out).group()
                     else:
-                        gt_con = next(x for x in gt if '0/1' in x)
+                        gt_con = re.search(r'(0\|1|0/1)[^ ]*', gt_out).group()
                 x.append(gt_con)
                 f.write("{}\n".format('\t'.join(x)))
     return(None)
