@@ -204,8 +204,6 @@ def countPatternDFOIL(callset, sample_ix, outgroup):
     keep = gt[:, outgroup].is_hom() & gt.count_alleles().is_biallelic()
     gt = gt.compress(keep, axis=0)
     pos = pos[keep]
-    # permute among all sample indexes, list of lists
-    # [[1,2,3,4,5],[6,7,8,9],[12,14,15,16]]
     windict = {}
     permute = 1
     g1, g2, g3, g4 = sample_ix
