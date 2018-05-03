@@ -75,6 +75,7 @@ def phylonetSeq(ntax, tchar, seqdict, phylonetcmd):
     f.write("\tMatrix\n")
     for locus in seqdict.keys():
         l, s = locus.split("_")
+        f.write(";\n")
         f.write("[Locus{}, {}]\n".format(l.split("-")[0], s[:-1]))
         for seq in seqdict[locus]:
             try:
