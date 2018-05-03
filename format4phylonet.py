@@ -56,9 +56,12 @@ def parseSeqFile(seqFile):
             elif line.startswith("matrix"):
                 line = seq.next()
                 locus = "{}_{}".format(line.split()[0].split(":")[1], nchar)
-                while not line.startswith("#NEXUS"):
-                    seqdict[locus].append(line)
-                    line = seq.next()
+                try:
+                    while not line.startswith("#NEXUS"):
+                        seqdict[locus].append(line)
+                        line = seq.next()
+                except StopIteration:
+                    break
     return(ntax, total_char, seqdict)
 
 
