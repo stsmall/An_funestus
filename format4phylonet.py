@@ -49,10 +49,10 @@ def parseSeqFile(seqFile):
     with open(seqFile, 'r') as seq:
         for line in seq:
             if "dimensions" in line:
-                _, tax, char = line.rstrip(";").split()
+                _, tax, char = line.split()
                 ntax = tax.split("=")[1]
                 nchar = char.split("=")[1]
-                total_char += int(nchar)
+                total_char += int(nchar[:-1])
             elif line.startswith("matrix"):
                 line = seq.next()
                 locus = "{}_{}".format(line.split()[0].split(":")[1], nchar)
