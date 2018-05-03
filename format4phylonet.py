@@ -77,7 +77,8 @@ def phylonetSeq(ntax, tchar, seqdict, phylonetcmd):
         l, s = locus.split("_")
         f.write("[{}, {}]\n".format(l, s))
         for seq in seqdict[locus]:
-            name, dna = seq.split("_")
+            import ipdb;ipdb.set_trace()
+            name, dna = seq.split()
             f.write("{} {}\n".format(name.split(":")[0], dna))
     f.write("\n;END;\n\nBEGIN PHYLONET;\n")
     f.write("{}\n\nEND;".format(phylonetcmd))
