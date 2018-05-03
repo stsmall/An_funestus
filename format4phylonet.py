@@ -79,9 +79,10 @@ def phylonetSeq(ntax, tchar, seqdict, phylonetcmd):
         for seq in seqdict[locus]:
             try:
                 name, dna = seq.split()
+                f.write("{} {}\n".format(name.split(":")[0], dna))
             except ValueError:
-                import ipdb;ipdb.set_trace()
-            f.write("{} {}\n".format(name.split(":")[0], dna))
+                # import ipdb;ipdb.set_trace()
+                pass
     f.write("\n;END;\n\nBEGIN PHYLONET;\n")
     f.write("{}\n\nEND;".format(phylonetcmd))
     f.close()
