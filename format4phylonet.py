@@ -72,10 +72,10 @@ def phylonetSeq(ntax, tchar, seqdict, phylonetcmd):
     f.write("#NEXUS\n")
     f.write("Begin data;\n\tDimensions ntax={} nchar={};\n".format(ntax, tchar))
     f.write('\tFormat datatype=dna symbols="ACTG" missing=? gap=-;\n')
-    f.write("\tMATRIX\n")
+    f.write("\tMatrix\n")
     for locus in seqdict.keys():
         l, s = locus.split("_")
-        f.write("[{}, {}]\n".format(l, s[:-1]))
+        f.write("[Locus{}, {}]\n".format(l.split("-")[0], s[:-1]))
         for seq in seqdict[locus]:
             try:
                 name, dna = seq.split()
