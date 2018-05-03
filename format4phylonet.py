@@ -75,17 +75,15 @@ def phylonetSeq(ntax, tchar, seqdict, phylonetcmd):
     f.write("\tMatrix\n")
     for locus in seqdict.keys():
         l, s = locus.split("_")
-        f.write("[Locus{}, {}]\n".format(l.split("-")[0], s[:-1]))
+        f.write("[Locus{}, {}, ...]\n".format(l.split("-")[0], s[:-1]))
         for seq in seqdict[locus]:
             try:
                 name, dna = seq.split()
-                f.write("{}\n".format(name.split(":")[0]))
-                f.write("{}\n".format(dna))
-                #f.write("{}\t{}\n".format(name.split(":")[0], dna))
+                f.write("{}\t{}\n".format(name.split(":")[0], dna))
             except ValueError:
                 # import ipdb;ipdb.set_trace()
                 pass
-    f.write("\n;END;\n\nBEGIN PHYLONET;\n")
+    f.write(";END;\n\nBEGIN PHYLONET;\n")
     f.write("{}\n\nEND;".format(phylonetcmd))
     f.close()
     return(None)
