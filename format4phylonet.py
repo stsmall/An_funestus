@@ -75,7 +75,7 @@ def phylonetSeq(ntax, tchar, seqdict, phylonetcmd):
     f.write("\tMATRIX\n")
     for locus in seqdict.keys():
         l, s = locus.split("_")
-        f.write("[{}, {}]\n".format(l, s))
+        f.write("[{}, {}]\n".format(l, s[:-1]))
         for seq in seqdict[locus]:
             try:
                 name, dna = seq.split()
