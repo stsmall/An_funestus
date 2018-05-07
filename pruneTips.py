@@ -53,7 +53,7 @@ def LoadTrees(treeFile, dlm):
     return(treelist)
 
 
-def pruneTips(treelist, species, n, rand):
+def pruneTips(treelist, species, n, rand, topo=False):
     """Prune trees so only n taxa remain from each of species
     """
     if rand:
@@ -64,12 +64,12 @@ def pruneTips(treelist, species, n, rand):
             nodes = [np.random.choice(g, n) for g in splist]
             nds = np.concatenate(nodes).ravel()
             try:
-                t.prune(nds, preserve_branch_length=True)
+                t.prune(nds, preserve_branch_length=topo)
             except:
                 import ipdb;ipdb.set_trace()
     else:
         for t in treelist:
-            t.prune(species, preserve_branch_length=True)
+            t.prune(species, preserve_branch_length=topo)
     return(treelist)
 
 
