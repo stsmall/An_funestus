@@ -254,11 +254,11 @@ if __name__ == "__main__":
 #tree = PhyloTree(t)
 #tree.set_species_naming_function(lambda node: node.name.split("_")[0])
 #tree.set_outgroup( tree&'rivulorum_F790')
-#
-#tree.check_monophyly(["longipalpusC"], target_attr="species")
-## 0 is bool
-## 2 is problem nodes
-#tree.get_monophyletic(values=["longipalpusC"], target_attr="species")
+##
+##tree.check_monophyly(["longipalpusC"], target_attr="species")
+### 0 is bool
+### 2 is problem nodes
+##tree.get_monophyletic(values=["longipalpusC"], target_attr="species")
 #tree.remove_child(child)
 #tree.prune(nodes, preserve_branch_length=True)
 
