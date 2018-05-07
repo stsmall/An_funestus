@@ -87,7 +87,7 @@ def WriteTrees(treelist):
     """
     f = open("trees.rp.nex", 'w')
     for t in treelist:
-        t2 = re.sub(r'_([0-9]|[A-Z])\w+', t.write())
+        t2 = re.sub(r'_([0-9]|[A-Z])\w+', '', t.write())
         f.write("{}\n".format(t2))
     f.close()
     return(None)
