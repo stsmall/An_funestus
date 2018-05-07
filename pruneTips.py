@@ -56,6 +56,7 @@ def LoadTrees(treeFile, dlm):
 def pruneTips(treelist, species, n, rand):
     """Prune trees so only n taxa remain from each of species
     """
+    import ipdb;ipdb.set_trace()
     if rand:
         splist = []
         for tax in species:
