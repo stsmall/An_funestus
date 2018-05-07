@@ -24,7 +24,7 @@ parser.add_argument('-n', "--numberTips", type=int, default=1,
                     help="number of tips to have after pruning")
 parser.add_argument("--dlm", type=str, default="_",
                     help="delimeter denoting species")
-parser.add_arguement("--rand", action="store_true", help="choose individual at"
+parser.add_argument("--rand", action="store_true", help="choose individual at"
                      "random note you will have to format leaf names")
 args = parser.parse_args()
 
