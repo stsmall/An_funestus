@@ -92,7 +92,7 @@ def WriteTrees(treelist, rand):
             t2 = re.sub(r'_([0-9]|[A-Z])\w+', '', t.write())
             f.write("{}\n".format(t2))
         else:
-             f.write("{}\n".format(t))
+             f.write("{}\n".format(t.write()))
     f.close()
     return(None)
 
