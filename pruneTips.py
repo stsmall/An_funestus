@@ -61,6 +61,7 @@ def pruneTips(treelist, species, n, rand, topo=False):
         for tax in species:
             splist.append(treelist[0].search_nodes(species=tax))
         for t in treelist:
+            error = True
             while error:
                 try:
                     nodes = [np.random.choice(g, n) for g in splist]
