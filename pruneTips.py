@@ -74,7 +74,7 @@ def pruneTips(treelist, species, rand, topo=True):
     return(treelist)
 
 
-def WriteTrees(treelist):
+def WriteTrees(treelist, rand):
     """Rewrite reformatted or rerooted trees
 
     Parameters
@@ -88,8 +88,11 @@ def WriteTrees(treelist):
     """
     f = open("trees.rp.nex", 'w')
     for t in treelist:
-        t2 = re.sub(r'_([0-9]|[A-Z])\w+', '', t.write())
-        f.write("{}\n".format(t2))
+        if rand:
+            t2 = re.sub(r'_([0-9]|[A-Z])\w+', '', t.write())
+            f.write("{}\n".format(t2))
+        else:
+             f.write("{}\n".format(t))
     f.close()
     return(None)
 
@@ -98,4 +101,4 @@ if __name__ == "__main__":
     species = args.groups
     treelist = LoadTrees(args.treefile, args.dlm)
     pruneTips(treelist, species[0], args.rand)
-    WriteTrees(treelist)
+    WriteTrees(treelist, args.rand)
