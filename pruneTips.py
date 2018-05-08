@@ -20,12 +20,10 @@ parser.add_argument('-t', "--treefile", type=str, required=True,
 parser.add_argument('-g', "--groups", nargs='+', action='append',
                     required=True, help="quartet of species to calculate,"
                     " assumes form: P1 P2 P3. can be given multiple times")
-parser.add_argument('-n', "--numberTips", type=int, default=1,
-                    help="number of tips to have after pruning")
 parser.add_argument("--dlm", type=str, default="_",
                     help="delimeter denoting species")
 parser.add_argument("--rand", action="store_true", help="choose individual at"
-                     "random note you will have to format leaf names")
+                    "random note you will have to format leaf names")
 args = parser.parse_args()
 
 
@@ -53,7 +51,7 @@ def LoadTrees(treeFile, dlm):
     return(treelist)
 
 
-def pruneTips(treelist, species, n, rand, topo=False):
+def pruneTips(treelist, species, rand, topo=True):
     """Prune trees so only n taxa remain from each of species
     """
     if rand:
@@ -64,7 +62,7 @@ def pruneTips(treelist, species, n, rand, topo=False):
             error = True
             while error:
                 try:
-                    nodes = [np.random.choice(g, n) for g in splist]
+                    nodes = [np.random.choice(g, 1) for g in splist]
                     nds = np.concatenate(nodes).ravel()
                     t.prune(nds, preserve_branch_length=topo)
                     error = False
@@ -99,5 +97,5 @@ def WriteTrees(treelist):
 if __name__ == "__main__":
     species = args.groups
     treelist = LoadTrees(args.treefile, args.dlm)
-    pruneTips(treelist, species[0], args.numberTips, args.rand)
+    pruneTips(treelist, species[0], args.rand)
     WriteTrees(treelist)
