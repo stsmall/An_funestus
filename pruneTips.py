@@ -61,12 +61,14 @@ def pruneTips(treelist, species, n, rand, topo=False):
         for tax in species:
             splist.append(treelist[0].search_nodes(species=tax))
         for t in treelist:
-            nodes = [np.random.choice(g, n) for g in splist]
-            nds = np.concatenate(nodes).ravel()
-            try:
-                t.prune(nds, preserve_branch_length=topo)
-            except:
-                import ipdb;ipdb.set_trace()
+            while error:
+                try:
+                    nodes = [np.random.choice(g, n) for g in splist]
+                    nds = np.concatenate(nodes).ravel()
+                    t.prune(nds, preserve_branch_length=topo)
+                    error = False
+                except:
+                    error = True
     else:
         for t in treelist:
             t.prune(species, preserve_branch_length=topo)
