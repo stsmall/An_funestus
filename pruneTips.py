@@ -24,6 +24,7 @@ parser.add_argument("--dlm", type=str, default="_",
                     help="delimeter denoting species")
 parser.add_argument("--rand", action="store_true", help="choose individual at"
                     "random note you will have to format leaf names")
+parser.add_argument("--rename", action="store_true", help="rename tips")
 args = parser.parse_args()
 
 
@@ -74,7 +75,7 @@ def pruneTips(treelist, species, rand, topo=True):
     return(treelist)
 
 
-def WriteTrees(treelist, rand):
+def WriteTrees(treelist, rand, rename):
     """Rewrite reformatted or rerooted trees
 
     Parameters
@@ -91,8 +92,11 @@ def WriteTrees(treelist, rand):
         if rand:
             t2 = re.sub(r'_([0-9]|[A-Z])\w+', '', t.write())
             f.write("{}\n".format(t2))
+        elif rename:
+            t2 = re.sub(r'_([0-9]|[A-Z])\w+', '', t.write())
+            f.write("{}\n".format(t2))
         else:
-             f.write("{}\n".format(t.write()))
+            f.write("{}\n".format(t.write()))
     f.close()
     return(None)
 
@@ -101,4 +105,4 @@ if __name__ == "__main__":
     species = args.groups
     treelist = LoadTrees(args.treefile, args.dlm)
     pruneTips(treelist, species[0], args.rand)
-    WriteTrees(treelist, args.rand)
+    WriteTrees(treelist, args.rand, args.rename)
