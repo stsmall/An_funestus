@@ -63,7 +63,7 @@ def collapseOutgroup(vcfFile, outgroup_ix):
                 lprob = [0.3, 0.3, 0.3, 0.3]
                 if len(l_ix) > 1:
                     for s in l_ix:
-                        lprob[lstate.index(l_ix)] = 0.47
+                        lprob[lstate.index(s)] = 0.47
                 else:
                     lprob[lstate.index(l_ix)] = .93
                 t.write("{} {} {}\n".format(x[0], int(x[1])-1, " ".join(map(str, lprob))))
