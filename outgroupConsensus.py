@@ -73,5 +73,5 @@ def collapseOutgroup(vcfFile, outgroup_ix):
 
 
 if __name__ == "__main__":
-    out_ix = map(int, args.outgroup)
+    out_ix = [list(map(int, x)) for x in args.outgroup]
     collapseOutgroup(args.vcf, out_ix)
