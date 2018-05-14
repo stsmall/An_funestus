@@ -14,7 +14,7 @@ assert sys.version_info < (3, 0)
 parser = argparse.ArgumentParser()
 parser.add_argument('-v', '--vcf',
                     help='path to vcf', required=True)
-parser.add_argument('-o', "--outgroup", required=True,
+parser.add_argument('-o', "--outgroup", nargs='+', action="append",
                     help="index of outgroup")
 args = parser.parse_args()
 
