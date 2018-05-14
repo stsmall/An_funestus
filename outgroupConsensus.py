@@ -35,7 +35,7 @@ def collapseOutgroup(vcfFile, outgroup_ix):
             else:
                 x = line.split()
                 gt = []
-                import ipdb;ipdb.set_trace()
+                # import ipdb;ipdb.set_trace()
                 for ix in outgroup_ix:
                     gt.append(x[ix+9])
                 gt_out = " ".join(gt)
