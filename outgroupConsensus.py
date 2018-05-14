@@ -23,6 +23,7 @@ def collapseOutgroup(vcfFile, outgroup_ix):
     """Combine the gt calls of outgroup individual is fixed and 1 is missing
     """
     f = open("{}.outgroup".format(vcfFile), 'w')
+    t = open("ancestral_prob.txt", 'w')
     with open(vcfFile, 'r') as vcf:
         for line in vcf:
             if line.startswith("##"):
@@ -49,12 +50,25 @@ def collapseOutgroup(vcfFile, outgroup_ix):
                     o_ix = [homR, homA, het].index(max([homR, homA, het]))
                     if o_ix == 0:
                         gt_con = re.search(r'(0\|0|0/0)[^ ]*', gt_out).group()
+                        l_ix = x[3]
                     elif o_ix == 1:
                         gt_con = re.search(r'(1\|1|1/1)[^ ]*', gt_out).group()
+                        l_ix = x[4]
                     else:
                         gt_con = re.search(r'(0\|1|0/1)[^ ]*', gt_out).group()
+                        l_ix = [x[3], x[4]]
                 x.append(gt_con)
+                lstate = ['A', 'C', 'G', 'T']
+                lprob = [0.3, 0.3, 0.3, 0.3]
+                if len(l_ix) > 1:
+                    for s in l_ix:
+                        lprob[lstate.index(l_ix)] = 0.47
+                else:
+                    lprob[lstate.index(l_ix)] = .93
+                t.write("{} {} {}\n".format(x[0], int(x[1])-1, " ".join(map(str, lprob))))
                 f.write("{}\n".format('\t'.join(x)))
+    t.close()
+    f.close()
     return(None)
 
 
