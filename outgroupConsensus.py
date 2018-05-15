@@ -9,6 +9,7 @@ Created on Tue Apr 24 16:21:43 2018
 import sys
 import argparse
 import re
+import numpy as np
 assert sys.version_info < (3, 0)
 
 parser = argparse.ArgumentParser()
@@ -19,11 +20,79 @@ parser.add_argument('-o', "--outgroup", nargs='+', action="append",
 args = parser.parse_args()
 
 
+def mutationMatrix(mutarray, anc, ref, alt):
+    """Calculates the direction of the mutaion at site
+    """
+    # this is terribly clumsy, should use something with i !=j for i, j in
+    # l = [A, C, G, T]
+    if anc == ref:
+        if anc == "A":
+            if alt == "C":
+                mutarray[0, 1] += 1
+            elif alt == "G":
+                mutarray[0, 2] += 1
+            elif alt == "T":
+                mutarray[0, 3] += 1
+        elif anc == "C":
+            if alt == "A":
+                mutarray[1, 0] += 1
+            elif alt == "G":
+                mutarray[1, 2] += 1
+            elif alt == "T":
+                mutarray[1, 3] += 1
+        elif anc == "G":
+            if alt == "A":
+                mutarray[2, 0] += 1
+            elif alt == "C":
+                mutarray[2, 1] += 1
+            elif alt == "T":
+                mutarray[2, 3] += 1
+        elif anc == "T":
+            if alt == "A":
+                mutarray[3, 0] += 1
+            elif alt == "C":
+                mutarray[3, 1] += 1
+            elif alt == "G":
+                mutarray[3, 2] += 1
+    elif anc == alt:
+        if anc == "A":
+            if ref == "C":
+                mutarray[0, 1] += 1
+            elif ref == "G":
+                mutarray[0, 2] += 1
+            elif ref == "T":
+                mutarray[0, 3] += 1
+        elif anc == "C":
+            if ref == "A":
+                mutarray[1, 0] += 1
+            elif ref == "G":
+                mutarray[1, 2] += 1
+            elif ref == "T":
+                mutarray[1, 3] += 1
+        elif anc == "G":
+            if ref == "A":
+                mutarray[2, 0] += 1
+            elif ref == "C":
+                mutarray[2, 1] += 1
+            elif ref == "T":
+                mutarray[2, 3] += 1
+        elif anc == "T":
+            if ref == "A":
+                mutarray[3, 0] += 1
+            elif ref == "C":
+                mutarray[3, 1] += 1
+            elif ref == "G":
+                mutarray[3, 2] += 1
+    else:
+        pass
+    return(mutarray)
+
 def collapseOutgroup(vcfFile, outgroup_ix):
     """Combine the gt calls of outgroup individual is fixed and 1 is missing
     """
     f = open("{}.outgroup".format(vcfFile), 'w')
     t = open("ancestral_prob.txt", 'w')
+    mutarray = np.zeros(4, 4)
     with open(vcfFile, 'r') as vcf:
         for line in vcf:
             if line.startswith("##"):
@@ -67,15 +136,18 @@ def collapseOutgroup(vcfFile, outgroup_ix):
                             lprob[lstate.index(s)] = 0.47
                     else:
                         lprob[lstate.index(l_ix)] = .93
+                        mutarray = mutationMatrix(mutarray, l_ix, x[3], x[4])
+                        # well defined AncAllele
                     t.write("{} {} {}\n".format(x[0], int(x[1])-1, " ".join(map(str, lprob))))
                 except ValueError:
                     import ipdb;ipdb.set_trace()
                 f.write("{}\n".format('\t'.join(x)))
     t.close()
     f.close()
-    return(None)
+    return(mutarray)
 
 
 if __name__ == "__main__":
     out_ix = [list(map(int, x)) for x in args.outgroup]
-    collapseOutgroup(args.vcf, out_ix[0])
+    mutarray = collapseOutgroup(args.vcf, out_ix[0])
+    print(mutarray)
