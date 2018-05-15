@@ -113,6 +113,7 @@ def collapseOutgroup(vcfFile, outgroup_ix):
                 homA = len(re.findall(r'1\|1|1/1', gt_out))
                 het = len(re.findall(r'0\|1|0/1', gt_out))
                 if (homR + homA + het) == 0:
+                    l_ix = [x[3], x[4]]
                     if "|" in line:
                         gt_con = ".|.:.:.:.:."
                     else:
@@ -131,7 +132,7 @@ def collapseOutgroup(vcfFile, outgroup_ix):
                 x.append(gt_con)
                 try:
                     lstate = ['A', 'C', 'G', 'T']
-                    lprob = [0.3, 0.3, 0.3, 0.3]
+                    lprob = [0.03, 0.03, 0.03, 0.03]
                     if len(l_ix) > 1:
                         for s in l_ix:
                             lprob[lstate.index(s)] = 0.47
