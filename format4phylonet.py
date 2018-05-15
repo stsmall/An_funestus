@@ -46,6 +46,7 @@ def parseSeqFile(seqFile):
     """
     total_char = 0
     seqdict = defaultdict(list)
+    gene = 0
     with open(seqFile, 'r') as seq:
         for line in seq:
             if "dimensions" in line:
@@ -55,7 +56,11 @@ def parseSeqFile(seqFile):
                 total_char += int(nchar[:-1])
             elif line.startswith("matrix"):
                 line = seq.next()
-                locus = "{}_{}".format(line.split()[0].split(":")[1], nchar)
+                try:
+                    locus = "{}_{}".format(line.split()[0].split(":")[1], nchar)
+                except IndexError:
+                    gene += 1
+                    locus = "gene_{}".format(gene)
                 try:
                     while not line.startswith("#NEXUS"):
                         seqdict[locus].append(line)
