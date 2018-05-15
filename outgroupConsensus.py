@@ -93,7 +93,7 @@ def collapseOutgroup(vcfFile, outgroup_ix):
     """
     f = open("{}.outgroup".format(vcfFile), 'w')
     t = open("ancestral_prob.txt", 'w')
-    mutarray = np.zeros(4, 4)
+    mutarray = np.zeros((4, 4))
     with open(vcfFile, 'r') as vcf:
         for line in vcf:
             if line.startswith("##"):
