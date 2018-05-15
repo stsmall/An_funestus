@@ -87,6 +87,7 @@ def mutationMatrix(mutarray, anc, ref, alt):
         pass
     return(mutarray)
 
+
 def collapseOutgroup(vcfFile, outgroup_ix):
     """Combine the gt calls of outgroup individual is fixed and 1 is missing
     """

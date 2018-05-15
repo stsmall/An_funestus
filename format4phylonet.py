@@ -60,7 +60,7 @@ def parseSeqFile(seqFile):
                     locus = "{}_{}".format(line.split()[0].split(":")[1], nchar)
                 except IndexError:
                     gene += 1
-                    locus = "gene_{}".format(gene)
+                    locus = "gene{}-{}_{}".format(gene, gene, nchar)
                 try:
                     while not line.startswith("#NEXUS"):
                         seqdict[locus].append(line)
