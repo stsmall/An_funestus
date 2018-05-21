@@ -134,4 +134,4 @@ if __name__ == "__main__":
         phylonetSeq(ntax, tchar, seqdict, args.phylonet)
     elif args.bm:
         ntax, tchar, seqdict, samplist = parseBmFile(args.infile)
-        phylonetBm(ntax, tchar, seqdict, args.phylonet)
+        phylonetBm(ntax, tchar, seqdict, args.phylonet, samplist)
