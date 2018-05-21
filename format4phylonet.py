@@ -15,6 +15,7 @@ parser.add_argument('-p', "--phylonet", required=True,
                     help="phylonet command line")
 parser.add_argument('--seq', action='store_true', help='MSMC_SEQ')
 parser.add_argument("--gt", action='store_true', help="MCMC_GT")
+parser.add_argument("--bm", action='store_true', help="MCMC_BiMarkers")
 args = parser.parse_args()
 
 
@@ -94,6 +95,34 @@ def phylonetSeq(ntax, tchar, seqdict, phylonetcmd):
     return(None)
 
 
+parseBmFile(bmFile)
+    """
+    """
+    seqdict = {}
+    with open(bmFile, 'r') as bm:
+        for line in bm:
+            x = line.split()
+            seqdict[x[0]] = "".join(x[1:])
+    return(len(seqdict.keys()), len(seqdict[x[0]]), seqdict)
+
+
+phylonetBm(ntax, tchar, seqdict, phylonetcmd):
+    """
+    """
+    f = open("phylonet.BM.nex", 'w')
+    f.write("#NEXUS\n")
+    f.write("Begin data;\n\tDimensions ntax={} nchar={};\n".format(ntax, tchar))
+    f.write('\tFormat datatype=dna symbols="012" missing=-1 gap=-;\n')
+    f.write("\tMatrix\n")
+    for tax in seqdict.keys():
+        f.write("{} {}\n".format(tax, seqdict[tax]))
+    f.write(";END;\n\nBEGIN PHYLONET;\n")
+    f.write("{}\n\n;".format(phylonetcmd))
+    f.write("-taxa ({})\n\nEND;".format(",".join(seqdict.keys())))
+    f.close()
+    return(None)
+
+
 if __name__ == "__main__":
     if args.gt:
         treelist = parseTreelist(args.infile)
@@ -101,3 +130,6 @@ if __name__ == "__main__":
     elif args.seq:
         ntax, tchar, seqdict = parseSeqFile(args.infile)
         phylonetSeq(ntax, tchar, seqdict, args.phylonet)
+    elif args.bm:
+        ntax, tchar, seqdict = parseBmFile(args.infile)
+        phylonetBm(ntax, tchar, seqdict, args.phylonet)
