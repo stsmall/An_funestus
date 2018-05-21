@@ -117,8 +117,8 @@ def phylonetBm(ntax, tchar, seqdict, phylonetcmd):
     for tax in seqdict.keys():
         f.write("{} {}\n".format(tax, seqdict[tax]))
     f.write(";END;\n\nBEGIN PHYLONET;\n")
-    f.write("{}\n\n;".format(phylonetcmd))
-    f.write("-taxa ({})\n\nEND;".format(",".join(seqdict.keys())))
+    f.write("{}\n\n".format(phylonetcmd))
+    f.write("-taxa ({});\n\nEND;".format(",".join(seqdict.keys())))
     f.close()
     return(None)
 
