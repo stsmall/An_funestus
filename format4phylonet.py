@@ -115,12 +115,11 @@ def phylonetBm(ntax, tchar, seqdict, phylonetcmd, samplist):
     f.write("#NEXUS\n")
     f.write("Begin data;\n\tDimensions ntax={} nchar={};\n".format(ntax, tchar))
     f.write('\tFormat datatype=dna symbols="012" missing=-1 gap=-;\n')
-    f.write("\tMatrix\n")
+    f.write("\tMatrix\n\n")
     for tax in samplist:
         f.write("{} {}\n".format(tax, seqdict[tax]))
     f.write(";END;\n\nBEGIN PHYLONET;\n")
-    f.write("{}\n\n".format(phylonetcmd))
-    f.write("-taxa ({});\n\nEND;".format(",".join(samplist)))
+    f.write("{} -taxa ({}) -tm <>;\n\nEND;".format(phylonetcmd, ",".join(samplist)))
     f.close()
     return(None)
 
