@@ -95,7 +95,7 @@ def phylonetSeq(ntax, tchar, seqdict, phylonetcmd):
     return(None)
 
 
-parseBmFile(bmFile):
+def parseBmFile(bmFile):
     """
     """
     seqdict = {}
@@ -106,7 +106,7 @@ parseBmFile(bmFile):
     return(len(seqdict.keys()), len(seqdict[x[0]]), seqdict)
 
 
-phylonetBm(ntax, tchar, seqdict, phylonetcmd):
+def phylonetBm(ntax, tchar, seqdict, phylonetcmd):
     """
     """
     f = open("phylonet.BM.nex", 'w')
