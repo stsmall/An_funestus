@@ -120,7 +120,7 @@ def phylonetBm(ntax, tchar, seqdict, phylonetcmd, samplist):
         f.write("{} {}\n".format(tax, seqdict[tax]))
     f.write(";END;\n\nBEGIN PHYLONET;\n")
     f.write("{}\n\n".format(phylonetcmd))
-    f.write("-taxa ({});\n\nEND;".format(",".join(seqdict.keys())))
+    f.write("-taxa ({});\n\nEND;".format(",".join(samplist)))
     f.close()
     return(None)
 
