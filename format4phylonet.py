@@ -98,15 +98,17 @@ def phylonetSeq(ntax, tchar, seqdict, phylonetcmd):
 def parseBmFile(bmFile):
     """
     """
+    samplist = []
     seqdict = {}
     with open(bmFile, 'r') as bm:
         for line in bm:
             x = line.split()
             seqdict[x[0]] = "".join(x[1:])
-    return(len(seqdict.keys()), len(seqdict[x[0]]), seqdict)
+            samplist.append(x[0])
+    return(len(samplist), len(seqdict[x[0]]), seqdict, samplist)
 
 
-def phylonetBm(ntax, tchar, seqdict, phylonetcmd):
+def phylonetBm(ntax, tchar, seqdict, phylonetcmd, samplist):
     """
     """
     f = open("phylonet.BM.nex", 'w')
@@ -114,7 +116,7 @@ def phylonetBm(ntax, tchar, seqdict, phylonetcmd):
     f.write("Begin data;\n\tDimensions ntax={} nchar={};\n".format(ntax, tchar))
     f.write('\tFormat datatype=dna symbols="012" missing=-1 gap=-;\n')
     f.write("\tMatrix\n")
-    for tax in seqdict.keys():
+    for tax in samplist:
         f.write("{} {}\n".format(tax, seqdict[tax]))
     f.write(";END;\n\nBEGIN PHYLONET;\n")
     f.write("{}\n\n".format(phylonetcmd))
@@ -131,5 +133,5 @@ if __name__ == "__main__":
         ntax, tchar, seqdict = parseSeqFile(args.infile)
         phylonetSeq(ntax, tchar, seqdict, args.phylonet)
     elif args.bm:
-        ntax, tchar, seqdict = parseBmFile(args.infile)
+        ntax, tchar, seqdict samplist = parseBmFile(args.infile)
         phylonetBm(ntax, tchar, seqdict, args.phylonet)
