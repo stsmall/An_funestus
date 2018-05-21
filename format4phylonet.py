@@ -95,7 +95,7 @@ def phylonetSeq(ntax, tchar, seqdict, phylonetcmd):
     return(None)
 
 
-parseBmFile(bmFile)
+parseBmFile(bmFile):
     """
     """
     seqdict = {}
