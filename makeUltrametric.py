@@ -35,7 +35,7 @@ def makeUltra(treeFile):
                         elif node.up: # node is internal
                             current_dist += node.dist
                 treelist.append(t)
-    return(None)
+    return(treelist)
 
 
 def writeTrees(treelist):
