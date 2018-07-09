@@ -35,6 +35,7 @@ def alleleCounts(fileList):
     for f in fileList:
         with open(f, 'r') as ing:
             for line in ing:
+                line = next(ing)
                 # ACGT
                 x = line.split()
                 anclist = [0, 0, 0, 0]
