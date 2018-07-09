@@ -39,7 +39,6 @@ def alleleCounts(fileList):
                 # ACGT
                 x = line.split()
                 anclist = [0, 0, 0, 0]
-                import ipdb;ipdb.set_trace()
                 # first allele
                 if 'A' in x[4]:
                     anclist[0] += int(x[4].split(":")[1])
