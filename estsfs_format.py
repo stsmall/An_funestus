@@ -38,6 +38,7 @@ def alleleCounts(fileList):
                 # ACGT
                 x = line.split()
                 anclist = [0, 0, 0, 0]
+                import ipdb;ipdb.set_trace()
                 # first allele
                 if 'A' in x[4]:
                     anclist[0] += int(x[4].split(":")[1])
@@ -49,13 +50,13 @@ def alleleCounts(fileList):
                     anclist[3] += int(x[4].split(":")[1])
                 # second allele
                 if 'A' in x[5]:
-                    anclist[0] += int(x[4].split(":")[1])
+                    anclist[0] += int(x[5].split(":")[1])
                 elif 'C' in x[5]:
-                    anclist[1] += int(x[4].split(":")[1])
+                    anclist[1] += int(x[5].split(":")[1])
                 elif 'G' in x[5]:
-                    anclist[2] += int(x[4].split(":")[1])
+                    anclist[2] += int(x[5].split(":")[1])
                 elif 'T' in x[5]:
-                    anclist[3] += int(x[4].split(":")[1])
+                    anclist[3] += int(x[5].split(":")[1])
                 b = "{}_{}".format(x[0], x[1])
                 ancdict[b].append(anclist)
                 bporderlist.append(b)
