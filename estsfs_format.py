@@ -18,9 +18,7 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', "--ingroup", type=str, required=True,
                     help="ingroup/focalgroup counts")
-parser.add_argument('-n', "--haplotypes", type=int, required=True,
-                    help="number of haplotypes in focal group")
-parser.add_argument('-ogrpn', "--outgrp_haplotypes", type=int, nargs='+',
+parser.add_argument('-n', "--haplotypes", type=int, nargs='+',
                     action="append", required=True,
                     help="number of haplotypes in focal group")
 parser.add_argument('-o1', "--outgroup1", type=str, required=True,
@@ -74,14 +72,12 @@ if __name__ == "__main__":
         fileList.append(args.outgroup2)
     elif args.outgroup3:
         fileList.append(args.outgroup3)
-    haps = args.haplotypes
-    haplist = args.outgrp_haplotypes[0]
+    haplist = args.haplotypes[0]
     ancdict, blist = alleleCounts(fileList)
     t = open("excluded_sites.estsfs.out", 'w')
     with open("est-sfs.data.txt", 'w') as f:
-        import ipdb;ipdb.set_trace()
         for k in blist:
-            if sum(ancdict[k][0]) != haps:
+            if sum(ancdict[k][0]) != haplist[0]:
                 t.write("{} {}\n".format(k.split("_")[0], k.split("_")[1]))
             else:
                 for i in range(1, len(fileList)):
