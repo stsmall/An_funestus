@@ -20,7 +20,8 @@ parser.add_argument('-i', "--ingroup", type=str, required=True,
                     help="ingroup/focalgroup counts")
 parser.add_argument('-n', "--haplotypes", type=int, required=True,
                     help="number of haplotypes in focal group")
-parser.add_argument('-on', "--outgrp_haplotypes", type=int, required=True,
+parser.add_argument('-ogrpn', "--outgrp_haplotypes", type=int, nargs='+',
+                    action="append", required=True,
                     help="number of haplotypes in focal group")
 parser.add_argument('-o1', "--outgroup1", type=str, required=True,
                     help="outgroup counts")
@@ -82,7 +83,7 @@ if __name__ == "__main__":
             else:
                 for i in range(1, len(fileList)):
                     try:
-                        ix = ancdict[k][i].index(args.outgrp_haplotypes)
+                        ix = ancdict[k][i].index(args.outgrp_haplotypes[i])
                         ancdict[k][i][ix] = 1
                     except ValueError:
                         ancdict[k][i] = [0,0,0,0]
