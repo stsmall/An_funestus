@@ -74,6 +74,7 @@ if __name__ == "__main__":
         fileList.append(args.outgroup2)
     elif args.outgroup3:
         fileList.append(args.outgroup3)
+    import ipdb;ipdb.set_trace()
     ancdict, blist = alleleCounts(fileList)
     t = open("excluded_sites.estsfs.out", 'w')
     with open("est-sfs.data.txt", 'w') as f:
