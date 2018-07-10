@@ -18,6 +18,10 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', "--ingroup", type=str, required=True,
                     help="ingroup/focalgroup counts")
+parser.add_argument('-n', "--haplotypes", type=int, required=True,
+                    help="number of haplotypes in focal group")
+parser.add_argument('-on', "--outgrp_haplotypes", type=int, required=True,
+                    help="number of haplotypes in focal group")
 parser.add_argument('-o1', "--outgroup1", type=str, required=True,
                     help="outgroup counts")
 parser.add_argument('-o2', "--outgroup2", type=str,
@@ -70,8 +74,19 @@ if __name__ == "__main__":
     elif args.outgroup3:
         fileList.append(args.outgroup3)
     ancdict, blist = alleleCounts(fileList)
+    t = open("excluded_sites.estsfs.out", 'w')
     with open("est-sfs.data.txt", 'w') as f:
         for k in blist:
-            alleleCt = ["{}".format(",".join(map(str, i))) for i in ancdict[k]]
-            f.write("{} {} {}\n".format(k.split("_")[0], k.split("_")[1],
-                    " ".join(alleleCt)))
+            if sum(ancdict[k][0]) != args.haplotypes:
+                t.write("{} {}\n".format(k.split("_")[0], k.split("_")[1]))
+            else:
+                for i in range(1, len(fileList)):
+                    try:
+                        ix = ancdict[k][i].index(args.outgrp_haplotypes)
+                        ancdict[k][i][ix] = 1
+                    except ValueError:
+                        ancdict[k][i] = [0,0,0,0]
+                alleleCt = ["{}".format(",".join(map(str, i))) for i in ancdict[k]]
+                f.write("{} {} {}\n".format(k.split("_")[0], k.split("_")[1],
+                        " ".join(alleleCt)))
+    t.close()
