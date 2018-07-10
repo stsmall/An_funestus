@@ -75,16 +75,18 @@ if __name__ == "__main__":
     elif args.outgroup3:
         fileList.append(args.outgroup3)
     import ipdb;ipdb.set_trace()
+    haps = args.haplotypes
+    haplist = args.outgrp_haplotypes
     ancdict, blist = alleleCounts(fileList)
     t = open("excluded_sites.estsfs.out", 'w')
     with open("est-sfs.data.txt", 'w') as f:
         for k in blist:
-            if sum(ancdict[k][0]) != args.haplotypes:
+            if sum(ancdict[k][0]) != haps:
                 t.write("{} {}\n".format(k.split("_")[0], k.split("_")[1]))
             else:
                 for i in range(1, len(fileList)):
                     try:
-                        ix = ancdict[k][i].index(args.outgrp_haplotypes[i])
+                        ix = ancdict[k][i].index(haplist[i])
                         ancdict[k][i][ix] = 1
                     except ValueError:
                         ancdict[k][i] = [0,0,0,0]
