@@ -42,6 +42,7 @@ def derivedVCF(estdict, vcfFile):
             if line.startswith("#"):
                 f.write(line)
             else:
+                import ipdb;ipdb.set_trace()
                 x = line.split()
                 ref = x[3]
                 alt = x[4]
