@@ -27,8 +27,8 @@ def readEstSFS(estFile):
             x = line.split()
             chrpos = "{}_{}".format(x[0], x[1])
             # probMajor probA probC probG probT
-            # estdict[chrpos] = map(float, x[4:])
-            estdict[chrpos] = x[4:]
+            estdict[chrpos] = map(float, x[4:])
+            # estdict[chrpos] = x[4:]
     return(estdict)
 
 
@@ -43,7 +43,6 @@ def derivedVCF(estdict, vcfFile):
             if line.startswith("#"):
                 f.write(line)
             else:
-                import ipdb;ipdb.set_trace()
                 x = line.split()
                 ref = x[3]
                 alt = x[4]
