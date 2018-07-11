@@ -27,7 +27,8 @@ def readEstSFS(estFile):
             x = line.split()
             chrpos = "{}_{}".format(x[0], x[1])
             # probMajor probA probC probG probT
-            estdict[chrpos] = map(float, x[4:])
+            # estdict[chrpos] = map(float, x[4:])
+            estdict[chrpos] = x[4:]
     return(estdict)
 
 
@@ -61,6 +62,7 @@ def derivedVCF(estdict, vcfFile):
                 # find derived
                 chrpos = "{}_{}".format(x[0], x[1])
                 estlist = map(float, estdict[chrpos])
+                print(estlist)
                 # estlist = [pMaj, pA, pC, pG, pT]
                 if estlist[0] >= 0.70:
                     if maj == ref:
