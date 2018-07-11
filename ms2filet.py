@@ -33,6 +33,18 @@ args = parser.parse_args()
 def read_msformat_file(msFile):
     """Read and parse simulations from ms formatted file from folder of files
     with basename
+
+    Params
+    ------
+    msFile: File, msformatted file
+
+    Returns
+    ------
+    gtlist: list, list of numpy arrays holding haps
+    pops: list, list of pop indices
+    pos_list: list, list of arrays of positions
+    block: int, length of locus
+
     """
     pos_list = []
     gt_list = []
@@ -82,7 +94,20 @@ def read_msformat_file(msFile):
 
 
 def filetStats(gtlist, pops, pos, block, filetpath):
-    """use filet for stats array
+    """Calculate stats from msformatted file
+
+    Params
+    ------
+    gtlist: list, list of numpy arrays holding haps
+    pops: list, list of pop indices
+    pos_list: list, list of arrays of positions
+    block: int, length of locus
+    filetpath: str, path to exe
+
+    Returns
+    ------
+    None
+
     """
     loci = len(gtlist)
     for pop1, pop2 in combinations(pops, 2):
@@ -110,7 +135,21 @@ def filetStats(gtlist, pops, pos, block, filetpath):
 
 
 def filetStatsMP(args):
-    """use filet for stats array multiprocessing for pairs of pops
+    """Calculate stats from msformatted file
+    
+    Params
+    ------
+    args[0]: list, list of pop indices
+    args[1]: list, list of pop indices
+    args[2]: list, list of numpy arrays holding haps
+    args[3]: list, list of arrays of positions
+    args[4]: int, length of locus
+    args[5]: str, path to exe
+
+    Returns
+    ------
+    None
+
     """
     pop1, pop2, gtlist, pos, block, filetpath = args
     loci = len(gtlist)
@@ -132,8 +171,6 @@ def filetStatsMP(args):
                 fakems.append("{}\n".format("".join(map(str, a))))
         msinput = "".join(fakems)
         cmd = ["{}twoPopnStats_forML".format(filetpath), str(n1), str(n2)]
-#        proc = run(cmd, stdout=PIPE, input=msinput, encoding='ascii')
-#        f.write(proc.stdout)
         run(cmd, stdout=f, input=msinput, encoding='ascii')
     return(None)
 
@@ -147,7 +184,6 @@ if __name__ == "__main__":
         argslist = []
         for pop1, pop2 in combinations(pops, 2):
             argslist.append([pop1, pop2, gtlist, pos, block, args.filet])
-
         try:
             pool.map(filetStatsMP, argslist)
         except KeyboardInterrupt:
