@@ -92,7 +92,7 @@ def derivedVCF(estdict, vcfFile):
                             f.write("{}\n".format("\t".join(x)))
                             a.write("{}\t{}\t{}\n".format(x[0], x[1], nuc))
                     else:
-                        pass
+                        import ipdb;ipdb.set_trace()
     f.close()
     a.close()
     return(None)
