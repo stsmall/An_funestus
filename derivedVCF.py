@@ -28,7 +28,6 @@ def readEstSFS(estFile):
             chrpos = "{}_{}".format(x[0], x[1])
             # probMajor probA probC probG probT
             estdict[chrpos] = x[4:]
-            import ipdb;ipdb.set_trace()
     return(estdict)
 
 
@@ -93,7 +92,7 @@ def derivedVCF(estdict, vcfFile):
                             f.write("{}\n".format("\t".join(x)))
                             a.write("{}\t{}\t{}\n".format(x[0], x[1], nuc))
                     else:
-                        import ipdb;ipdb.set_trace()
+                        print(line)
     f.close()
     a.close()
     return(None)
