@@ -61,9 +61,13 @@ def derivedVCF(estdict, vcfFile):
                 chrpos = "{}_{}".format(x[0], x[1])
                 estlist = map(float, estdict[chrpos])
                 # estlist = [pMaj, pA, pC, pG, pT]
-                if estlist[0] >= 0.90:
+                if estlist[0] >= 0.70:
                     if maj == ref:
-                        f.write("{}\n".format("\t".join(x)))
+                        if x[-1] == "./.":
+                            x[-1] = "{}/{}".format(maj, maj)
+                            f.write("{}\n".format("\t".join(x)))
+                        else:
+                            f.write("{}\n".format("\t".join(x)))
                     elif maj == alt:
                         x[4] = ref
                         x[3] = alt
@@ -72,6 +76,8 @@ def derivedVCF(estdict, vcfFile):
                                 x[i+8] = '1/1'
                             elif gt == '1/1':
                                 x[i+8] = '0/0'
+                            elif gt == "./.":
+                                x[i+8] = "{}/{}".format(maj, maj)
                         f.write("{}\n".format("\t".join(x)))
                         a.write("{}\t{}\t{}\n".format(x[0], x[1], maj))
                 else:
@@ -80,7 +86,11 @@ def derivedVCF(estdict, vcfFile):
                         ix = estlist[1:].index(pNuc)
                         nuc = nucstr[ix]
                         if nuc == ref:
-                            f.write("{}\n".format("\t".join(x)))
+                            if x[-1] == "./.":
+                                x[-1] = "{}/{}".format(nuc, nuc)
+                                f.write("{}\n".format("\t".join(x)))
+                            else:
+                                f.write("{}\n".format("\t".join(x)))
                         elif nuc == alt:
                             x[4] = ref
                             x[3] = alt
@@ -89,6 +99,8 @@ def derivedVCF(estdict, vcfFile):
                                     x[i+8] = '1/1'
                                 elif gt == '1/1':
                                     x[i+8] = '0/0'
+                                elif gt == "./.":
+                                    x[i+8] = "{}/{}".format(nuc, nuc)
                             f.write("{}\n".format("\t".join(x)))
                             a.write("{}\t{}\t{}\n".format(x[0], x[1], nuc))
                     else:
