@@ -50,11 +50,11 @@ def derivedVCF(estdict, vcfFile):
                 # gt only and count major
                 calt = 0
                 cref = 0
-                for i, sample in enumerate(x[8:]):
+                for i, sample in enumerate(x[9:]):
                     gt = sample.split(":")[0]
                     calt += gt.count('1')
                     cref += gt.count('0')
-                    x[i+8] = gt
+                    x[i+9] = gt
                 if cref > calt:
                     maj = ref
                 else:
@@ -70,11 +70,11 @@ def derivedVCF(estdict, vcfFile):
                     elif maj == alt:
                         x[4] = ref
                         x[3] = alt
-                        for i, gt in enumerate(x[8:]):
+                        for i, gt in enumerate(x[9:]):
                             if gt == '0/0':
-                                x[i+8] = '1/1'
+                                x[i+9] = '1/1'
                             elif gt == '1/1':
-                                x[i+8] = '0/0'
+                                x[i+9] = '0/0'
                         f.write("{}\n".format("\t".join(x)))
                         a.write("{}\t{}\t{}\n".format(x[0], x[1], maj))
                 else:
@@ -87,11 +87,11 @@ def derivedVCF(estdict, vcfFile):
                         elif nuc == alt:
                             x[4] = ref
                             x[3] = alt
-                            for i, gt in enumerate(x[8:]):
+                            for i, gt in enumerate(x[9:]):
                                 if gt == '0/0':
-                                    x[i+8] = '1/1'
+                                    x[i+9] = '1/1'
                                 elif gt == '1/1':
-                                    x[i+8] = '0/0'
+                                    x[i+9] = '0/0'
                             f.write("{}\n".format("\t".join(x)))
                             a.write("{}\t{}\t{}\n".format(x[0], x[1], nuc))
                     else:
