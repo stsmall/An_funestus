@@ -15,7 +15,6 @@ parser.add_argument('-v', "--vcfFile", type=str, required=True,
 parser.add_argument('-e', "--estFile", type=str, required=True,
                     help="est-sfs output with 1st and 2nd columns having CHR"
                     "POS")
-parser.add_argument('--outgroup', action="store_true", help="last gt is outgroup")
 args = parser.parse_args()
 
 
@@ -32,7 +31,7 @@ def readEstSFS(estFile):
     return(estdict)
 
 
-def derivedVCF(estdict, vcfFile, outgrp):
+def derivedVCF(estdict, vcfFile):
     """
     """
     nucstr = 'ACGT'
@@ -64,12 +63,7 @@ def derivedVCF(estdict, vcfFile, outgrp):
                 # estlist = [pMaj, pA, pC, pG, pT]
                 if estlist[0] >= 0.70:
                     if maj == ref:
-                        if outgrp:
-                            if x[-1] == "./.":
-                                x[-1] = "{}/{}".format(maj, maj)
-                                f.write("{}\n".format("\t".join(x)))
-                        else:
-                            f.write("{}\n".format("\t".join(x)))
+                        f.write("{}\n".format("\t".join(x)))
                     elif maj == alt:
                         x[4] = ref
                         x[3] = alt
@@ -78,23 +72,15 @@ def derivedVCF(estdict, vcfFile, outgrp):
                                 x[i+8] = '1/1'
                             elif gt == '1/1':
                                 x[i+8] = '0/0'
-                            elif outgrp:
-                                if x[-1] == "./.":
-                                    x[-1] = "{}/{}".format(maj, maj)
                         f.write("{}\n".format("\t".join(x)))
                         a.write("{}\t{}\t{}\n".format(x[0], x[1], maj))
                 else:
                     pNuc = max(estlist[1:])
-                    if pNuc >= 0.75:
+                    if pNuc >= 0.70:
                         ix = estlist[1:].index(pNuc)
                         nuc = nucstr[ix]
                         if nuc == ref:
-                            if outgrp:
-                                if x[-1] == "./.":
-                                    x[-1] = "{}/{}".format(nuc, nuc)
-                                    f.write("{}\n".format("\t".join(x)))
-                            else:
-                                f.write("{}\n".format("\t".join(x)))
+                            f.write("{}\n".format("\t".join(x)))
                         elif nuc == alt:
                             x[4] = ref
                             x[3] = alt
@@ -103,9 +89,6 @@ def derivedVCF(estdict, vcfFile, outgrp):
                                     x[i+8] = '1/1'
                                 elif gt == '1/1':
                                     x[i+8] = '0/0'
-                                elif outgrp:
-                                    if x[-1] == "./.":
-                                        x[-1] = "{}/{}".format(nuc, nuc)
                             f.write("{}\n".format("\t".join(x)))
                             a.write("{}\t{}\t{}\n".format(x[0], x[1], nuc))
                     else:
@@ -117,4 +100,4 @@ def derivedVCF(estdict, vcfFile, outgrp):
 
 if __name__ == "__main__":
     estdict = readEstSFS(args.estFile)
-    derivedVCF(estdict, args.vcfFile, args.outgroup)
+    derivedVCF(estdict, args.vcfFile)
