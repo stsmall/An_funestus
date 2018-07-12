@@ -36,6 +36,7 @@ def alleleCounts(fileList):
     ancdict = defaultdict(list)
     bporderlist = []
     for f in fileList:
+        bporderlist = []
         with open(f, 'r') as ing:
             line = next(ing)
             for line in ing:
