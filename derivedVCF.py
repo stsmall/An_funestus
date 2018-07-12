@@ -95,7 +95,7 @@ def derivedVCF(estdict, vcfFile):
                             f.write("{}\n".format("\t".join(x)))
                             a.write("{}\t{}\t{}\n".format(x[0], x[1], nuc))
                     else:
-                        print(line)
+                        print("{}\n{}".format(estlist, line))
     f.close()
     a.close()
     return(None)
