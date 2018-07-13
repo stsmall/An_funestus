@@ -11,7 +11,7 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('-f', "--fasta", required=True, type=str,
                     help='path to fasta file')
-parser.add_argument('-aa', '--ancestral', action='store_true',
+parser.add_argument('-aa', '--ancestral', required=True, type=str,
                     help='ancestral fasta')
 args = parser.parse_args()
 
