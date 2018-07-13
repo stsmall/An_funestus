@@ -29,7 +29,7 @@ def vcf2fasta(fastaFile, ancAllele):
     with open(ancAllele, 'r') as fa:
         for line in fa:
             x = line.split()
-            fastadict[x[0]][x[1]] = x[2]
+            fastadict[x[0]][int(x[1])] = x[2]
 
     fasta_sequences = SeqIO.parse(fastaFile, 'fasta')
     with open("ancRef.fasta", 'w') as out_file:
