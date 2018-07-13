@@ -73,8 +73,12 @@ def derivedVCF(estdict, vcfFile):
                         for i, gt in enumerate(x[9:]):
                             if gt == '0/0':
                                 x[i+9] = '1/1'
+                            elif gt == '0|0':
+                                x[i+9] = '1|1'
                             elif gt == '1/1':
                                 x[i+9] = '0/0'
+                            elif gt == '1|1':
+                                x[i+9] = '0|0'
                         f.write("{}\n".format("\t".join(x)))
                         a.write("{}\t{}\t{}\n".format(x[0], x[1], maj))
                 else:
@@ -90,8 +94,12 @@ def derivedVCF(estdict, vcfFile):
                             for i, gt in enumerate(x[9:]):
                                 if gt == '0/0':
                                     x[i+9] = '1/1'
+                                elif gt == '0|0':
+                                    x[i+9] = '1|1'
                                 elif gt == '1/1':
                                     x[i+9] = '0/0'
+                                elif gt == '1|1':
+                                    x[i+9] = '0|0'
                             f.write("{}\n".format("\t".join(x)))
                             a.write("{}\t{}\t{}\n".format(x[0], x[1], nuc))
                     else:
