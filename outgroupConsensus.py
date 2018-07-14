@@ -91,6 +91,7 @@ def mutationMatrix(mutarray, anc, ref, alt):
 def collapseOutgroup(vcfFile, outgroup_ix):
     """Combine the gt calls of outgroup individual is fixed and 1 is missing
     """
+    # TODO: fix to take into account tri-allelic
     f = open("{}.outgroup".format(vcfFile), 'w')
     t = open("ancestral_prob.txt", 'w')
     mutarray = np.zeros((4, 4))
@@ -104,46 +105,50 @@ def collapseOutgroup(vcfFile, outgroup_ix):
                 f.write("{}\n".format('\t'.join(samples)))
             else:
                 x = line.split()
-                gt = []
-                # import ipdb;ipdb.set_trace()
-                for ix in outgroup_ix:
-                    gt.append(x[ix+9])
-                gt_out = " ".join(gt)
-                homR = len(re.findall(r'0\|0|0/0', gt_out))
-                homA = len(re.findall(r'1\|1|1/1', gt_out))
-                het = len(re.findall(r'0\|1|0/1', gt_out))
-                if (homR + homA + het) == 0:
-                    l_ix = [x[3], x[4]]
-                    if "|" in line:
-                        gt_con = ".|.:.:.:.:."
-                    else:
-                        gt_con = "./.:.:.:.:."
+                if (len(x[3]) or len(x[4])) > 1:
+                    pass
                 else:
-                    o_ix = [homR, homA, het].index(max([homR, homA, het]))
-                    if o_ix == 0:
-                        gt_con = re.search(r'(0\|0|0/0)[^ ]*', gt_out).group()
-                        l_ix = x[3]
-                    elif o_ix == 1:
-                        gt_con = re.search(r'(1\|1|1/1)[^ ]*', gt_out).group()
-                        l_ix = x[4]
-                    else:
-                        gt_con = re.search(r'(0\|1|0/1)[^ ]*', gt_out).group()
+                    gt = []
+                    for ix in outgroup_ix:
+                        gt.append(x[ix+9])
+                    gt_out = " ".join(gt)
+                    homR = len(re.findall(r'0\|0|0/0', gt_out))
+                    homA = len(re.findall(r'1\|1|1/1', gt_out))
+                    het = len(re.findall(r'0\|1|0/1', gt_out))
+                    if (homR + homA + het) == 0:
                         l_ix = [x[3], x[4]]
-                x.append(gt_con)
-                try:
-                    lstate = ['A', 'C', 'G', 'T']
-                    lprob = [0.03, 0.03, 0.03, 0.03]
-                    if len(l_ix) > 1:
-                        for s in l_ix:
-                            lprob[lstate.index(s)] = 0.47
+                        if "|" in line:
+                            gt_con = ".|.:.:.:.:."
+                        else:
+                            gt_con = "./.:.:.:.:."
                     else:
-                        lprob[lstate.index(l_ix)] = .93
-                        mutarray = mutationMatrix(mutarray, l_ix, x[3], x[4])
-                        # well defined AncAllele
-                    t.write("{} {} {}\n".format(x[0], int(x[1])-1, " ".join(map(str, lprob))))
-                except ValueError:
-                    import ipdb;ipdb.set_trace()
-                f.write("{}\n".format('\t'.join(x)))
+                        o_ix = [homR, homA, het].index(max([homR, homA, het]))
+                        if o_ix == 0:
+                            gt_con = re.search(r'(0\|0|0/0)[^ ]*', gt_out).group()
+                            l_ix = x[3]
+                        elif o_ix == 1:
+                            gt_con = re.search(r'(1\|1|1/1)[^ ]*', gt_out).group()
+                            l_ix = x[4]
+                        else:
+                            gt_con = re.search(r'(0\|1|0/1)[^ ]*', gt_out).group()
+                            l_ix = [x[3], x[4]]
+                    x.append(gt_con)
+                    try:
+                        if "." in l_ix:
+                            l_ix.remove(".")
+                        lstate = ['A', 'C', 'G', 'T']
+                        lprob = [0.03, 0.03, 0.03, 0.03]
+                        if len(l_ix) > 1:
+                            for s in l_ix:
+                                lprob[lstate.index(s)] = 0.47
+                        else:
+                            lprob[lstate.index(l_ix)] = .93
+                            mutarray = mutationMatrix(mutarray, l_ix, x[3], x[4])
+                            # well defined AncAllele
+                        t.write("{} {} {}\n".format(x[0], int(x[1])-1, " ".join(map(str, lprob))))
+                    except ValueError:
+                        import ipdb;ipdb.set_trace()
+                    f.write("{}\n".format('\t'.join(x)))
     t.close()
     f.close()
     return(mutarray)
