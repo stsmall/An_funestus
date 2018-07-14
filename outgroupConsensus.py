@@ -105,9 +105,7 @@ def collapseOutgroup(vcfFile, outgroup_ix):
                 f.write("{}\n".format('\t'.join(samples)))
             else:
                 x = line.split()
-                if (len(x[3]) or len(x[4])) > 1:
-                    pass
-                else:
+                if len(x[3]) < 1 and len(x[4]) < 1:
                     gt = []
                     for ix in outgroup_ix:
                         gt.append(x[ix+9])
