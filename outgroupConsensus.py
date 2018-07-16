@@ -131,13 +131,12 @@ def collapseOutgroup(vcfFile, outgroup_ix):
                             gt_con = re.search(r'(0\|1|0/1)[^ ]*', gt_out).group()
                             l_ix = [x[3], x[4]]
                     x.append(gt_con)
-                    print(l_ix)
                     try:
                         if "." in l_ix:
                             l_ix.remove(".")
                         lstate = ['A', 'C', 'G', 'T']
                         lprob = [0.03, 0.03, 0.03, 0.03]
-                        if len(l_ix) > 1:
+                        if type(l_ix) is list:
                             for s in l_ix:
                                 lprob[lstate.index(s)] = 0.47
                         else:
