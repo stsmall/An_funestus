@@ -131,6 +131,7 @@ def collapseOutgroup(vcfFile, outgroup_ix):
                             gt_con = re.search(r'(0\|1|0/1)[^ ]*', gt_out).group()
                             l_ix = [x[3], x[4]]
                     x.append(gt_con)
+                    print(l_ix)
                     try:
                         if "." in l_ix:
                             l_ix.remove(".")
