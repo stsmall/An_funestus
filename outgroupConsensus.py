@@ -143,6 +143,7 @@ def collapseOutgroup(vcfFile, outgroup_ix):
                             lprob[lstate.index(l_ix)] = .93
                             mutarray = mutationMatrix(mutarray, l_ix, x[3], x[4])
                             # well defined AncAllele
+                        import ipdb;ipdb.set_trace()
                         t.write("{} {} {}\n".format(x[0], int(x[1])-1, " ".join(map(str, lprob))))
                     except ValueError:
                         import ipdb;ipdb.set_trace()
