@@ -42,6 +42,7 @@ def readgff(gffFile):
                         gffdict[x[0]] = ([], [])
                         gffdict[x[0]][0].append(int(x[3]))
                         gffdict[x[0]][1].append(int(x[4]))
+    import ipdb;ipdb.set_trace()
     return(gffdict)
 
 
