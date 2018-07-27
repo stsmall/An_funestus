@@ -64,8 +64,11 @@ def thinVcf(gffdict, vcfFile, thin):
                     # in a gene
                     pass
                 else:
-                    if pos + thin < gffdict[chrom][0][s] and pos - thin > gffdict[chrom][1][s-1]:
-                        f.write(line)
+                    try:
+                        if pos + thin < gffdict[chrom][0][s] and pos - thin > gffdict[chrom][1][s-1]:
+                            f.write(line)
+                    except IndexError:
+                        import ipdb;ipdb.set_trace()
     return(None)
 
 
