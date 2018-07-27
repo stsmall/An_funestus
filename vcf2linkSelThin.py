@@ -60,15 +60,13 @@ def thinVcf(gffdict, vcfFile, thin):
                 chrom = x[0]
                 s = bisect.bisect_right(gffdict[chrom][0], pos)
                 e = bisect.bisect_right(gffdict[chrom][1], pos)
-                if s-1 == e:
-                    # in a gene
-                    pass
-                else:
+                if s-1 != e:
                     try:
                         if pos + thin < gffdict[chrom][0][s] and pos - thin > gffdict[chrom][1][s-1]:
                             f.write(line)
                     except IndexError:
-                        import ipdb;ipdb.set_trace()
+                        continue
+                        # this is the end of the chromosome arm, so there is no position right of it
     return(None)
 
 
