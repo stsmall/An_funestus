@@ -58,9 +58,8 @@ def thinVcf(gffdict, vcfFile, thin):
                 x = line.split()
                 pos = int(x[1])
                 chrom = x[0]
-                import ipdb;ipdb.set_trace()
-                s = bisect.bisect_right(pos, gffdict[chrom][0])
-                e = bisect.bisect_right(pos, gffdict[chrom][1])
+                s = bisect.bisect_right(gffdict[chrom][0], pos)
+                e = bisect.bisect_right(gffdict[chrom][1], pos)
                 if s-1 == e:
                     # in a gene
                     pass
