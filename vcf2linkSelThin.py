@@ -49,7 +49,7 @@ def readgff(gffFile):
 def thinVcf(gffdict, vcfFile, thin):
     """
     """
-    f = open("vcf.out", 'w')
+    f = open("{}.noLinkSel".format(vcfFile.rstrip(".vcf")), 'w')
     with open(vcfFile, 'r') as vcf:
         for line in vcf:
             if line.startswith("#"):
