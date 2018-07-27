@@ -58,6 +58,7 @@ def thinVcf(gffdict, vcfFile, thin):
                 x = line.split()
                 pos = int(x[1])
                 chrom = x[0]
+                import ipdb;ipdb.set_trace()
                 s = bisect.bisect_right(pos, gffdict[chrom][0])
                 e = bisect.bisect_right(pos, gffdict[chrom][1])
                 if s-1 == e:
