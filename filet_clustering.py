@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 """
 Created on Mon Sep  3 15:44:31 2018
@@ -10,7 +10,7 @@ import numpy as np
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-f', "--InFile", help="filet output file")
+parser.add_argument('-f', "--InFile", required=True, help="filet output file")
 parser.add_argument('-p1', "--prob1", type=float, default=0.90,
                     help="prob noIntrog")
 parser.add_argument('-p2', "--prob2", type=float, default=0.95,
