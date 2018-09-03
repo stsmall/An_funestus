@@ -54,8 +54,11 @@ def clusterIntrogressedRegions(InFile, p1, p2):
                         rollmean = np.mean(clustlist)
 #                if max(clustlist) >= p2:
 #                    f.write("{}\t{}\t{}\t{}\n".format(chrom, start, end, pred))
-                f.write("{}\t{}\t{}\t{}\t{}\n".format(chrom, start, end, pred,
-                                                      max(clustlist)))
+                try:
+                    f.write("{}\t{}\t{}\t{}\t{}\n".format(chrom, start, end, pred,
+                                                          max(clustlist)))
+                except ValueError:
+                    import ipdb;ipdb.set_trace()
             clustlist = []
     f.close()
     return(None)
