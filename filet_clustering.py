@@ -36,7 +36,7 @@ def clusterIntrogressedRegions(InFile, p1, p2):
             mig12 = float(x[6])
             mig21 = float(x[7])
             if (1-noMig) >= p1:
-                if x[4] == '1':
+                if pred == '1':
                     clustlist.append(mig12)
                     rollmean = p1
                     while rollmean >= p1:
@@ -44,7 +44,7 @@ def clusterIntrogressedRegions(InFile, p1, p2):
                         end += int(line.split()[2])
                         clustlist.append(float(line.split()[6]))
                         rollmean = np.mean(clustlist)
-                elif x[4] == '2':
+                elif pred == '2':
                     clustlist.append(mig21)
                     rollmean = p1
                     while rollmean >= p1:
@@ -52,13 +52,20 @@ def clusterIntrogressedRegions(InFile, p1, p2):
                         end += int(line.split()[2])
                         clustlist.append(float(line.split()[7]))
                         rollmean = np.mean(clustlist)
+                elif pred == '0':
+                    pl = [mig12, mig21]
+                    ix = pl.index(max(pl)) + 6
+                    clustlist.append(max(pl))
+                    rollmean = p1
+                    while rollmean >= p1:
+                        line = filet.next()
+                        end += int(line.split()[2])
+                        clustlist.append(float(line.split()[ix]))
+                        rollmean = np.mean(clustlist)
 #                if max(clustlist) >= p2:
 #                    f.write("{}\t{}\t{}\t{}\n".format(chrom, start, end, pred))
-                try:
-                    f.write("{}\t{}\t{}\t{}\t{}\n".format(chrom, start, end, pred,
-                                                          max(clustlist)))
-                except ValueError:
-                    import ipdb;ipdb.set_trace()
+                f.write("{}\t{}\t{}\t{}\t{}\n".format(chrom, start, end, pred,
+                                                      max(clustlist)))
             clustlist = []
     f.close()
     return(None)
