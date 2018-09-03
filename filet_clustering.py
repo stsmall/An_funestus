@@ -27,49 +27,50 @@ def clusterIntrogressedRegions(InFile, p1, p2):
     with open(InFile, 'r') as filet:
         next(filet)
         for line in filet:
-            x = line.split()
-            chrom = x[0]
-            start = int(x[1])
-            end = int(x[2])
-            pred = x[4]
-            noMig = float(x[5])
-            mig12 = float(x[6])
-            mig21 = float(x[7])
-            if (1-noMig) >= p1:
-                if pred == '1':
-                    clustlist.append(mig12)
-                    rollmean = p1
-                    while rollmean >= p1:
-                        line = next(filet)
-                        pred += line.split()[4]
-                        end = int(line.split()[2])
-                        clustlist.append(float(line.split()[6]))
-                        rollmean = np.mean(clustlist)
-                elif pred == '2':
-                    clustlist.append(mig21)
-                    rollmean = p1
-                    while rollmean >= p1:
-                        line = next(filet)
-                        pred += line.split()[4]
-                        end = int(line.split()[2])
-                        clustlist.append(float(line.split()[7]))
-                        rollmean = np.mean(clustlist)
-                elif pred == '0':
-                    pl = [mig12, mig21]
-                    ix = pl.index(max(pl)) + 6
-                    clustlist.append(max(pl))
-                    rollmean = p1
-                    while rollmean >= p1:
-                        line = next(filet)
-                        pred += line.split()[4]
-                        end = int(line.split()[2])
-                        clustlist.append(float(line.split()[ix]))
-                        rollmean = np.mean(clustlist)
-#                if max(clustlist) >= p2:
-#                    f.write("{}\t{}\t{}\t{}\n".format(chrom, start, end, pred))
-                f.write("{}\t{}\t{}\t{}\t{}\n".format(chrom, start, end, pred,
-                                                      max(clustlist)))
-            clustlist = []
+            try:
+                x = line.split()
+                chrom = x[0]
+                start = int(x[1])
+                end = int(x[2])
+                pred = x[4]
+                noMig = float(x[5])
+                mig12 = float(x[6])
+                mig21 = float(x[7])
+                if (1-noMig) >= p1:
+                    if pred == '1':
+                        clustlist.append(mig12)
+                        rollmean = p1
+                        while rollmean >= p1:
+                            line = next(filet)
+                            pred += line.split()[4]
+                            end = int(line.split()[2])
+                            clustlist.append(float(line.split()[6]))
+                            rollmean = np.mean(clustlist)
+                    elif pred == '2':
+                        clustlist.append(mig21)
+                        rollmean = p1
+                        while rollmean >= p1:
+                            line = next(filet)
+                            pred += line.split()[4]
+                            end = int(line.split()[2])
+                            clustlist.append(float(line.split()[7]))
+                            rollmean = np.mean(clustlist)
+                    elif pred == '0':
+                        pl = [mig12, mig21]
+                        ix = pl.index(max(pl)) + 6
+                        clustlist.append(max(pl))
+                        rollmean = p1
+                        while rollmean >= p1:
+                            line = next(filet)
+                            pred += line.split()[4]
+                            end = int(line.split()[2])
+                            clustlist.append(float(line.split()[ix]))
+                            rollmean = np.mean(clustlist)
+                    f.write("{}\t{}\t{}\t{}\t{}\n".format(chrom, start, end, pred, max(clustlist)))
+                clustlist = []
+            except StopIteration:
+                f.write("{}\t{}\t{}\t{}\t{}\n".format(chrom, start, end, pred, max(clustlist)))
+                break
     f.close()
     return(None)
 
