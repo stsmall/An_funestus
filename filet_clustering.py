@@ -13,8 +13,6 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-f', "--InFile", required=True, help="filet output file")
 parser.add_argument('-p1', "--prob1", type=float, default=0.90,
                     help="prob noIntrog")
-parser.add_argument('-p2', "--prob2", type=float, default=0.95,
-                    help="keep window with min prob")
 args = parser.parse_args()
 
 
