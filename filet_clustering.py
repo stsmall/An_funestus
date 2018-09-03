@@ -25,7 +25,7 @@ def clusterIntrogressedRegions(InFile, p1, p2):
     clustlist = []
     f = open("{}.bed".format(InFile), 'w')
     with open(InFile, 'r') as filet:
-        filet.next()
+        next(filet)
         for line in filet:
             x = line.split()
             chrom = x[0]
@@ -40,7 +40,7 @@ def clusterIntrogressedRegions(InFile, p1, p2):
                     clustlist.append(mig12)
                     rollmean = p1
                     while rollmean >= p1:
-                        line = filet.next()
+                        line = next(filet)
                         end += int(line.split()[2])
                         clustlist.append(float(line.split()[6]))
                         rollmean = np.mean(clustlist)
@@ -48,7 +48,7 @@ def clusterIntrogressedRegions(InFile, p1, p2):
                     clustlist.append(mig21)
                     rollmean = p1
                     while rollmean >= p1:
-                        line = filet.next()
+                        line = next(filet)
                         end += int(line.split()[2])
                         clustlist.append(float(line.split()[7]))
                         rollmean = np.mean(clustlist)
@@ -58,7 +58,7 @@ def clusterIntrogressedRegions(InFile, p1, p2):
                     clustlist.append(max(pl))
                     rollmean = p1
                     while rollmean >= p1:
-                        line = filet.next()
+                        line = next(filet)
                         end += int(line.split()[2])
                         clustlist.append(float(line.split()[ix]))
                         rollmean = np.mean(clustlist)
