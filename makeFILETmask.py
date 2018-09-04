@@ -22,7 +22,7 @@ args = parser.parse_args()
 def buildMaskFile(InFile, window, nLength):
     """
     """
-    r = re.compile(r'N{100,}')
+    r = re.compile(r'N{{{0},}}'.format(nLength))
     f = open("{}.mask".format(InFile), 'w')
     with open(InFile, 'r') as fasta:
         for line in fasta:
