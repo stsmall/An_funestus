@@ -23,7 +23,7 @@ def buildMaskFile(InFile, window, nLength):
     """
     """
     r = re.compile(r'N{20,}')
-    f = open("{}.mask".format(InFile))
+    f = open("{}.mask".format(InFile), 'w')
     with open(InFile, 'r') as fasta:
         for line in fasta:
             if line.startswith(">"):
