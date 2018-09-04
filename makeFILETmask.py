@@ -14,12 +14,13 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-f', "--InFile", required=True, help="fasta input file")
 parser.add_argument('-w', "--window_size", type=int, default=10000,
                     help="window size for calculation")
-parser.add_argument('-n', "--nLength", type=int, default=20, help="length of "
+parser.add_argument('-n', "--nLength", type=int, default=100, help="length of "
                     "Ns to cosider for masking")
+parser.add_argument('-m', "--skipMask", type=float, default=0.50)
 args = parser.parse_args()
 
 
-def buildMaskFile(InFile, window, nLength):
+def buildMaskFile(InFile, window, nLength, skipMask):
     """
     """
     r = re.compile(r'N{{{0},}}'.format(nLength))
@@ -34,10 +35,11 @@ def buildMaskFile(InFile, window, nLength):
                 step = window
                 while end < len(seq):
                     seqR = seq[start:end]
-                    cord = [(m.start(), m.end()) for m in re.finditer(r, seqR)]
-                    for i, j in cord:
-                        f.write("0 {} {}\n".format(i/window, j/window))
-                    f.write("\n//\n\n")
+                    if (seqR.count('N') / window) < 0.50:
+                        cord = [(m.start(), m.end()) for m in re.finditer(r, seqR)]
+                        for i, j in cord:
+                            f.write("0 {} {}\n".format(i/window, j/window))
+                        f.write("\n//\n\n")
                     start += step
                     end += step
                 break
@@ -46,4 +48,4 @@ def buildMaskFile(InFile, window, nLength):
 
 
 if __name__ == "__main__":
-    buildMaskFile(args.InFile, args.window_size, args.nLength)
+    buildMaskFile(args.InFile, args.window_size, args.nLength, args.skipMask)
