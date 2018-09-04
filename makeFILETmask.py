@@ -37,9 +37,10 @@ def buildMaskFile(InFile, window, nLength, skipMask):
                     seqR = seq[start:end]
                     if (seqR.count('N') / window) < 0.50:
                         cord = [(m.start(), m.end()) for m in re.finditer(r, seqR)]
-                        for i, j in cord:
-                            f.write("0 {} {}\n".format(i/window, j/window))
-                        f.write("\n//\n\n")
+                        if cord:
+                            for i, j in cord:
+                                f.write("0 {} {}\n".format(i/window, j/window))
+                            f.write("\n//\n\n")
                     start += step
                     end += step
                 break
