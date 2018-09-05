@@ -19,7 +19,7 @@ parser.add_argument('-w', "--window_size", type=int, default=10000,
 parser.add_argument('-n', "--nLength", type=int, default=100, help="length of "
                     "Ns to cosider for masking")
 parser.add_argument('-m', "--skipMask", type=float, default=0.50)
-parser.add_argument('-n', "--numberMask", type=int, help="how many mask lines")
+parser.add_argument('-nMask', "--numberMask", type=int, help="how many mask lines")
 args = parser.parse_args()
 
 
