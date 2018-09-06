@@ -77,4 +77,4 @@ def clusterIntrogressedRegions(InFile, p1, p2):
 
 
 if __name__ == "__main__":
-    clusterIntrogressedRegions(args.InFile, args.prob1, args.prob2)
+    clusterIntrogressedRegions(args.InFile, args.prob1)
