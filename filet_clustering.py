@@ -16,7 +16,7 @@ parser.add_argument('-p1', "--prob1", type=float, default=0.90,
 args = parser.parse_args()
 
 
-def clusterIntrogressedRegions(InFile, p1, p2):
+def clusterIntrogressedRegions(InFile, p1):
     """
 
     """
