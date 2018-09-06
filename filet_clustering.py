@@ -38,32 +38,35 @@ def clusterIntrogressedRegions(InFile, p1, p2):
                     if pred == '1':
                         clustlist.append(mig12)
                         rollmean = p1
-                        while rollmean >= p1:
+                        while (1-noMig) >= p1 and rollmean >= p1:
                             line = next(filet)
                             pred += line.split()[4]
                             end = int(line.split()[2])
                             clustlist.append(float(line.split()[6]))
                             rollmean = np.mean(clustlist)
+                            noMig = float(line.split()[5])
                     elif pred == '2':
                         clustlist.append(mig21)
                         rollmean = p1
-                        while rollmean >= p1:
+                        while (1-noMig) >= p1 and rollmean >= p1:
                             line = next(filet)
                             pred += line.split()[4]
                             end = int(line.split()[2])
                             clustlist.append(float(line.split()[7]))
                             rollmean = np.mean(clustlist)
+                            noMig = float(line.split()[5])
                     elif pred == '0':
                         pl = [mig12, mig21]
                         ix = pl.index(max(pl)) + 6
                         clustlist.append(max(pl))
                         rollmean = p1
-                        while rollmean >= p1:
+                        while (1-noMig) >= p1 and rollmean >= p1:
                             line = next(filet)
                             pred += line.split()[4]
                             end = int(line.split()[2])
                             clustlist.append(float(line.split()[ix]))
                             rollmean = np.mean(clustlist)
+                            noMig = float(line.split()[5])
                     f.write("{}\t{}\t{}\t{}\t{}\n".format(chrom, start, end, pred, max(clustlist)))
                 clustlist = []
             except StopIteration:
