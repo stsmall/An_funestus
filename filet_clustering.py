@@ -63,9 +63,9 @@ def clusterIntrogressedRegions(InFile, p1):
                             clustlist.append(float(line.split()[7]))
                             rollmean = np.mean(clustlist)
                             noMig = float(line.split()[5])
-                    elif pred == '0':
+                    else:
                         pl = [mig12, mig21]
-                        ix = pl.index(max(pl)) + 6
+                        ix = pl.index(max(pl)) + 7
                         clustlist.append(max(pl))
                         rollmean = p1
                         line = next(filet)
@@ -79,10 +79,7 @@ def clusterIntrogressedRegions(InFile, p1):
                             clustlist.append(float(line.split()[ix]))
                             rollmean = np.mean(clustlist)
                             noMig = float(line.split()[5])
-                    try:
-                        f.write("{}\t{}\t{}\t{}\t{}\n".format(chrom, start, end, pred, max(clustlist)))
-                    except ValueError:
-                        import ipdb;ipdb.set_trace()
+                    f.write("{}\t{}\t{}\t{}\t{}\n".format(chrom, start, end, pred, max(clustlist)))
                 clustlist = []
             except StopIteration:
                 f.write("{}\t{}\t{}\t{}\t{}\n".format(chrom, start, end, pred, max(clustlist)))
