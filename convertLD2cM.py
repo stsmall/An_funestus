@@ -51,5 +51,5 @@ if __name__ == "__main__":
     s, r = readLDjump(args.ld)
     poslist, cmlist = makeRecombMap(s, r)
     with open("cM.LD.out", 'w') as cm:
-        for i, j in zip(poslist,cmlist):
+        for i, j in zip(poslist, cmlist):
             cm.write("{} {}\n".format(i, j))
