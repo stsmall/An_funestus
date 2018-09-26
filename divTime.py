@@ -43,6 +43,8 @@ parser.add_argument("--boots", type=int, default=0,
                     help="number of bootstraps")
 parser.add_argument("--mle", action="store_true", help="use MLE, default is"
                     "fast approx. MLE requires larger popsizes")
+parser.add_argument("--mu", type=float, default=2.9E-9, help="mutation rate")
+
 args = parser.parse_args()
 
 
@@ -188,7 +190,7 @@ def estimDiv(c, psmc, r, t):
     return(r, t, N0, T_hat)
 
 
-def calcCI(gt, pops, psmc, boots, r, t):
+def calcCI(gt, pops, psmc, boots, r, t, mle):
     """
     """
     print("Running bootstraps...")
@@ -198,7 +200,7 @@ def calcCI(gt, pops, psmc, boots, r, t):
     for b in range(boots):
         print("bootstrap number {}".format(b+1))
         gt = gt.take(indices_rs[0][b], axis=0)
-        c, k = countN1N2N3(gt, pops)
+        c, k = countN1N2N3(gt, pops, mle)
         r, t, N0, T_hat = estimDiv(c, psmc, r, t)
         T_hatlist.append(T_hat)
     # quantiles
@@ -224,9 +226,10 @@ if __name__ == "__main__":
     t = ''
     r, t, N0, T_hat = estimDiv(c, msmc, r, t)
     if args.boots > 0:
-        t_LCI, t_HCI = calcCI(gt, pop_ix, msmc, args.boots, r, t)
+        t_LCI, t_HCI = calcCI(gt, pop_ix, msmc, args.boots, r, t, args.mle)
         print("{} in 2Ne gens ({} - {})".format(T_hat, t_LCI, t_HCI))
     else:
         print("{} in 2Ne gens".format(T_hat))
     if N0 > 0:
         print("theta at time 0: {}".format(N0))
+        print("gens since diverged: {}".format(T_hat*(N0/(2*args.mu))))
