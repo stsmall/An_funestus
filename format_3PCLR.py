@@ -11,20 +11,22 @@ from __future__ import division
 
 import argparse
 import allel
-import numpy as np
+import bisect
 import os
 import h5py
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--vcfFile", required=True,
                     help="vcfFile")
-parser.add_argument("--cM", required=True,
-                    help="physical position in cM")
+parser.add_argument("--cMMb", required=True,
+                    help="rate between SNPs in cM/Mb")
 parser.add_argument('-p', "--pops", nargs='+', action="append",
                     required=True, help="index of test pop A and B"
                     "-p 1 2 3 -p 6 7 8")
 parser.add_argument('-o', "--outgroup", nargs='+', action="append",
                     help="index of outgroup")
+parser.add_argument("--chrom", type=str, help="name of chrom for outfile")
+parser.add_argument("--mapsize", type=int, help="mapsize", required=True)
 args = parser.parse_args()
 
 
@@ -78,6 +80,33 @@ def make3PCLR(chrom, acs, cM, pos):
     f.close()
 
 
+def makecMmap(cMMbFile, pos, size):
+    """
+    """
+    snplist = []
+    cMMblist = []
+    cMlist = []
+    cM = 0
+    with open(cMMbFile, 'r') as cm:
+        for line in cm:
+            x = line.split()
+            snplist.append(int(x[0]))
+            cMMblist.append(float(x[1]))
+    for i, p in enumerate(pos):
+        ixr = bisect.bisect(snplist, p) - 1
+        ixl = ixr - 1
+        if ixl != ixr:  # average between the SNPs
+            cMMb = (cMMblist[ixl] + cMMblist[ixr]) / 2
+        else:
+            cMMb = cMMblist[ixl]
+        if i == 0:
+            cM += (cMMb * p) / size
+        else:
+            cM += (cMMb * (p - pos[i-1])) / size
+        cMlist.append(cM)
+    return(cMlist)
+
+
 if __name__ == "__main__":
     popset = args.pops
     pop_ix = [list(map(int, x)) for x in popset]
@@ -85,3 +114,5 @@ if __name__ == "__main__":
     callset = loadvcf(args.vcfFile)
     gt, pos = filterGT(callset, pop_ix, outgroup_ix)
     acs = countAlleles(gt, pop_ix, outgroup_ix)
+    cM = makecMmap(args.cMMb, pos, args.mapsize)
+    make3PCLR(args.chrom, acs, cM, pos)
