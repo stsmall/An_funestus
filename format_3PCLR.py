@@ -105,20 +105,21 @@ def makecMmap(cMMbFile, pos, size):
         else:
             ixr = bisect.bisect(snplist, p)
             ixl = ixr - 1
-            if (ixr - ixl) > 1:  # average between the SNPs
-                if i == 0:
-                    total_dist = p
-                else:
-                    total_dist =  p - pos[i-1]
-                rw = (snplist[ixr] - p) / total_dist
-                lw = (p - snplist[ixl]) / total_dist
-                cMMb = (cMMblist[ixl] * lw) + (cMMblist[ixr] * rw)
-            else:
-                cMMb = cMMblist[ixl]
+            cMMb = cMMblist[ixl] + cMMblist[ixl] * ((p - snplist[i]) / (snplist[i+1] - snplist[i]))
             if i == 0:
-                cM += (cMMb * p) / size
+                cM += cMMb * p / size
             else:
                 cM += (cMMb * (p - pos[i-1])) / size
+#            if (ixr - ixl) > 1:  # average between the SNPs
+#                if i == 0:
+#                    total_dist = p
+#                else:
+#                    total_dist =  p - pos[i-1]
+#                rw = (snplist[ixr] - p) / total_dist
+#                lw = (p - snplist[ixl]) / total_dist
+#                cMMb = (cMMblist[ixl] * lw) + (cMMblist[ixr] * rw)
+#            else:
+#                cMMb = cMMblist[ixl]
             import ipdb;ipdb.set_trace()
             cMlist.append(cM)
     return(cMlist)
