@@ -99,17 +99,19 @@ def makecMmap(cMMbFile, pos, size):
             x = line.split()
             snplist.append(int(x[0]))
             cMMblist.append(float(x[1]))
-    for i, p in enumerate(pos):
-        if p <= snplist[0]:
-            cMlist.append(0)
+    for i, p1 in enumerate(pos):
+        if p1 <= snplist[0]:
+            cMMb = cMMblist[1] - cMMblist[1] * ((p1 - snplist[i]) / (snplist[i+1] - snplist[i]))
         else:
-            ixr = bisect.bisect(snplist, p)
+            ixr = bisect.bisect(snplist, p1)
             ixl = ixr - 1
-            cMMb = cMMblist[ixl] + cMMblist[ixl] * ((p - snplist[i]) / (snplist[i+1] - snplist[i]))
-            if i == 0:
-                cM += cMMb * p / size
-            else:
-                cM += (cMMb * (p - pos[i-1])) / size
+            cMMb = cMMblist[ixl] + cMMblist[ixl] * ((p1 - snplist[i]) / (snplist[i+1] - snplist[i]))
+        if i == 0:
+            cM += cMMb * p1 / size
+        else:
+            cM += (cMMb * (p1 - pos[i-1])) / size
+        cMlist.append(cM)
+
 #            if (ixr - ixl) > 1:  # average between the SNPs
 #                if i == 0:
 #                    total_dist = p
@@ -121,7 +123,6 @@ def makecMmap(cMMbFile, pos, size):
 #            else:
 #                cMMb = cMMblist[ixl]
             import ipdb;ipdb.set_trace()
-            cMlist.append(cM)
     return(cMlist)
 
 
