@@ -92,12 +92,13 @@ def makeRecombMapBooker(snplist, rholist, chrom):
 
 
 if __name__ == "__main__":
+    chrom = args.chrom
     s, r = readLDjump(args.ld)
 #    poslist, cmMblist, cmlist = makeRecombMap(s, r, args.Ne, args.mapsize)
-    poslist, cmMblist, cmlist = makeRecombMapBooker(s, r, args.chrom)
-    with open("cMMb.LD.out", 'w') as cm:
+    poslist, cmMblist, cmlist = makeRecombMapBooker(s, r, chrom)
+    with open("{}.cMMb.LD.out".format(chrom), 'w') as cm:
         for i, j in zip(poslist, cmMblist):
             cm.write("{} {}\n".format(i, j))
-    with open("cM.LD.out", 'w') as cm:
+    with open("{}.cM.LD.out".format(chrom), 'w') as cm:
         for i, j in zip(poslist, cmlist):
             cm.write("{} {}\n".format(i, j))
