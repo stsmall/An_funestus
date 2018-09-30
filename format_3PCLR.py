@@ -110,7 +110,6 @@ def makecMmap(cMFile, pos, size):
 #        else:
 #            cM += (cMMb * (p1 - pos[i-1])) / size
         cMlist2.append(cM)
-        import ipdb;ipdb.set_trace()
 #            if (ixr - ixl) > 1:  # average between the SNPs
 #                if i == 0:
 #                    total_dist = p
