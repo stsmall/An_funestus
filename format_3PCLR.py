@@ -112,6 +112,7 @@ def makecMmap(cMMbFile, pos, size):
         else:
             cM += (cMMb * (p - pos[i-1])) / size
         cMlist.append(cM)
+        import ipdb;ipdb.set_trace()
     return(cMlist)
 
 
