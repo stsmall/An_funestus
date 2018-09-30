@@ -21,6 +21,7 @@ import allel
 import bisect
 import os
 import h5py
+import numpy as np
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--vcfFile", required=True,
@@ -99,26 +100,27 @@ def makecMmap(cMFile, pos, size):
             snplist.append(int(x[0]))
             cMlist.append(float(x[1]))
     for p1 in pos:
-        if p1 <= snplist[0]:
-            cM = cMlist[0] * (p1 / snplist[0])
-        else:
-            ixr = bisect.bisect(snplist, p1)
-            ixl = ixr - 1
-            cM = cMlist[ixl] + cMlist[ixl] * (p1 / snplist[ixr])
-#        if i == 0:
-#            cM += cMMb * p1 / size
+        cMlist2.append(np.interp(p1, snplist, cMlist))
+#        if p1 <= snplist[0]:
+#            cM = cMlist[0] * (p1 / snplist[0])
 #        else:
-#            cM += (cMMb * (p1 - pos[i-1])) / size
-        cMlist2.append(cM)
-#            if (ixr - ixl) > 1:  # average between the SNPs
-#                if i == 0:
-#                    total_dist = p
-#                else:
-#                    total_dist =  p - pos[i-1]
-#                rw = (snplist[ixr] - p) / total_dist
-#                lw = (p - snplist[ixl]) / total_dist
-#                cMMb = (cMMblist[ixl] * lw) + (cMMblist[ixr] * rw)
-#            else:
+#            ixr = bisect.bisect(snplist, p1)
+#            ixl = ixr - 1
+#            cM = cMlist[ixl] + cMlist[ixl] * (p1 / snplist[ixr])
+##        if i == 0:
+##            cM += cMMb * p1 / size
+##        else:
+##            cM += (cMMb * (p1 - pos[i-1])) / size
+#        cMlist2.append(cM)
+##            if (ixr - ixl) > 1:  # average between the SNPs
+##                if i == 0:
+##                    total_dist = p
+##                else:
+##                    total_dist =  p - pos[i-1]
+##                rw = (snplist[ixr] - p) / total_dist
+##                lw = (p - snplist[ixl]) / total_dist
+##                cMMb = (cMMblist[ixl] * lw) + (cMMblist[ixr] * rw)
+##            else:
 #                cMMb = cMMblist[ixl]
     return(cMlist2)
 
