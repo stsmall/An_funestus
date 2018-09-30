@@ -3,6 +3,8 @@
 """
 Created on Thu Sep 13 12:43:47 2018
 
+maplength in cM
+
 @author: scott
 """
 
@@ -96,7 +98,13 @@ def makecMmap(cMMbFile, pos, size):
         ixr = bisect.bisect(snplist, p) - 1
         ixl = ixr - 1
         if ixl != ixr:  # average between the SNPs
-            cMMb = (cMMblist[ixl] + cMMblist[ixr]) / 2
+            if i == 0:
+                total_dist = p
+            else:
+                total_dist =  p - pos[i-1]
+            rw = (snplist[ixr] - p) / total_dist
+            lw = (p - snplist[ixl]) / total_dist
+            cMMb = (cMMblist[ixl] * lw) + (cMMblist[ixr] * rw)
         else:
             cMMb = cMMblist[ixl]
         if i == 0:

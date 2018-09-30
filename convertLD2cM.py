@@ -9,16 +9,11 @@ from __future__ import print_function
 from __future__ import division
 
 import argparse
-import numpy as np
 from math import log
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--ld", required=True,
-                    help="ldjump file")
-parser.add_argument("--Ne", type=int, default=1E6,
-                    help="effective size")
-parser.add_argument("--mapsize", type=int, required=True,
-                    help="mapsize of Chromosome")
+parser.add_argument("--ld", required=True, help="ldjump file")
+parser.add_argument("--chrom", type=str, required=True, help="chrom map size")
 args = parser.parse_args()
 
 
@@ -58,15 +53,48 @@ def makeRecombMap(snplist, rholist, Ne, size):
             # cumRho += (pos * rholist[i])/size
         else:
             cM += (cMMb_rho * (pos - snplist[i-1])) / size
-            # cumRho += (pos-snplist[i-1] * rholist[i])/size
-        # print(cumRho)
         cMlist.append(cM)
+    return(poslist, cMMblist, cMlist)
+
+
+def makeRecombMapBooker(snplist, rholist, chrom):
+    """Following the conversion method of Booker et al 2017 in genetics
+    """
+    if chrom == "X":
+        mapsize = 44.7
+    elif chrom == "3R":
+        mapsize = 90.9
+    elif chrom == "3L":
+        mapsize = 89.1
+    elif chrom == "2L":
+        mapsize = 63.2
+    elif chrom == "2R":
+        mapsize = 94.8
+    poslist = []
+    rhocum = []
+    cMlist = []
+    cMMblist = []
+    for i, pos in enumerate(snplist):
+        if i == 0:
+            rhoTemp = (rholist[i] * (pos))
+        else:
+            rhoTemp = (rholist[i] * (pos - snplist[i-1]))
+        if i == 0:
+            rhocum.append(rhoTemp)
+        else:
+            rhocum.append(rhocum[-1] + rhoTemp)
+        poslist.append(pos)
+    for i, j in enumerate(rhocum):
+        cMperSNP = (j / rhocum[-1])
+        cMlist.append(cMperSNP)
+        cMMblist.append(((cMlist[i] - cMlist[i-1])*mapsize) / ((snplist[i] - snplist[i-1])/1E6))
     return(poslist, cMMblist, cMlist)
 
 
 if __name__ == "__main__":
     s, r = readLDjump(args.ld)
-    poslist, cmMblist, cmlist = makeRecombMap(s, r, args.Ne, args.mapsize)
+#    poslist, cmMblist, cmlist = makeRecombMap(s, r, args.Ne, args.mapsize)
+    poslist, cmMblist, cmlist = makeRecombMapBooker(s, r, args.chrom)
     with open("cMMb.LD.out", 'w') as cm:
         for i, j in zip(poslist, cmMblist):
             cm.write("{} {}\n".format(i, j))
