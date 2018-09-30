@@ -120,7 +120,7 @@ if __name__ == "__main__":
     pop_ix = [list(map(int, x)) for x in popset]
     outgroup_ix = [list(map(int, x)) for x in args.outgroup][0]
     callset = loadvcf(args.vcfFile)
-    gt, pos = filterGT(callset, pop_ix, outgroup_ix)
+    gt, pos = filterGT(callset, outgroup_ix)
     acs = countAlleles(gt, pop_ix, outgroup_ix)
     cM = makecMmap(args.cMMb, pos, args.mapsize)
     make3PCLR(args.chrom, acs, cM, pos)
