@@ -4,6 +4,11 @@
 Created on Thu Sep 13 12:43:47 2018
 
 maplength in cM
+##contig=<ID=3L,length=46588628>
+##contig=<ID=3R,length=43534138>
+##contig=<ID=2L,length=44382598>
+##contig=<ID=2R,length=54617495>
+##contig=<ID=X,length=20138207>
 
 @author: scott
 """
@@ -98,10 +103,10 @@ def makecMmap(cMMbFile, pos, size):
         if p <= snplist[0]:
             cMlist.append(0)
         else:
-            import ipdb;ipdb.set_trace()
+            # import ipdb;ipdb.set_trace()
             ixr = bisect.bisect(snplist, p)
             ixl = ixr - 1
-            if ixl != ixr:  # average between the SNPs
+            if (ixr - ixl) > 1:  # average between the SNPs
                 if i == 0:
                     total_dist = p
                 else:
