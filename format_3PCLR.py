@@ -106,11 +106,11 @@ def makecMmap(cMMbFile, pos, size):
             ixr = bisect.bisect(snplist, p1)
             ixl = ixr - 1
             cMMb = cMMblist[ixl] + cMMblist[ixl] * ((p1 - snplist[i]) / (snplist[i+1] - snplist[i]))
-        if i == 0:
-            cM += cMMb * p1 / size
-        else:
-            cM += (cMMb * (p1 - pos[i-1])) / size
-        cMlist.append(cM)
+#        if i == 0:
+#            cM += cMMb * p1 / size
+#        else:
+#            cM += (cMMb * (p1 - pos[i-1])) / size
+        cMlist.append(cMMb)
         import ipdb;ipdb.set_trace()
 #            if (ixr - ixl) > 1:  # average between the SNPs
 #                if i == 0:
