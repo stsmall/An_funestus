@@ -87,30 +87,29 @@ def make3PCLR(chrom, acs, cM, pos):
     f.close()
 
 
-def makecMmap(cMMbFile, pos, size):
+def makecMmap(cMFile, pos, size):
     """
     """
     snplist = []
-    cMMblist = []
     cMlist = []
-    cM = 0
-    with open(cMMbFile, 'r') as cm:
+    cMlist2 = []
+    with open(cMFile, 'r') as cm:
         for line in cm:
             x = line.split()
             snplist.append(int(x[0]))
-            cMMblist.append(float(x[1]))
-    for i, p1 in enumerate(pos):
+            cMlist.append(float(x[1]))
+    for p1 in pos:
         if p1 <= snplist[0]:
-            cMMb = cMMblist[1] - cMMblist[1] * ((p1 - snplist[i]) / (snplist[i+1] - snplist[i]))
+            cM = cMlist[0] * (p1 / snplist[0])
         else:
             ixr = bisect.bisect(snplist, p1)
             ixl = ixr - 1
-            cMMb = cMMblist[ixl] + cMMblist[ixl] * ((p1 - snplist[i]) / (snplist[i+1] - snplist[i]))
+            cM = cMlist[ixl] + cMlist[ixl] * (p1 / snplist[ixr])
 #        if i == 0:
 #            cM += cMMb * p1 / size
 #        else:
 #            cM += (cMMb * (p1 - pos[i-1])) / size
-        cMlist.append(cMMb)
+        cMlist2.append(cM)
         import ipdb;ipdb.set_trace()
 #            if (ixr - ixl) > 1:  # average between the SNPs
 #                if i == 0:
@@ -122,7 +121,7 @@ def makecMmap(cMMbFile, pos, size):
 #                cMMb = (cMMblist[ixl] * lw) + (cMMblist[ixr] * rw)
 #            else:
 #                cMMb = cMMblist[ixl]
-    return(cMlist)
+    return(cMlist2)
 
 
 if __name__ == "__main__":
