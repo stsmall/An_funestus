@@ -80,11 +80,10 @@ def countAlleles(gt, pops, outgrp):
 def make3PCLR(chrom, acs, cM, pos):
     """
     """
-    import ipdb; ipdb.set_trace()
     f = open("{}.3pclrIn.txt".format(chrom), 'w')
     f.write("chr\tphypos\tgenpos\tmpopA\tnpopA\tmpopB\tnpopB\tmpopC\tnpopC\n")
-    for p1, c1, a1, b1, c1 in zip(pos, cM, acs["A"], acs["B"], acs["C"]):
-        f.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(chrom, p1, c1, a1[1],sum(a1), b1[1], sum(b1), c1[1], sum(c1)))
+    for p1, cM1, a1, b1, c1 in zip(pos, cM, acs["A"], acs["B"], acs["C"]):
+        f.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(chrom, p1, cM1, a1[1],sum(a1), b1[1], sum(b1), c1[1], sum(c1)))
     f.close()
 
 
@@ -120,6 +119,7 @@ def makecMmap(cMMbFile, pos, size):
                 cM += (cMMb * p) / size
             else:
                 cM += (cMMb * (p - pos[i-1])) / size
+            import ipdb;ipdb.set_trace()
             cMlist.append(cM)
     return(cMlist)
 
