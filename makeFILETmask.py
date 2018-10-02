@@ -11,6 +11,7 @@ from __future__ import division
 from __future__ import print_function
 import argparse
 import re
+import numpy as np
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-f', "--InFile", required=True, help="fasta input file")
@@ -29,6 +30,7 @@ def buildMaskFile(InFile, window, nLength, skipMask, numb):
     n = 0
     r = re.compile(r'N{{{0},}}'.format(nLength))
     f = open("{}.mask".format(InFile), 'w')
+    seqRlist = []
     with open(InFile, 'r') as fasta:
         for line in fasta:
             if line.startswith(">"):
@@ -39,7 +41,7 @@ def buildMaskFile(InFile, window, nLength, skipMask, numb):
                 step = window
                 while end < len(seq):
                     seqR = seq[start:end]
-                    if (seqR.count('N') / window) <= 0.50:
+                    if (seqR.count('N') / window) <= skipMask:
                         cord = [(m.start(), m.end()) for m in re.finditer(r, seqR)]
                         if cord:
                             for i, j in cord:
@@ -47,12 +49,22 @@ def buildMaskFile(InFile, window, nLength, skipMask, numb):
                         else:
                             f.write("0 0 0\n")
                         f.write("\n//\n\n")
+                        seqRlist.append(seqR)
                     start += step
                     end += step
                     n += 1
                     if n == numb:
                         break
-                break
+        if n < numb:
+            for seqR in np.random.choice(seqRlist, numb-n):
+                # resample from seqRlist
+                cord = [(m.start(), m.end()) for m in re.finditer(r, seqR)]
+                if cord:
+                    for i, j in cord:
+                        f.write("0 {} {}\n".format(i/window, j/window))
+                else:
+                    f.write("0 0 0\n")
+                f.write("\n//\n\n")
     f.close()
     return(None)
 
