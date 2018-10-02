@@ -55,7 +55,7 @@ def buildMaskFile(InFile, window, nLength, skipMask, numb):
                     n += 1
                     if n == numb:
                         break
-        if n < numb:
+        if numb and n < numb:
             for seqR in np.random.choice(seqRlist, numb-n):
                 # resample from seqRlist
                 cord = [(m.start(), m.end()) for m in re.finditer(r, seqR)]
