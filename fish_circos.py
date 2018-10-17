@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Aug 29 16:42:26 2017
-show-coords -Trlcb
+show-coords -Trlcd
+sort -k1,1 -k2,2n
 @author: scott
 """
 import argparse
@@ -86,7 +87,7 @@ def addmaptoaln(infile, ddfish):
     return(None)
 
 
-def makelinks(ddfish, outfile, infile, size=5000):
+def makelinks(ddfish, outfile, infile, size=1000):
     """links are from - to, but files are named to - from
     """
     qs = []
@@ -120,6 +121,7 @@ def makelinks(ddfish, outfile, infile, size=5000):
                         rend = header.index("E1")
                         qstart = header.index("S2")
                         qend = header.index("E2")
+                        import ipdb;ipdb.set_trace()
                         f.write("{}\n".format(
                                 " ".join([x[-1], x[qstart],
                                           x[qend], x[-2],
