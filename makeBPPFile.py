@@ -8,6 +8,7 @@ python makeBPPfile.py --gff gff.bed --distance 2000 --length 1000 --fasta FOO.fa
 
 import argparse
 from Bio import SeqIO
+from collections import defaultdict
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--gff", type=str, required=True, help="bed file from gff")
@@ -19,25 +20,38 @@ parser.add_argument("--fasta", type=str, required=True, help="fasta file")
 parser.add_argument("--clust", type=int, default=1000000, help="how many loci"
                     " to cluster into 1 file")
 parser.add_argument('-s', "--samples", type=int, required=True)
+parser.add_argument("--exons", action="store_true")
 args = parser.parse_args()
 
 
-def getCDS(gffFile):
+def getCDS(gffFile, exons):
     """
     """
-    cdsdict = {}
+    if exons:
+        cdsdict = defaultdict(list)
+    else:
+        cdsdict = {}
     i = 0
     with open(gffFile, 'r') as gff:
         for line in gff:
             x = line.split()
-            chrom = x[0]
             feature = x[2]
             start = x[3]
             end = x[4]
-            direction = x[6]  # reverse complement
-            if "CDS" in feature:
-                cdsdict["cds_" + str(i)] = [int(start)-1, int(end), direction]
-                i += 1
+            if exons:
+                if "CDS" in feature:
+                    while "CDS" in feature:
+                        cdsdict["cds_" + str(i)].append((int(start)-1, int(end)))
+                        line = gff.next()
+                        x = line.split()
+                        feature = x[2]
+                        start = x[3]
+                        end = x[4]
+                    i += 1
+            else:
+                if "gene" in feature:
+                    cdsdict["cds_" + str(i)] = [int(start)-1, int(end)]
+                    i += 1
     return(cdsdict)
 
 
@@ -102,6 +116,6 @@ def bppFormat(CDSdict, nonCDSdict, fastaFile, clust, samples):
 
 if __name__ == "__main__":
     gffFile = args.gff
-    CDSdict = getCDS(gffFile)
+    CDSdict = getCDS(gffFile, args.exons)
     nonCDSdict = getNonCDS(CDSdict, args.length, args.distance)
     bppFormat(CDSdict, nonCDSdict, args.fasta, args.clust, args.samples)
