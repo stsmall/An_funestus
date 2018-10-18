@@ -157,6 +157,7 @@ def bppFormat(CDSdict, nonCDSdict, fastaFile, clust, exons):
         e = nonCDSdict["ncds_{}".format(len(nonCDSdict.keys))][1]
     out_file = open("nCDS.bpp.{}-{}.txt".format(s, e), 'w')
     for i in range(len(nonCDSdict.keys())):
+        import ipdb;ipdb.set_trace()
         k = "ncds_" + str(i)
         xlist = nonCDSdict[k]
         locuslist = []
