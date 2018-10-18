@@ -173,7 +173,6 @@ def bppFormatnCDS(nonCDSdict, fastaFile, clust):
         locuslist = []
         headerlist = []
         if loci > clust:
-            import ipdb;ipdb.set_trace()
             out_file.close()
             try:
                 s = nonCDSdict["ncds_{}".format(i)][0]
