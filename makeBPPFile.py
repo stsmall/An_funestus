@@ -144,7 +144,7 @@ def bppFormatCDS(CDSdict, nonCDSdict, fastaFile, clust, exons):
         length = len(locuslist[0])
         # Ns check point
         if any(seqX.count("N")/length > 0.50 for seqX in locuslist):
-            pass
+            print("skipping, too many Ns")
         else:
             out_file.write("\n{} {}\n\n".format(samples, length))
             for head, seq in zip(headerlist, locuslist):
