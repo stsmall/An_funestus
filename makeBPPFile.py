@@ -20,6 +20,7 @@ parser.add_argument("--fasta", type=str, required=True, help="fasta file")
 parser.add_argument("--clust", type=int, default=1000000, help="how many loci"
                     " to cluster into 1 file")
 parser.add_argument("--exons", action="store_true")
+parser.add_argument("--chromlen", type=int, help="length for non-coding loci")
 args = parser.parse_args()
 
 
@@ -54,29 +55,37 @@ def getCDS(gffFile, exons):
     return(cdsdict)
 
 
-def getNonCDS(cdsdict, lengths, distance, exons):
+def getNonCDS(cdsdict, lengths, distance, exons, chromlen):
     """
     """
     noncdsdict = {}
-    init = 0
-    import ipdb;ipdb.set_trace()
     for i, k in enumerate(cdsdict.keys()):
-        if exons:
-            end = cdsdict[k][-1][1]
-            next_start = cdsdict["cds_" + str(i+1)][0][0]
-        else:
-            end = cdsdict[k][1]
-            next_start = cdsdict["cds_" + str(i+1)][0]
-        if init == 0:
+        if i == 0:
             end = 0
             if exons:
                 next_start = cdsdict[k][0][0]
             else:
                 next_start = cdsdict[k][0]
+        else:
+            try:
+                if exons:
+                    end = cdsdict[k][-1][1]
+                    next_start = cdsdict["cds_" + str(i+1)][0][0]
+                else:
+                    end = cdsdict[k][1]
+                    next_start = cdsdict["cds_" + str(i+1)][0]
+            except KeyError:
+                # beyond the genes in gff
+                if chromlen:
+                    next_start = chromlen
+                else:
+                    break
         Sstart = end + distance
         Send = Sstart + lengths
-        if next_start - Send > distance:
+        while next_start - Send > distance:
             noncdsdict["ncds" + str(i)] = [int(Sstart)-1, int(Send)]
+            Sstart = end + distance
+            Send = Sstart + lengths
     return(noncdsdict)
 
 
@@ -147,5 +156,5 @@ if __name__ == "__main__":
     fastaFile = args.fasta
     clust = args.clust
     CDSdict = getCDS(gffFile, exons)
-    nonCDSdict = getNonCDS(CDSdict, length, distance, exons)
+    nonCDSdict = getNonCDS(CDSdict, length, distance, exons, args.chromlen)
     bppFormat(CDSdict, nonCDSdict, fastaFile, clust, exons)
