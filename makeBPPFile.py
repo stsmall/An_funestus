@@ -102,7 +102,7 @@ def bppFormat(CDSdict, nonCDSdict, fastaFile, clust, exons):
     fasta_sequences = list(SeqIO.parse(fastaFile, 'fasta'))
     # CDS
     print("CDS file")
-    loci = 1
+    loci = 0
     s = CDSdict["cds_0"][0]
     try:
         e = CDSdict["cds_{}".format(clust)][1]
@@ -122,6 +122,7 @@ def bppFormat(CDSdict, nonCDSdict, fastaFile, clust, exons):
             except KeyError:
                 e = CDSdict["cds_{}".format(len(CDSdict.keys))][1]
             out_file = open("CDS.bpp.{}-{}.txt".format(s, e), 'w')
+            loci = 0
         if exons:
             for fasta in fasta_sequences:
                 headerlist.append(fasta.id)
@@ -148,7 +149,7 @@ def bppFormat(CDSdict, nonCDSdict, fastaFile, clust, exons):
 
     # nonCDS
     print("nonCDS file")
-    loci = 1
+    loci = 0
     s = nonCDSdict["ncds_0"][0]
     try:
         e = nonCDSdict["ncds_{}".format(clust)][1]
@@ -168,6 +169,7 @@ def bppFormat(CDSdict, nonCDSdict, fastaFile, clust, exons):
             except KeyError:
                 e = nonCDSdict["ncds_{}".format(len(nonCDSdict.keys))][1]
             out_file = open("CDS.bpp.{}-{}.txt".format(s, e), 'w')
+            loci = 0
         for fasta in fasta_sequences:
             header, sequence = fasta.id, str(fasta.seq)
             locuslist.append(sequence[xlist[0]:xlist[1]])
