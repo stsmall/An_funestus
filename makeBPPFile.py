@@ -107,7 +107,7 @@ def bppFormat(CDSdict, nonCDSdict, fastaFile, clust, exons):
     try:
         e = CDSdict["cds_{}".format(clust)][1]
     except KeyError:
-        e = CDSdict["cds_{}".format(len(CDSdict.keys))][1]
+        e = CDSdict["cds_{}".format(len(CDSdict.keys)-1)][1]
     out_file = open("CDS.bpp.{}-{}.txt".format(s, e), 'w')
     for i in range(len(CDSdict.keys())):
         k = "cds_" + str(i)
@@ -120,7 +120,7 @@ def bppFormat(CDSdict, nonCDSdict, fastaFile, clust, exons):
                 s = CDSdict["cds_{}".format(i)][0]
                 e = CDSdict["cds_{}".format(i+clust)][1]
             except KeyError:
-                e = CDSdict["cds_{}".format(len(CDSdict.keys))][1]
+                e = CDSdict["cds_{}".format(len(CDSdict.keys)-1)][1]
             out_file = open("CDS.bpp.{}-{}.txt".format(s, e), 'w')
             loci = 0
         if exons:
@@ -154,10 +154,9 @@ def bppFormat(CDSdict, nonCDSdict, fastaFile, clust, exons):
     try:
         e = nonCDSdict["ncds_{}".format(clust)][1]
     except KeyError:
-        e = nonCDSdict["ncds_{}".format(len(nonCDSdict.keys))][1]
+        e = nonCDSdict["ncds_{}".format(len(nonCDSdict.keys)-1)][1]
     out_file = open("nCDS.bpp.{}-{}.txt".format(s, e), 'w')
     for i in range(len(nonCDSdict.keys())):
-        import ipdb;ipdb.set_trace()
         k = "ncds_" + str(i)
         xlist = nonCDSdict[k]
         locuslist = []
@@ -168,7 +167,7 @@ def bppFormat(CDSdict, nonCDSdict, fastaFile, clust, exons):
                 s = nonCDSdict["ncds_{}".format(i)][0]
                 e = nonCDSdict["ncds_{}".format(i+clust)][1]
             except KeyError:
-                e = nonCDSdict["ncds_{}".format(len(nonCDSdict.keys))][1]
+                e = nonCDSdict["ncds_{}".format(len(nonCDSdict.keys)-1)][1]
             out_file = open("CDS.bpp.{}-{}.txt".format(s, e), 'w')
             loci = 0
         for fasta in fasta_sequences:
