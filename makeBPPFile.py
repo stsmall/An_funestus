@@ -97,7 +97,7 @@ def getNonCDS(cdsdict, lengths, distance, exons, chromlen):
 def bppFormat(CDSdict, nonCDSdict, fastaFile, clust, exons):
     """
     """
-    fasta_sequences = SeqIO.parse(fastaFile, 'fasta')
+    fasta_sequences = list(SeqIO.parse(fastaFile, 'fasta'))
     # CDS
     print("CDS file")
     loci = 1
