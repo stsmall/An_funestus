@@ -19,7 +19,6 @@ parser.add_argument("--length", type=int, default=1000, help="length for"
 parser.add_argument("--fasta", type=str, required=True, help="fasta file")
 parser.add_argument("--clust", type=int, default=1000000, help="how many loci"
                     " to cluster into 1 file")
-parser.add_argument('-s', "--samples", type=int, required=True)
 parser.add_argument("--exons", action="store_true")
 args = parser.parse_args()
 
@@ -60,6 +59,7 @@ def getNonCDS(cdsdict, lengths, distance, exons):
     """
     noncdsdict = {}
     init = 0
+    import ipdb;ipdb.set_trace()
     for i, k in enumerate(cdsdict.keys()):
         if exons:
             end = cdsdict[k][-1][1]
