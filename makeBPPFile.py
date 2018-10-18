@@ -25,6 +25,7 @@ parser.add_argument("--chromlen", type=int, help="length for non-coding loci")
 args = parser.parse_args()
 
 
+#TODO: test exons
 def getCDS(gffFile, exons):
     """
     """
@@ -60,6 +61,7 @@ def getNonCDS(cdsdict, lengths, distance, exons, chromlen):
     """
     """
     noncdsdict = {}
+    loci = 0
     for i, key in enumerate(cdsdict.keys()):
         k = "cds_" + str(i)
         if i == 0:
@@ -84,15 +86,17 @@ def getNonCDS(cdsdict, lengths, distance, exons, chromlen):
                     Sstart = end + distance
                     Send = Sstart + lengths
                     while next_start - Send > distance:
-                        noncdsdict["ncds_" + str(i)] = [int(Sstart)-1, int(Send)]
+                        noncdsdict["ncds_" + str(loci)] = [int(Sstart)-1, int(Send)]
                         Sstart = end + distance
                         Send = Sstart + lengths
+                        loci += 1
                 else:
                     break
         Sstart = end + distance
         Send = Sstart + lengths
         if next_start - Send > distance:
-            noncdsdict["ncds_" + str(i)] = [int(Sstart)-1, int(Send)]
+            noncdsdict["ncds_" + str(loci)] = [int(Sstart)-1, int(Send)]
+            loci += 1
     return(noncdsdict)
 
 
