@@ -124,6 +124,9 @@ def bppFormat(CDSdict, nonCDSdict, fastaFile, clust, exons):
                 headerlist.append(header)
         samples = len(headerlist)
         length = len(locuslist[0])
+        # Ns check point
+        if any(seqX.count("N")/length > 0.50 for seqX in locuslist):
+            continue
         out_file.write("\n{} {}\n\n".format(samples, length))
         for head, seq in zip(headerlist, locuslist):
             out_file.write("^{} {}\n".format(head, seq))
@@ -147,6 +150,9 @@ def bppFormat(CDSdict, nonCDSdict, fastaFile, clust, exons):
             headerlist.append(header)
         samples = len(headerlist)
         length = len(locuslist[0])
+        # Ns check point
+        if any(seqX.count("N")/length > 0.50 for seqX in locuslist):
+            continue
         out_file.write("\n{} {}\n\n".format(samples, length))
         for head, seq in zip(headerlist, locuslist):
             out_file.write("^{} {}\n".format(head, seq))
