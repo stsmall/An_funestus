@@ -100,7 +100,7 @@ def getNonCDS(cdsdict, lengths, distance, exons, chromlen):
     return(noncdsdict)
 
 
-def bppFormat(CDSdict, nonCDSdict, fastaFile, clust, exons):
+def bppFormatCDS(CDSdict, nonCDSdict, fastaFile, clust, exons):
     """
     """
     fasta_sequences = list(SeqIO.parse(fastaFile, 'fasta'))
@@ -151,7 +151,13 @@ def bppFormat(CDSdict, nonCDSdict, fastaFile, clust, exons):
                 out_file.write("^{} {}\n".format(head, seq))
             loci += 1
     out_file.close()
+    return(None)
 
+
+def bppFormatnCDS(nonCDSdict, fastaFile, clust):
+    """
+    """
+    fasta_sequences = list(SeqIO.parse(fastaFile, 'fasta'))
     # nonCDS
     print("nonCDS file")
     loci = 0
@@ -175,7 +181,7 @@ def bppFormat(CDSdict, nonCDSdict, fastaFile, clust, exons):
             except KeyError:
                 s = nonCDSdict["ncds_{}".format(i)][0]
                 e = nonCDSdict["ncds_{}".format(len(nonCDSdict.keys())-1)][1]
-            out_file = open("CDS.bpp.{}-{}.txt".format(s, e), 'w')
+            out_file = open("nCDS.bpp.{}-{}.txt".format(s, e), 'w')
             loci = 0
         for fasta in fasta_sequences:
             header, sequence = fasta.id, str(fasta.seq)
@@ -204,4 +210,5 @@ if __name__ == "__main__":
     clust = args.clust
     CDSdict = getCDS(gffFile, exons)
     nonCDSdict = getNonCDS(CDSdict, length, distance, exons, args.chromlen)
-    bppFormat(CDSdict, nonCDSdict, fastaFile, clust, exons)
+    bppFormatCDS(CDSdict, nonCDSdict, fastaFile, clust, exons)
+    bppFormatnCDS(nonCDSdict, fastaFile, clust)
