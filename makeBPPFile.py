@@ -55,17 +55,24 @@ def getCDS(gffFile, exons):
     return(cdsdict)
 
 
-def getNonCDS(cdsdict, lengths, distance):
+def getNonCDS(cdsdict, lengths, distance, exons):
     """
     """
     noncdsdict = {}
     init = 0
     for i, k in enumerate(cdsdict.keys()):
-        end = cdsdict[k][1]
-        next_start = cdsdict["cds_" + str(i+1)][0]
+        if exons:
+            end = cdsdict[k][-1][1]
+            next_start = cdsdict["cds_" + str(i+1)][0][0]
+        else:
+            end = cdsdict[k][1]
+            next_start = cdsdict["cds_" + str(i+1)][0]
         if init == 0:
             end = 0
-            next_start = cdsdict[k][0]
+            if exons:
+                next_start = cdsdict[k][0][0]
+            else:
+                next_start = cdsdict[k][0]
         Sstart = end + distance
         Send = Sstart + lengths
         if next_start - Send > distance:
@@ -73,7 +80,7 @@ def getNonCDS(cdsdict, lengths, distance):
     return(noncdsdict)
 
 
-def bppFormat(CDSdict, nonCDSdict, fastaFile, clust, samples):
+def bppFormat(CDSdict, nonCDSdict, fastaFile, clust, samples, exons):
     """
     """
     fasta_sequences = SeqIO.parse(fastaFile, 'fasta')
@@ -81,34 +88,52 @@ def bppFormat(CDSdict, nonCDSdict, fastaFile, clust, samples):
     loci = 1
     out_file = open("CDS.bpp.{}.txt".format(loci), 'w')
     for cds in CDSdict:
+        xlist = CDSdict[cds]
+        locuslist = []
+        headerlist = []
         if loci > clust:
             out_file.close()
             out_file = open("CDS.bpp.{}.txt".format(loci), 'w')
-        x = CDSdict[cds]
-        length = x[1] - x[0]
+        if exons:
+            for fasta in fasta_sequences:
+                headerlist.append(fasta.id)
+                locus = ''
+                for ex in xlist:
+                    sequence = str(fasta.seq)
+                    locus += sequence[xlist[0]:xlist[1]]
+                locuslist.append(locus)
+        else:
+            for fasta in fasta_sequences:
+                header, sequence = fasta.id, str(fasta.seq)
+                locuslist.append(sequence[xlist[0]:xlist[1]])
+                headerlist.append(header)
+        samples = len(headerlist)
+        length = len(locuslist[0])
         out_file.write("\n{} {}\n\n".format(samples, length))
-        for fasta in fasta_sequences:
-            # read in header and sequence
-            header, sequence = fasta.id, str(fasta.seq)
-            locus = sequence[x[0]:x[1]]
-            out_file.write("^{} {}\n".format(header, locus))
+        for head, seq in zip(headerlist, locuslist):
+            out_file.write("^{} {}\n".format(head, seq))
         loci += 1
     out_file.close()
+
     # nonCDS
     loci = 1
     out_file = open("nCDS.bpp.{}.txt".format(loci), 'w')
     for cds in nonCDSdict:
+        xlist = nonCDSdict[cds]
+        locuslist = []
+        headerlist = []
         if loci > clust:
             out_file.close()
             out_file = open("nCDS.bpp.{}.txt".format(loci), 'w')
-        x = CDSdict[cds]
-        length = x[1] - x[0]
-        out_file.write("\n{} {}\n\n".format(samples, length))
         for fasta in fasta_sequences:
-            # read in header and sequence
             header, sequence = fasta.id, str(fasta.seq)
-            locus = sequence[x[0]:x[1]]
-            out_file.write("^{} {}\n".format(header, locus))
+            locuslist.append(sequence[xlist[0]:xlist[1]])
+            headerlist.append(header)
+        samples = len(headerlist)
+        length = len(locuslist[0])
+        out_file.write("\n{} {}\n\n".format(samples, length))
+        for head, seq in zip(headerlist, locuslist):
+            out_file.write("^{} {}\n".format(head, seq))
         loci += 1
     out_file.close()
     return(None)
@@ -116,6 +141,12 @@ def bppFormat(CDSdict, nonCDSdict, fastaFile, clust, samples):
 
 if __name__ == "__main__":
     gffFile = args.gff
-    CDSdict = getCDS(gffFile, args.exons)
-    nonCDSdict = getNonCDS(CDSdict, args.length, args.distance)
-    bppFormat(CDSdict, nonCDSdict, args.fasta, args.clust, args.samples)
+    length = args.length
+    exons = args.exons
+    distance = args.distance
+    fastaFile = args.fasta
+    clust = args.clust
+    samples = args.samples
+    CDSdict = getCDS(gffFile, exons)
+    nonCDSdict = getNonCDS(CDSdict, length, distance, exons)
+    bppFormat(CDSdict, nonCDSdict, fastaFile, clust, samples, exons)
