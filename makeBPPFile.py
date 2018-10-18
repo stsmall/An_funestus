@@ -80,7 +80,7 @@ def getNonCDS(cdsdict, lengths, distance, exons):
     return(noncdsdict)
 
 
-def bppFormat(CDSdict, nonCDSdict, fastaFile, clust, samples, exons):
+def bppFormat(CDSdict, nonCDSdict, fastaFile, clust, exons):
     """
     """
     fasta_sequences = SeqIO.parse(fastaFile, 'fasta')
@@ -146,7 +146,6 @@ if __name__ == "__main__":
     distance = args.distance
     fastaFile = args.fasta
     clust = args.clust
-    samples = args.samples
     CDSdict = getCDS(gffFile, exons)
     nonCDSdict = getNonCDS(CDSdict, length, distance, exons)
-    bppFormat(CDSdict, nonCDSdict, fastaFile, clust, samples, exons)
+    bppFormat(CDSdict, nonCDSdict, fastaFile, clust, exons)
