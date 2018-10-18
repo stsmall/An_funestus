@@ -148,7 +148,7 @@ def bppFormatCDS(CDSdict, nonCDSdict, fastaFile, clust, exons):
         else:
             out_file.write("\n{} {}\n\n".format(samples, length))
             for head, seq in zip(headerlist, locuslist):
-                out_file.write("^{} {}\n".format(head, seq))
+                out_file.write("^{}{}{}\n".format(head, ' '*(10-len(head)), seq))
             loci += 1
     out_file.close()
     return(None)
