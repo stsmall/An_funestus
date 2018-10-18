@@ -79,14 +79,18 @@ def getNonCDS(cdsdict, lengths, distance, exons, chromlen):
                 # beyond the genes in gff
                 if chromlen:
                     next_start = chromlen
+                    Sstart = end + distance
+                    Send = Sstart + lengths
+                    while next_start - Send > distance:
+                        noncdsdict["ncds" + str(i)] = [int(Sstart)-1, int(Send)]
+                        Sstart = end + distance
+                        Send = Sstart + lengths
                 else:
                     break
         Sstart = end + distance
         Send = Sstart + lengths
-        while next_start - Send > distance:
+        if next_start - Send > distance:
             noncdsdict["ncds" + str(i)] = [int(Sstart)-1, int(Send)]
-            Sstart = end + distance
-            Send = Sstart + lengths
     return(noncdsdict)
 
 
