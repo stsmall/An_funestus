@@ -163,7 +163,5 @@ if __name__ == "__main__":
     fastaFile = args.fasta
     clust = args.clust
     CDSdict = getCDS(gffFile, exons)
-    import ipdb;ipdb.set_trace()
     nonCDSdict = getNonCDS(CDSdict, length, distance, exons, args.chromlen)
-    import ipdb;ipdb.set_trace()
     bppFormat(CDSdict, nonCDSdict, fastaFile, clust, exons)
