@@ -165,6 +165,7 @@ def bppFormat(CDSdict, nonCDSdict, fastaFile, clust, exons):
         xlist = nonCDSdict[k]
         locuslist = []
         headerlist = []
+        import ipdb;ipdb.set_trace()
         if loci > clust:
             out_file.close()
             try:
