@@ -5,7 +5,8 @@ Created on Wed Oct 17 16:23:36 2018
 python makeBPPfile.py --gff gff.bed --distance 2000 --length 1000 --fasta FOO.fa
 @author: scott
 """
-
+from __future__ import print_function
+from __future__ import division
 import argparse
 from Bio import SeqIO
 from collections import defaultdict
@@ -94,6 +95,7 @@ def bppFormat(CDSdict, nonCDSdict, fastaFile, clust, exons):
     """
     fasta_sequences = SeqIO.parse(fastaFile, 'fasta')
     # CDS
+    print("CDS file")
     loci = 1
     out_file = open("CDS.bpp.{}.txt".format(loci), 'w')
     for cds in CDSdict:
@@ -125,6 +127,7 @@ def bppFormat(CDSdict, nonCDSdict, fastaFile, clust, exons):
     out_file.close()
 
     # nonCDS
+    print("nonCDS file")
     loci = 1
     out_file = open("nCDS.bpp.{}.txt".format(loci), 'w')
     for cds in nonCDSdict:
@@ -156,5 +159,7 @@ if __name__ == "__main__":
     fastaFile = args.fasta
     clust = args.clust
     CDSdict = getCDS(gffFile, exons)
+    import ipdb;ipdb.set_trace()
     nonCDSdict = getNonCDS(CDSdict, length, distance, exons, args.chromlen)
+    import ipdb;ipdb.set_trace()
     bppFormat(CDSdict, nonCDSdict, fastaFile, clust, exons)
