@@ -38,6 +38,7 @@ def getCDS(gffFile, exons):
         for line in gff:
             if not line.startswith("#"):
                 x = line.split()
+                chrom = x[0]
                 feature = x[2]
                 start = x[3]
                 end = x[4]
@@ -55,7 +56,7 @@ def getCDS(gffFile, exons):
                     if "gene" in feature:
                         cdsdict["cds_" + str(i)] = [int(start)-1, int(end)]
                         i += 1
-    return(cdsdict)
+    return(cdsdict, chrom)
 
 
 def getNonCDS(cdsdict, lengths, distance, exons, chromlen):
@@ -101,7 +102,7 @@ def getNonCDS(cdsdict, lengths, distance, exons, chromlen):
     return(noncdsdict)
 
 
-def bppFormatCDS(CDSdict, nonCDSdict, fastaFile, clust, exons, gap=10):
+def bppFormatCDS(CDSdict, nonCDSdict, fastaFile, clust, exons, just=10, prct=0.5,chrom):
     """
     """
     fasta_sequences = list(SeqIO.parse(fastaFile, 'fasta'))
@@ -113,7 +114,7 @@ def bppFormatCDS(CDSdict, nonCDSdict, fastaFile, clust, exons, gap=10):
         e = CDSdict["cds_{}".format(clust)][1]
     except KeyError:
         e = CDSdict["cds_{}".format(len(CDSdict.keys())-1)][1]
-    out_file = open("CDS.bpp.{}-{}.txt".format(s, e), 'w')
+    out_file = open("CDS.bpp.{}.{}-{}.txt".format(chrom, s, e), 'w')
     for i in range(len(CDSdict.keys())):
         k = "cds_" + str(i)
         xlist = CDSdict[k]
@@ -126,7 +127,7 @@ def bppFormatCDS(CDSdict, nonCDSdict, fastaFile, clust, exons, gap=10):
                 e = CDSdict["cds_{}".format(i+clust)][1]
             except KeyError:
                 e = CDSdict["cds_{}".format(len(CDSdict.keys())-1)][1]
-            out_file = open("CDS.bpp.{}-{}.txt".format(s, e), 'w')
+            out_file = open("CDS.bpp.{}.{}-{}.txt".format(chrom, s, e), 'w')
             loci = 0
         if exons:
             for fasta in fasta_sequences:
@@ -144,18 +145,18 @@ def bppFormatCDS(CDSdict, nonCDSdict, fastaFile, clust, exons, gap=10):
         samples = len(headerlist)
         length = len(locuslist[0])
         # Ns check point
-        if any(seqX.count("N")/length > 0.50 for seqX in locuslist):
+        if any(seqX.count("N")/length > prct for seqX in locuslist):
             print("skipping, too many Ns")
         else:
             out_file.write("\n{} {}\n\n".format(samples, length))
             for head, seq in zip(headerlist, locuslist):
-                out_file.write("^{}{}{}\n".format(head, ' '*(gap-len(head)), seq))
+                out_file.write("^{}{}{}\n".format(head, ' '*(just-len(head)), seq))
             loci += 1
     out_file.close()
     return(None)
 
 
-def bppFormatnCDS(nonCDSdict, fastaFile, clust, just=10, prct=0.5):
+def bppFormatnCDS(nonCDSdict, fastaFile, clust, just=10, prct=0.5, chrom):
     """
     """
     skip_gaps = 0
@@ -168,7 +169,7 @@ def bppFormatnCDS(nonCDSdict, fastaFile, clust, just=10, prct=0.5):
         e = nonCDSdict["ncds_{}".format(clust)][1]
     except KeyError:
         e = nonCDSdict["ncds_{}".format(len(nonCDSdict.keys())-1)][1]
-    out_file = open("nCDS.bpp.{}-{}.txt".format(s, e), 'w')
+    out_file = open("nCDS.bpp.{}.{}-{}.txt".format(chrom, s, e), 'w')
     for i in range(len(nonCDSdict.keys())):
         k = "ncds_" + str(i)
         xlist = nonCDSdict[k]
@@ -182,7 +183,7 @@ def bppFormatnCDS(nonCDSdict, fastaFile, clust, just=10, prct=0.5):
             except KeyError:
                 s = nonCDSdict["ncds_{}".format(i)][0]
                 e = nonCDSdict["ncds_{}".format(len(nonCDSdict.keys())-1)][1]
-            out_file = open("nCDS.bpp.{}-{}.txt".format(s, e), 'w')
+            out_file = open("nCDS.bpp.{}.{}-{}.txt".format(chrom, s, e), 'w')
             loci = 0
         for fasta in fasta_sequences:
             header, sequence = fasta.id, str(fasta.seq)
@@ -211,7 +212,7 @@ if __name__ == "__main__":
     distance = args.distance
     fastaFile = args.fasta
     clust = args.clust
-    CDSdict = getCDS(gffFile, exons)
+    CDSdict, chrom = getCDS(gffFile, exons)
     nonCDSdict = getNonCDS(CDSdict, length, distance, exons, args.chromlen)
-    bppFormatCDS(CDSdict, nonCDSdict, fastaFile, clust, exons)
-    bppFormatnCDS(nonCDSdict, fastaFile, clust)
+    bppFormatCDS(CDSdict, nonCDSdict, fastaFile, clust, exons, chrom)
+    bppFormatnCDS(nonCDSdict, fastaFile, clust, chrom)
