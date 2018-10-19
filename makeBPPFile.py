@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Wed Oct 17 16:23:36 2018
-python makeBPPfile.py --gff gff.bed --distance 2000 --length 1000 --fasta FOO.fa
+python makeBPPFile.py --gff gff --fasta FOO.fa [--exons] [--distance int] [--length int] [--chromlen int]
 @author: scott
 """
 from __future__ import print_function
@@ -12,7 +12,7 @@ from Bio import SeqIO
 from collections import defaultdict
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--gff", type=str, required=True, help="bed file from gff")
+parser.add_argument("--gff", type=str, required=True, help="gff file")
 parser.add_argument("--distance", type=int, default=2000, help="distance"
                     " between non-coding loci")
 parser.add_argument("--length", type=int, default=1000, help="length for"
@@ -36,24 +36,25 @@ def getCDS(gffFile, exons):
     i = 0
     with open(gffFile, 'r') as gff:
         for line in gff:
-            x = line.split()
-            feature = x[2]
-            start = x[3]
-            end = x[4]
-            if exons:
-                if "CDS" in feature:
-                    while "CDS" in feature:
-                        cdsdict["cds_" + str(i)].append((int(start)-1, int(end)))
-                        line = gff.next()
-                        x = line.split()
-                        feature = x[2]
-                        start = x[3]
-                        end = x[4]
-                    i += 1
-            else:
-                if "gene" in feature:
-                    cdsdict["cds_" + str(i)] = [int(start)-1, int(end)]
-                    i += 1
+            if not line.startswith("#"):
+                x = line.split()
+                feature = x[2]
+                start = x[3]
+                end = x[4]
+                if exons:
+                    if "CDS" in feature:
+                        while "CDS" in feature:
+                            cdsdict["cds_" + str(i)].append((int(start)-1, int(end)))
+                            line = gff.next()
+                            x = line.split()
+                            feature = x[2]
+                            start = x[3]
+                            end = x[4]
+                        i += 1
+                else:
+                    if "gene" in feature:
+                        cdsdict["cds_" + str(i)] = [int(start)-1, int(end)]
+                        i += 1
     return(cdsdict)
 
 
@@ -86,7 +87,7 @@ def getNonCDS(cdsdict, lengths, distance, exons, chromlen):
                     Sstart = end + distance
                     Send = Sstart + lengths
                     while next_start - Send > distance:
-                        noncdsdict["ncds_" + str(loci)] = [int(Sstart)-1, int(Send)]
+                        noncdsdict["ncds_" + str(loci)] = [int(Sstart), int(Send)]
                         Sstart = end + distance
                         Send = Sstart + lengths
                         loci += 1
@@ -95,7 +96,7 @@ def getNonCDS(cdsdict, lengths, distance, exons, chromlen):
         Sstart = end + distance
         Send = Sstart + lengths
         if next_start - Send > distance:
-            noncdsdict["ncds_" + str(loci)] = [int(Sstart)-1, int(Send)]
+            noncdsdict["ncds_" + str(loci)] = [int(Sstart), int(Send)]
             loci += 1
     return(noncdsdict)
 
@@ -154,9 +155,10 @@ def bppFormatCDS(CDSdict, nonCDSdict, fastaFile, clust, exons, gap=10):
     return(None)
 
 
-def bppFormatnCDS(nonCDSdict, fastaFile, clust, gap=10):
+def bppFormatnCDS(nonCDSdict, fastaFile, clust, just=10, prct=0.5):
     """
     """
+    skip_gaps = 0
     fasta_sequences = list(SeqIO.parse(fastaFile, 'fasta'))
     # nonCDS
     print("nonCDS file")
@@ -189,14 +191,16 @@ def bppFormatnCDS(nonCDSdict, fastaFile, clust, gap=10):
         samples = len(headerlist)
         length = len(locuslist[0])
         # Ns check point
-        if any(seqX.count("N")/length > 0.50 for seqX in locuslist):
-            print("skipping, too many Ns")
+        if any(seqX.count("N")/length > prct for seqX in locuslist) or any(seqX.count("-")/length > prct for seqX in locuslist):
+            print("skipping, too many Ns/gaps")
+            skip_gaps += 1
         else:
             out_file.write("\n{} {}\n\n".format(samples, length))
             for head, seq in zip(headerlist, locuslist):
-                out_file.write("^{}{}{}\n".format(head, ' '*(gap-len(head)), seq))
+                out_file.write("^{}{}{}\n".format(head, ' '*(just-len(head)), seq))
             loci += 1
     out_file.close()
+    print("{} regions skipped due to excess gaps/N's".format(skip_gaps))
     return(None)
 
 
