@@ -21,7 +21,7 @@ parser.add_argument("--fasta", type=str, required=True, help="fasta file")
 parser.add_argument("--clust", type=int, default=100, help="how many loci"
                     " to cluster into 1 file")
 parser.add_argument("--exons", action="store_true")
-parser.add_argument("--chromlen", type=int, help="length for non-coding loci")
+parser.add_argument("--chromlen", type=int, help="length of chromosome or contig")
 args = parser.parse_args()
 
 
@@ -100,7 +100,7 @@ def getNonCDS(cdsdict, lengths, distance, exons, chromlen):
     return(noncdsdict)
 
 
-def bppFormatCDS(CDSdict, nonCDSdict, fastaFile, clust, exons):
+def bppFormatCDS(CDSdict, nonCDSdict, fastaFile, clust, exons, gap=10):
     """
     """
     fasta_sequences = list(SeqIO.parse(fastaFile, 'fasta'))
@@ -148,13 +148,13 @@ def bppFormatCDS(CDSdict, nonCDSdict, fastaFile, clust, exons):
         else:
             out_file.write("\n{} {}\n\n".format(samples, length))
             for head, seq in zip(headerlist, locuslist):
-                out_file.write("^{}{}{}\n".format(head, ' '*(10-len(head)), seq))
+                out_file.write("^{}{}{}\n".format(head, ' '*(gap-len(head)), seq))
             loci += 1
     out_file.close()
     return(None)
 
 
-def bppFormatnCDS(nonCDSdict, fastaFile, clust):
+def bppFormatnCDS(nonCDSdict, fastaFile, clust, gap=10):
     """
     """
     fasta_sequences = list(SeqIO.parse(fastaFile, 'fasta'))
@@ -194,7 +194,7 @@ def bppFormatnCDS(nonCDSdict, fastaFile, clust):
         else:
             out_file.write("\n{} {}\n\n".format(samples, length))
             for head, seq in zip(headerlist, locuslist):
-                out_file.write("^{} {}\n".format(head, seq))
+                out_file.write("^{}{}{}\n".format(head, ' '*(gap-len(head)), seq))
             loci += 1
     out_file.close()
     return(None)
