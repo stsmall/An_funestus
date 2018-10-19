@@ -102,7 +102,7 @@ def getNonCDS(cdsdict, lengths, distance, exons, chromlen):
     return(noncdsdict)
 
 
-def bppFormatCDS(CDSdict, nonCDSdict, fastaFile, clust, exons, just=10, prct=0.5,chrom):
+def bppFormatCDS(CDSdict, fastaFile, clust, exons, chrom, just=10, prct=0.5):
     """
     """
     fasta_sequences = list(SeqIO.parse(fastaFile, 'fasta'))
@@ -156,7 +156,7 @@ def bppFormatCDS(CDSdict, nonCDSdict, fastaFile, clust, exons, just=10, prct=0.5
     return(None)
 
 
-def bppFormatnCDS(nonCDSdict, fastaFile, clust, just=10, prct=0.5, chrom):
+def bppFormatnCDS(nonCDSdict, fastaFile, clust, chrom, just=10, prct=0.5):
     """
     """
     skip_gaps = 0
@@ -214,5 +214,5 @@ if __name__ == "__main__":
     clust = args.clust
     CDSdict, chrom = getCDS(gffFile, exons)
     nonCDSdict = getNonCDS(CDSdict, length, distance, exons, args.chromlen)
-    bppFormatCDS(CDSdict, nonCDSdict, fastaFile, clust, exons, chrom)
+    bppFormatCDS(CDSdict, fastaFile, clust, exons, chrom)
     bppFormatnCDS(nonCDSdict, fastaFile, clust, chrom)
