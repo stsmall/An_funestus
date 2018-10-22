@@ -145,13 +145,16 @@ def bppFormatCDS(CDSdict, fastaFile, clust, exons, chrom, just=10, prct=0.5):
         samples = len(headerlist)
         length = len(locuslist[0])
         # Ns check point
-        if any(seqX.count("N")/length > prct for seqX in locuslist):
-            print("skipping, too many Ns")
-        else:
-            out_file.write("\n{} {}\n\n".format(samples, length))
-            for head, seq in zip(headerlist, locuslist):
-                out_file.write("^{}{}{}\n".format(head, ' '*(just-len(head)), seq))
-            loci += 1
+        try:
+            if any(seqX.count("N")/length > prct for seqX in locuslist):
+                print("skipping, too many Ns")
+            else:
+                out_file.write("\n{} {}\n\n".format(samples, length))
+                for head, seq in zip(headerlist, locuslist):
+                    out_file.write("^{}{}{}\n".format(head, ' '*(just-len(head)), seq))
+                loci += 1
+        except ZeroDivisionError:
+            import ipdb;ipdb.set_trace()
     out_file.close()
     return(None)
 
@@ -209,6 +212,7 @@ if __name__ == "__main__":
     gffFile = args.gff
     length = args.length
     exons = args.exons
+    assert exons is False
     distance = args.distance
     fastaFile = args.fasta
     clust = args.clust
