@@ -39,5 +39,5 @@ for i, key in enumerate(cdsdict.keys()):
     Sstart = end + distance
     Send = Sstart + length
     if next_start - Send > distance:
-        f.write("{}\t{}\t{}\n".format(sys.argv[2], int(Sstart)+1, int(Send)))
+        f.write("{}\t{}\t{}\n".format(sys.argv[2], int(Sstart), int(Send)))
 f.close()
