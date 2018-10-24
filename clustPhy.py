@@ -39,7 +39,7 @@ while j < len(lsorted):
             for line in p:
                 x = line.split()
                 spname = x[0].split("-")[0]
-                f.write("{}{}{}\n".format(spname,' '*4, x[1]))
+                f.write("^{}{}{}\n".format(spname,' '*4, x[1]))
     f.close()
     i = j
     j += clust
@@ -70,6 +70,6 @@ for phy in clustFiles:
         for line in p:
             x = line.split()
             spname = x[0].split("-")[0]
-            f.write("{}{}{}\n".format(spname,' '*4, x[1]))
+            f.write("^{}{}{}\n".format(spname,' '*4, x[1]))
 f.write("\n")
 f.close()
