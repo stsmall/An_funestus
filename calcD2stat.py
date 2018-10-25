@@ -102,4 +102,15 @@ if __name__ == "__main__":
     taxon = [quart[0], quart[1], quart[2]]
     treelist = LoadTrees(args.treefile, args.outgroup, args.dlm)
     dac_ab, dac_bc = AgeAndSupport(treelist, taxon)
+    # calculate sliding window by 100 trees or such
+    i = 0
+    step = 100
+    j = step
+    f = open("D2_clust", 'w')
+    while j < len(dac_ab):
+        d2 = np.mean(dac_ab[i:j]) - np.mean(dac_bc[i:j])
+        f.write("{}\n".format(d2))
+        i = j
+        j += step
+    f.close()
     print("D2: {}".format(np.mean(dac_ab) - np.mean(dac_bc)))
