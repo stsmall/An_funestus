@@ -79,21 +79,33 @@ import sys
 #            f.write("{}\n".format("\t".join(x)))
 
 # for traits
-header = ["aconitus", "barbirostris", "nitidus", "peditaeniatus", "maculatus", "tessellatus", "culicifacies", "vagus","unknown"]
+# cut -f2 CO1_Karama_28SEP18.clean.lab.alignment.long.log > duplist
+# cut -d" " -f 1 CO1_Karama_28SEP18.clean.lab.alignment.long.phy > list
+# grep -wv -f duplist list > singletons
+# cat CO1_Karama_28SEP18.clean.lab.alignment.long.log singletons > log.log2
+header = ["aconitus", "barbirostris", "nitidus", "peditaeniatus", "maculatus",
+          "tessellatus", "culicifacies", "vagus", "crawfordi", "unknown"]
 f = open("t", 'w')
+f.write("{}\n".format(",".join(header)))
+headerlist = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+sp = ''
+assert len(header) == len(headerlist)
 with open(sys.argv[1], 'r') as log:
     log.next()  # skip header
     for line in log:
-        try:
+        if line.startswith("\t"):
+            spix = header.index(line.split()[0].split("_")[0])
+            headerlist[spix] += 1
+        else:
+            if sum(headerlist) > 0:
+                f.write("{},{}\n".format(sp, ",".join(map(str, headerlist))))
             sp = line.split()[0]
-            headerlist = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+            headerlist = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             headerlist[header.index(sp.split("_")[0])] += 1
-            line = log.next()
-            while line.startswith("\t"):
-                spix = header.index(line.split()[0].split("_")[0])
-                headerlist[spix] += 1
-                line = log.next()
-            f.write("{},{}\n".format(sp, ",".join(map(str, headerlist))))
-        except StopIteration:
-            break
+# print last one
+sp = line.split()[0]
+headerlist = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+headerlist[header.index(sp.split("_")[0])] += 1
+f.write("{},{}\n".format(sp, ",".join(map(str, headerlist))))
+
 f.close()
