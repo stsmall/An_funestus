@@ -148,7 +148,7 @@ def bppFormatCDS(CDSdict, fastaFile, clust, exons, chrom, just=10, prct=0.5):
         # Ns check point
         try:
             if any(seqX.count("N")/length > prct for seqX in locuslist):
-                print("skipping, too many Ns")
+                # print("skipping, too many Ns")
                 skip_gaps += 1
             else:
                 out_file.write("\n{} {}\n\n".format(samples, length))
@@ -199,7 +199,7 @@ def bppFormatnCDS(nonCDSdict, fastaFile, clust, chrom, just=10, prct=0.5):
         length = len(locuslist[0])
         # Ns check point
         if any(seqX.count("N")/length > prct for seqX in locuslist) or any(seqX.count("-")/length > prct for seqX in locuslist):
-            print("skipping, too many Ns/gaps")
+            # print("skipping, too many Ns/gaps")
             skip_gaps += 1
         else:
             out_file.write("\n{} {}\n\n".format(samples, length))
