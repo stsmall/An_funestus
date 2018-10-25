@@ -107,6 +107,7 @@ def bppFormatCDS(CDSdict, fastaFile, clust, exons, chrom, just=10, prct=0.5):
     """
     fasta_sequences = list(SeqIO.parse(fastaFile, 'fasta'))
     # CDS
+    skip_gaps = 0
     print("CDS file")
     loci = 0
     s = CDSdict["cds_0"][0]
@@ -148,6 +149,7 @@ def bppFormatCDS(CDSdict, fastaFile, clust, exons, chrom, just=10, prct=0.5):
         try:
             if any(seqX.count("N")/length > prct for seqX in locuslist):
                 print("skipping, too many Ns")
+                skip_gaps += 1
             else:
                 out_file.write("\n{} {}\n\n".format(samples, length))
                 for head, seq in zip(headerlist, locuslist):
@@ -156,6 +158,7 @@ def bppFormatCDS(CDSdict, fastaFile, clust, exons, chrom, just=10, prct=0.5):
         except ZeroDivisionError:
             import ipdb;ipdb.set_trace()
     out_file.close()
+    print("{} regions skipped due to excess gaps/N's".format(skip_gaps))
     return(None)
 
 
