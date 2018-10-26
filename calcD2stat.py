@@ -80,6 +80,8 @@ def AgeAndSupport(treelist, taxon):
     C = [taxon[2]]
     AC_AB = []
     AC_BC = []
+    AB_AB = []
+    BC_BC = []
     for t in treelist:
         ass = t.search_nodes(species=A[0])
         bss = t.search_nodes(species=B[0])
@@ -87,13 +89,15 @@ def AgeAndSupport(treelist, taxon):
         t.prune(ass+bss+css, preserve_branch_length=True)
         if cMono(t, A+B):
             AC_AB.append(pairwiseDistance(t, A+C))
+            AB_AB.append(pairwiseDistance(t, A+B))
         else:
             AC_AB.append(0)
         if cMono(t, B+C):
             AC_BC.append(pairwiseDistance(t, A+C))
+            BC_BC.append(pairwiseDistance(t, B+C))
         else:
             AC_BC.append(0)
-    return(AC_AB, AC_BC)
+    return(AC_AB, AC_BC, AB_AB, BC_BC)
 
 
 if __name__ == "__main__":
@@ -101,12 +105,12 @@ if __name__ == "__main__":
     quart = quarts[0]
     taxon = [quart[0], quart[1], quart[2]]
     treelist = LoadTrees(args.treefile, args.outgroup, args.dlm)
-    dac_ab, dac_bc = AgeAndSupport(treelist, taxon)
+    dac_ab, dac_bc, dab_ab, dbc_bc= AgeAndSupport(treelist, taxon)
     # calculate sliding window by 100 trees or such
     i = 0
     step = 100
     j = step
-    f = open("D2_clust", 'w')
+    f = open("D2_clust.txt", 'w')
     while j < len(dac_ab):
         d2 = np.mean(dac_ab[i:j]) - np.mean(dac_bc[i:j])
         f.write("{}\n".format(d2))
@@ -114,3 +118,14 @@ if __name__ == "__main__":
         j += step
     f.close()
     print("D2: {}".format(np.mean(dac_ab) - np.mean(dac_bc)))
+    i = 0
+    step = 100
+    j = step
+    f = open("D1_clust.txt", 'w')
+    while j < len(dab_ab):
+        d1 = np.mean(dab_ab[i:j]) - np.mean(dbc_bc[i:j])
+        f.write("{}\n".format(d1))
+        i = j
+        j += step
+    f.close()
+    print("D1: {}".format(np.mean(dab_ab) - np.mean(dbc_bc)))
