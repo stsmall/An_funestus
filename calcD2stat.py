@@ -92,11 +92,13 @@ def AgeAndSupport(treelist, taxon):
             AB_AB.append(pairwiseDistance(t, A+B))
         else:
             AC_AB.append(0)
+            AB_AB.append(0)
         if cMono(t, B+C):
             AC_BC.append(pairwiseDistance(t, A+C))
             BC_BC.append(pairwiseDistance(t, B+C))
         else:
             AC_BC.append(0)
+            BC_BC.append(0)
     return(AC_AB, AC_BC, AB_AB, BC_BC)
 
 
