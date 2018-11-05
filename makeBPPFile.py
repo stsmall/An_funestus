@@ -20,6 +20,7 @@ parser.add_argument("--length", type=int, default=1000, help="length for"
 parser.add_argument("--fasta", type=str, required=True, help="fasta file")
 parser.add_argument("--clust", type=int, default=100, help="how many loci"
                     " to cluster into 1 file")
+parser.add_argument("--prct", type=float, default=0.5)
 parser.add_argument("--exons", action="store_true")
 parser.add_argument("--chromlen", type=int, help="length of chromosome or contig")
 args = parser.parse_args()
@@ -102,7 +103,7 @@ def getNonCDS(cdsdict, lengths, distance, exons, chromlen):
     return(noncdsdict)
 
 
-def bppFormatCDS(CDSdict, fastaFile, clust, exons, chrom, just=10, prct=0.5):
+def bppFormatCDS(CDSdict, fastaFile, clust, exons, chrom, prct, just=10):
     """
     """
     fasta_sequences = list(SeqIO.parse(fastaFile, 'fasta'))
@@ -146,6 +147,7 @@ def bppFormatCDS(CDSdict, fastaFile, clust, exons, chrom, just=10, prct=0.5):
         samples = len(headerlist)
         length = len(locuslist[0])
         # Ns check point
+        #TODO: check parsimony
         try:
             if any(seqX.count("N")/length > prct for seqX in locuslist):
                 # print("skipping, too many Ns")
@@ -162,7 +164,7 @@ def bppFormatCDS(CDSdict, fastaFile, clust, exons, chrom, just=10, prct=0.5):
     return(None)
 
 
-def bppFormatnCDS(nonCDSdict, fastaFile, clust, chrom, just=10, prct=0.5):
+def bppFormatnCDS(nonCDSdict, fastaFile, clust, chrom, prct, just=10):
     """
     """
     skip_gaps = 0
@@ -215,11 +217,12 @@ if __name__ == "__main__":
     gffFile = args.gff
     length = args.length
     exons = args.exons
+    prctmiss = args.prct
     assert exons is False
     distance = args.distance
     fastaFile = args.fasta
     clust = args.clust
     CDSdict, chrom = getCDS(gffFile, exons)
     nonCDSdict = getNonCDS(CDSdict, length, distance, exons, args.chromlen)
-    bppFormatCDS(CDSdict, fastaFile, clust, exons, chrom)
-    bppFormatnCDS(nonCDSdict, fastaFile, clust, chrom)
+    bppFormatCDS(CDSdict, fastaFile, clust, exons, chrom, prctmiss, just=10)
+    bppFormatnCDS(nonCDSdict, fastaFile, clust, chrom, prctmiss, just=10)
