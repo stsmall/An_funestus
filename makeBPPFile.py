@@ -140,14 +140,20 @@ def bppFormatCDS(CDSdict, fastaFile, clust, exons, chrom, prct, just=10):
                     locus += sequence[xlist[0]:xlist[1]]
                 locuslist.append(locus)
         else:
+            firstREF = True
+            gap = 0
             for fasta in fasta_sequences:
                 header, sequence = fasta.id, str(fasta.seq)
-                locuslist.append(sequence[xlist[0]:xlist[1]])
+                if firstREF:
+                    if sequence[xlist[0]:xlist[1]].count("-") > 0:
+                        while gap < sequence[xlist[0]:xlist[1]+gap].count("-"):
+                            gap += sequence[xlist[0]:xlist[1]].count("-")
+                locuslist.append(sequence[xlist[0]:xlist[1]+gap])
                 headerlist.append(header)
+                firstREF = False
         samples = len(headerlist)
         length = len(locuslist[0])
         # Ns check point
-        #TODO: check parsimony
         try:
             if any(seqX.count("N")/length > prct for seqX in locuslist):
                 # print("skipping, too many Ns")
