@@ -150,6 +150,7 @@ def bppFormatCDS(CDSdict, fastaFile, clust, exons, chrom, prct, just=10):
                             gap += sequence[xlist[0]:xlist[1]].count("-")
                 locuslist.append(sequence[xlist[0]:xlist[1]+gap])
                 headerlist.append(header)
+                print(gap)
                 firstREF = False
         samples = len(headerlist)
         length = len(locuslist[0])
