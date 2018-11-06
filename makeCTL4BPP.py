@@ -10,7 +10,8 @@ import glob
 ctl_files = glob.glob("*.txt")
 c = 1
 for ctl in ctl_files:
-    f = open("A01.bpp.{}.ctl".format(c), 'w')
+    loc = ctl.split(".")[3]
+    f = open("A01.bpp.{}.ctl".format(loc), 'w')
     with open(sys.argv[1], 'r') as Sctl:
         for line in Sctl:
             if line.startswith("seqfile"):
