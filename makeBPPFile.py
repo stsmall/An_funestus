@@ -164,7 +164,7 @@ def bppFormatCDS(CDSdict, fastaFile, clust, exons, chrom, prct, just=10):
                     out_file.write("^{}{}{}\n".format(head, ' '*(just-len(head)), seq))
                 loci += 1
         except ZeroDivisionError:
-            import ipdb;ipdb.set_trace()
+            continue
     out_file.close()
     print("{} regions skipped due to excess gaps/N's".format(skip_gaps))
     return(None)
