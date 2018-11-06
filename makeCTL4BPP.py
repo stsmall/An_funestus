@@ -11,7 +11,8 @@ ctl_files = glob.glob("*.txt")
 c = 1
 for ctl in ctl_files:
     loc = ctl.split(".")[3]
-    f = open("A01.bpp.{}.ctl".format(loc), 'w')
+    cds = ctl.split(".")[0]
+    f = open("A01.bpp.{}.{}.ctl".format(cds, loc), 'w')
     with open(sys.argv[1], 'r') as Sctl:
         for line in Sctl:
             if line.startswith("seqfile"):
