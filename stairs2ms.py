@@ -40,8 +40,8 @@ def stairs2ms(inFile, locLen, rhorat, epochs):
             Ne = float(x[6])
             msmc2ms2.append([gens/(4*Ne0), theta/theta0M])
     if epochs:
-        msmc2ms = msmc2ms2[0::epochs]
-        import ipdb;ipdb.set_trace()
+        reducedEpochs = len(msmc2ms2)/epochs
+        msmc2ms = msmc2ms2[0::reducedEpochs]
     else:
         msmc2ms = msmc2ms2
     tM = theta0M * locLen
