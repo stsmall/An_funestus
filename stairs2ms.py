@@ -12,9 +12,9 @@ import argparse
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--inFile", type=str, required=True, help="stairway file")
-parser.add_argument("--LocusLen", type=int, default=1000, help="locus length")
-parser.add_argument("--rhorat", type=float, help="ratio of mu/rho")
+parser.add_argument('-i', "--inFile", type=str, required=True, help="stairway file")
+parser.add_argument('-L', "--LocusLen", type=int, default=1000, help="locus length")
+parser.add_argument('-r', "--rhorat", type=float, help="ratio of mu/rho")
 args = parser.parse_args()
 
 
