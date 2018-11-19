@@ -15,13 +15,14 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-i', "--inFile", type=str, required=True, help="stairway file")
 parser.add_argument('-L', "--LocusLen", type=int, default=1000, help="locus length")
 parser.add_argument('-r', "--rhorat", type=float, help="ratio of mu/rho")
+parser.add_argument('-e', "--epochs", type=int, help="epochs to print")
 args = parser.parse_args()
 
 
-def stairs2ms(inFile, locLen, rhorat):
+def stairs2ms(inFile, locLen, rhorat, epochs):
     """
     """
-    msmc2ms = []
+    msmc2ms2 = []
     with open(inFile,  'r') as stair:
         next(stair)
         line = next(stair)
@@ -37,7 +38,11 @@ def stairs2ms(inFile, locLen, rhorat):
             thetaU = float(x[4])
             gens = float(x[5])
             Ne = float(x[6])
-            msmc2ms.append([gens/(4*Ne0), theta/theta0M])
+            msmc2ms2.append([gens/(4*Ne0), theta/theta0M])
+    if epochs:
+        msmc2ms = msmc2ms2[0::epochs]
+    else:
+        msmc2ms = msmc2ms2
     tM = theta0M * locLen
     tL = theta0L * locLen
     tU = theta0U * locLen
@@ -49,4 +54,4 @@ def stairs2ms(inFile, locLen, rhorat):
 
 
 if __name__ == "__main__":
-    stairs2ms(args.inFile, args.LocusLen, args.rhorat)
+    stairs2ms(args.inFile, args.LocusLen, args.rhorat, args.epochs)
