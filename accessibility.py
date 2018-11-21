@@ -136,7 +136,7 @@ def maskQual(bamlist, chromlendict, covdict):
 if __name__ == '__main__':
     bedlist = glob.glob("*.genCov.gz")
     chromlist = args.chroms
-    covdict, chromlendict = maskCov(bedlist, chromlist)
+    covdict, chromlendict = maskCov(bedlist, chromlist[0])
     bamlist = glob.glob("*mdup.bam")
     covdict = maskQual(bamlist, chromlendict, covdict)
     with open("accessiblity.pos.txt", 'w') as posout:
