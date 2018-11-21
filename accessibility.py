@@ -11,7 +11,7 @@ from __future__ import division
 import argparse
 import glob
 from collections import defaultdict
-from collection import Counter
+from collections import Counter
 import numpy as np
 import pysam
 import gzip
