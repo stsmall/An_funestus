@@ -17,9 +17,10 @@ import pysam
 import gzip
 from math import sqrt
 
-# parser = argparse.ArgumentParser()
-
-# args = parser.parse_args()
+parser = argparse.ArgumentParser()
+parser.add_argument('-c', "--chroms", nargs='+', action="append",
+                    required=True, help="list of chromosomes")
+args = parser.parse_args()
 
 
 def modeCount(modearray, chrom, covdict):
@@ -134,7 +135,8 @@ def maskQual(bamlist, chromlendict, covdict):
 
 if __name__ == '__main__':
     bedlist = glob.glob("*.genCov.gz")
-    covdict, chromlendict = maskCov(bedlist)
+    chromlist = args.chroms
+    covdict, chromlendict = maskCov(bedlist, chromlist)
     bamlist = glob.glob("*mdup.bam")
     covdict = maskQual(bamlist, chromlendict, covdict)
     with open("accessiblity.pos.txt", 'w') as posout:
