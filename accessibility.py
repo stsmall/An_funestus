@@ -85,10 +85,12 @@ def maskCov(bedlist, chromlist, modefx=True):
     chrom = first_chrom
     chrlendict = {}
     pos = 1
+    logging.info('{}\n'.format(bedlist))
     for bed in bedlist:
         indvbed = gzip.open(bed, 'r')
         modelist = []
         for line in indvbed.readlines():
+            import ipdb;ipdb.set_trace()
             x = line.split()
             if line == "":
                 chrlendict[chrom] = pos
