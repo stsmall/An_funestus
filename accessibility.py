@@ -90,7 +90,6 @@ def maskCov(bedlist, chromlist, modefx=True):
         indvbed = gzip.open(bed, 'r')
         modelist = []
         for line in indvbed.readlines():
-            import ipdb;ipdb.set_trace()
             x = line.split()
             if line == "":
                 chrlendict[chrom] = pos
