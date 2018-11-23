@@ -142,9 +142,9 @@ def maskQual(bamlist, chromlendict, covdict):
 if __name__ == '__main__':
     # let's try logging for a change
     logging.Logger.disabled = args.log
-    numeric_level = getattr(logging, loglevel.upper(), None)
+    numeric_level = getattr(logging, args.loglevel.upper(), None)
     if not isinstance(numeric_level, int):
-        raise ValueError('Invalid log level: %s' % loglevel)
+        raise ValueError('Invalid log level: %s' % args.loglevel)
     logging.basicConfig(filename='accessibility.log', level=numeric_level,
                         format='%(asctime)s %(message)s',
                         datefmt='%m/%d/%Y %I:%M:%S %p')
