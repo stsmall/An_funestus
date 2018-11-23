@@ -141,14 +141,15 @@ def maskQual(bamlist, chromlendict, covdict):
 
 if __name__ == '__main__':
     # let's try logging for a change
-    logging.Logger.disabled = args.log
     loglevel = args.loglevel
-    numeric_level = getattr(logging, loglevel.upper(), None)
-    if not isinstance(numeric_level, int):
-        raise ValueError('Invalid log level: %s' % loglevel)
-    logging.basicConfig(filename='accessibility.log', level=numeric_level,
-                        format='%(asctime)s %(message)s',
-                        datefmt='%m/%d/%Y %I:%M:%S %p')
+    if loglevel:
+        numeric_level = getattr(logging, loglevel.upper(), None)
+        if not isinstance(numeric_level, int):
+            raise ValueError('Invalid log level: %s' % loglevel)
+        logging.basicConfig(filename='accessibility.log', level=numeric_level,
+                            format='%(asctime)s %(message)s',
+                            datefmt='%m/%d/%Y %I:%M:%S %p')
+    logging.Logger.disabled = args.log
     bedlist = glob.glob("*.genCov.gz")
     chromlist = args.chroms
     covdict, chromlendict = maskCov(bedlist, chromlist[0])
