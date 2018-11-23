@@ -127,6 +127,8 @@ def loadTransfer(transfersFile):
     transdict = defaultdict(dict)
     with open(transfersFile, 'r') as transfer:
         for line in transfer:
+            if "+" not in line.split()[1]:
+                line = transfer.next()
             x = line.strip().split()
             chrom = x[0]
             orient_r = x[1]  # this should be positive for the ref
