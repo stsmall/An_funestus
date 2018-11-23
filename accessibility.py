@@ -141,7 +141,6 @@ def maskQual(bamlist, chromlendict, covdict):
 
 if __name__ == '__main__':
     # let's try logging for a change
-    loglevel = args.debug
     logging.Logger.disabled = args.log
     numeric_level = getattr(logging, loglevel.upper(), None)
     if not isinstance(numeric_level, int):
