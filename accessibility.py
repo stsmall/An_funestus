@@ -16,10 +16,17 @@ import numpy as np
 import pysam
 import gzip
 from math import sqrt
+import logging
+
+#logging.debug('This message should appear on the console')
+#logging.info('So should this')
+#logging.warning('And this, too')
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-c', "--chroms", nargs='+', action="append",
                     required=True, help="list of chromosomes")
+parser.add_argument("--loglevel", help="info, debug, warning, error, critical")
+parser.add_argument("--log", action="store_false")
 args = parser.parse_args()
 
 
@@ -81,8 +88,7 @@ def maskCov(bedlist, chromlist, modefx=True):
     for bed in bedlist:
         indvbed = gzip.open(bed, 'r')
         modelist = []
-        while True:
-            line = indvbed.readline()
+        for line in indvbed.readlines():
             x = line.split()
             if line == "":
                 chrlendict[chrom] = pos
@@ -134,9 +140,19 @@ def maskQual(bamlist, chromlendict, covdict):
 
 
 if __name__ == '__main__':
+    # let's try logging for a change
+    loglevel = args.debug
+    logging.Logger.disabled = args.log
+    numeric_level = getattr(logging, loglevel.upper(), None)
+    if not isinstance(numeric_level, int):
+        raise ValueError('Invalid log level: %s' % loglevel)
+    logging.basicConfig(filename='accessibility.log', level=numeric_level,
+                        format='%(asctime)s %(message)s',
+                        datefmt='%m/%d/%Y %I:%M:%S %p')
     bedlist = glob.glob("*.genCov.gz")
     chromlist = args.chroms
     covdict, chromlendict = maskCov(bedlist, chromlist[0])
+    import ipdb;ipdb.set_trace()
     bamlist = glob.glob("*mdup.bam")
     covdict = maskQual(bamlist, chromlendict, covdict)
     with open("accessiblity.pos.txt", 'w') as posout:
