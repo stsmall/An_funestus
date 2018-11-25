@@ -154,9 +154,8 @@ if __name__ == '__main__':
     bedlist = glob.glob("*.genCov.gz")
     chromlist = args.chroms
     covdict, chromlendict = maskCov(bedlist, chromlist[0])
-    import ipdb;ipdb.set_trace()
-    bamlist = glob.glob("*mdup.bam")
-    covdict = maskQual(bamlist, chromlendict, covdict)
+#    bamlist = glob.glob("*mdup.bam")
+#    covdict = maskQual(bamlist, chromlendict, covdict)
     with open("accessiblity.pos.txt", 'w') as posout:
         for k in covdict.keys():
             for p in covdict[k]:
