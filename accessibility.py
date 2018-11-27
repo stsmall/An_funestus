@@ -34,7 +34,10 @@ def modeCount(modearray, chrom, covdict):
     """
     """
     # use mode as in Ag1000g
-    mode = Counter(modearray).most_common(1)[0][0]
+    try:
+        mode = Counter(modearray).most_common(1)[0][0]
+    except IndexError:
+        import ipdb;ipdb.set_trace()
     for pos in np.where(modearray == 0)[0]:  # zeroCov
         try:
             covdict[chrom][pos+1][0] += 1
