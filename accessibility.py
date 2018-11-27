@@ -82,16 +82,16 @@ def maskCov(bedlist, chromlist, modefx=True):
     """
     covdict = defaultdict(dict)
     first_chrom = chromlist[0]
-    chrom = first_chrom
     chrlendict = {}
-    pos = 1
     logging.info('{}\n'.format(bedlist))
     for bed in bedlist:
         indvbed = gzip.open(bed, 'r')
         modelist = []
+        pos = 1
+        chrom = first_chrom
         for line in indvbed.readlines():
             x = line.split()
-            if line == "":
+            if line == "":  # end of file
                 chrlendict[chrom] = pos
                 modearray = np.array(modelist)
                 if modefx:
