@@ -34,10 +34,7 @@ def modeCount(modearray, chrom, covdict):
     """
     """
     # use mode as in Ag1000g
-    try:
-        mode = Counter(modearray).most_common(1)[0][0]
-    except IndexError:
-        import ipdb;ipdb.set_trace()
+    mode = Counter(modearray).most_common(1)[0][0]
     for pos in np.where(modearray == 0)[0]:  # zeroCov
         try:
             covdict[chrom][pos+1][0] += 1
@@ -107,6 +104,8 @@ def maskCov(bedlist, chromlist, modefx=True):
                 else:  # different chrom
                     chrlendict[chrom] = pos
                     modearray = np.array(modelist)
+                    if modearray.size == 0:
+                        import ipdb; ipdb.set_trace()
                     if modefx:
                         covdict = modeCount(modearray, chrom, covdict)
                     else:
