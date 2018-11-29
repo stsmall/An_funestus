@@ -44,6 +44,7 @@ def scrapeBpp(prefix, suffix, chain, scafs):
             coord = bppOut.replace(prefix, '').replace(suffix, '')
             scaf, start, stop = re.findall(r'\w+', coord)
             keycoord = "{}:{}-{}".format(s, start, stop)
+            print(keycoord)
             with open(bppOut, 'r') as bpp:
                 for line in bpp:
                     if line.startswith("(A)"):
@@ -80,7 +81,6 @@ def writeWeights(weightsDict, topoList):
     t.close()
     f.write(topoHeader + "\n")
     for coord in weightsDict.keys():
-        import ipdb;ipdb.set_trace()
         scaf, start, stop = re.findall(r'\w+', coord)
         topolist = [0] * topoCount
         for topo in weightsDict[coord]:
