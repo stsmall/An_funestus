@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu Nov 29 13:05:57 2018
-BppScrape.py -p nCDS -s bpp.out -c 100000
+BppScrape.py -p nCDS. -s .bpp.out -c 100000 --scafs 2L 2R 3L 3R X
 returns: Coordinate File, Twisst-style weights file
 @author: scott
 """
@@ -91,5 +91,5 @@ def writeWeights(weightsDict, topoList):
 
 
 if __name__ == "__main__":
-    weightsDict, topoList = scrapeBpp(args.prefix, args.suffix, args.chainLen, args.scafs)
+    weightsDict, topoList = scrapeBpp(args.prefix, args.suffix, args.chainLen, args.scafs[0])
     writeWeights(args.scaf, weightsDict, topoList)
