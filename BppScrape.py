@@ -44,7 +44,6 @@ def scrapeBpp(prefix, suffix, chain, scafs):
             coord = bppOut.replace(prefix, '').replace(suffix, '')
             scaf, start, stop = re.findall(r'\w+', coord)
             keycoord = "{}:{}-{}".format(s, start, stop)
-            print(keycoord)
             with open(bppOut, 'r') as bpp:
                 for line in bpp:
                     if line.startswith("(A)"):
