@@ -85,5 +85,5 @@ def writeWeights(scaf, weightsDict, topoList):
 
 
 if __name__ == "__main__":
-    weightsDict, topoList = scrapeBpp(args.prefix, args.suffix, args.chain)
+    weightsDict, topoList = scrapeBpp(args.prefix, args.suffix, args.chainLen)
     writeWeights(args.scaf, weightsDict, topoList)
