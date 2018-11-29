@@ -36,7 +36,6 @@ args = parser.parse_args()
 def scrapeBpp(prefix, suffix, chain, scafs):
     """
     """
-    import ipdb;ipdb.set_trace()
     topoList = []
     weightsDict = defaultdict(dict)
     for s in scafs:
