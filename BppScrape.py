@@ -38,23 +38,25 @@ def scrapeBpp(prefix, suffix, chain):
     topoList = []
     weightsDict = defaultdict(dict)
     fileList = glob.glob("{}*{}".format(prefix, suffix))
-    import ipdb;ipdb.set_trace()
     for bppOut in fileList:
         coord = bppOut.lstrip(prefix).rstrip(suffix)
         with open(bppOut, 'r') as bpp:
             for line in bpp:
                 if line.startswith("(A)"):
+                    line = next(bpp)
                     for line in bpp:
-                        while line:
+                        if line.strip() == "":
+                            break
+                        else:
                             x = line.split()
                             if chain > 0:
                                 weightsDict[coord][x[-1]] = int(x[1]) * chain
                             else:
                                 weightsDict[coord][x[-1]] = int(x[1])
                             topoList.append(x[-1])
-                        break
                 else:
                     pass
+    import ipdb;ipdb.set_trace()
     return(weightsDict, topoList)
 
 
