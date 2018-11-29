@@ -67,7 +67,7 @@ def writeWeights(scaf, weightsDict, topoList):
     # weights\t ... \n
     t = open("{}.topos.out".format(scaf), 'w')
     f = open("{}.weights.out".format(scaf), 'w')
-    topoSet = set(topoList)
+    topoSet = list(set(topoList))
     topoHeader = ''
     topoCount = len(topoSet)
     for i, topo in enumerate(topoSet):
