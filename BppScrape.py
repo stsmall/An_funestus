@@ -23,7 +23,8 @@ parser.add_argument('-p', "--prefix", required=True, help="prefix of input"
                     "file")
 parser.add_argument('-s', "--suffix", required=True, help="suffix of input"
                     "file")
-parser.add_argument("--scaf", required=True, help="scaffold or chromosome")
+parser.add_argument("--scafs", required=True, nargs='+', action="append",
+                    help="scaffold or chromosome")
 parser.add_argument('-c', "--chainLen", default=0, type=int, help="chain"
                     "length, default"
                     "or value of 0 will return proportions")
@@ -32,41 +33,44 @@ parser.add_argument("--log", action="store_false")
 args = parser.parse_args()
 
 
-def scrapeBpp(prefix, suffix, chain):
+def scrapeBpp(prefix, suffix, chain, scafs):
     """
     """
+    import ipdb;ipdb.set_trace()
     topoList = []
     weightsDict = defaultdict(dict)
-    fileList = glob.glob("{}*{}".format(prefix, suffix))
-    for bppOut in fileList:
-        coord = bppOut.replace(prefix,'').replace(suffix,'')
-        with open(bppOut, 'r') as bpp:
-            for line in bpp:
-                if line.startswith("(A)"):
-                    for line in bpp:
-                        if line.strip() == "":
-                            break
-                        else:
-                            x = line.split()
-                            topo = "".join(x[3:])
-                            if chain > 0:
-                                weightsDict[coord][topo] = float(x[1]) * chain
+    for s in scafs:
+        fileList = glob.glob("{}{}*{}".format(prefix, s, suffix))
+        for bppOut in fileList:
+            coord = bppOut.replace(prefix, '').replace(suffix, '')
+            keycoord = s + ":" + coord
+            with open(bppOut, 'r') as bpp:
+                for line in bpp:
+                    if line.startswith("(A)"):
+                        for line in bpp:
+                            if line.strip() == "":
+                                break
                             else:
-                                weightsDict[coord][topo] = float(x[1])
-                            topoList.append(topo)
-                else:
-                    pass
+                                x = line.split()
+                                topo = "".join(x[3:])
+                                if chain > 0:
+                                    weightsDict[keycoord][topo] = float(x[1]) * chain
+                                else:
+                                    weightsDict[keycoord][topo] = float(x[1])
+                                topoList.append(topo)
+                    else:
+                        pass
     return(weightsDict, topoList)
 
 
-def writeWeights(scaf, weightsDict, topoList):
+def writeWeights(weightsDict, topoList):
     """
     """
     # topoX\t NEWICK\n
     # topo1\ttopo2\t ... \n
     # weights\t ... \n
-    t = open("{}.topos.out".format(scaf), 'w')
-    f = open("{}.weights.out".format(scaf), 'w')
+    t = open("topos.out", 'w')
+    f = open("weights.out", 'w')
     topoSet = list(set(topoList))
     topoHeader = ''
     topoCount = len(topoSet)
@@ -76,7 +80,7 @@ def writeWeights(scaf, weightsDict, topoList):
     t.close()
     f.write(topoHeader + "\n")
     for coord in weightsDict.keys():
-        start, stop = re.findall(r'\w+', coord)
+        scaf, start, stop = re.findall(r'\w+', coord)
         topolist = [0] * topoCount
         for topo in weightsDict[coord]:
             ix = topoSet.index(topo)
@@ -87,5 +91,5 @@ def writeWeights(scaf, weightsDict, topoList):
 
 
 if __name__ == "__main__":
-    weightsDict, topoList = scrapeBpp(args.prefix, args.suffix, args.chainLen)
+    weightsDict, topoList = scrapeBpp(args.prefix, args.suffix, args.chainLen, args.scafs)
     writeWeights(args.scaf, weightsDict, topoList)
