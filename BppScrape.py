@@ -39,7 +39,7 @@ def scrapeBpp(prefix, suffix, chain):
     weightsDict = defaultdict(dict)
     fileList = glob.glob("{}*{}".format(prefix, suffix))
     for bppOut in fileList:
-        coord = bppOut.lstrip(prefix).rstrip(suffix)
+        coord = bppOut.replace(prefix,'').replace(suffix,'')
         with open(bppOut, 'r') as bpp:
             for line in bpp:
                 if line.startswith("(A)"):
