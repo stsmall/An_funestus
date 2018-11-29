@@ -56,7 +56,6 @@ def scrapeBpp(prefix, suffix, chain):
                             topoList.append(topo)
                 else:
                     pass
-    import ipdb;ipdb.set_trace()
     return(weightsDict, topoList)
 
 
@@ -71,7 +70,7 @@ def writeWeights(scaf, weightsDict, topoList):
     topoSet = set(topoList)
     topoHeader = ''
     topoCount = len(topoSet)
-    for i, topo in topoSet:
+    for i, topo in enumerate(topoSet):
         t.write("#topo{}\t{}\n".format(i+1, topo))
         topoHeader += "topo{}\t".format(i+1)
     t.close()
