@@ -77,6 +77,7 @@ def writeWeights(weightsDict, topoList):
     for i, topo in enumerate(topoSet):
         t.write("#topo{}\t{}\n".format(i+1, topo))
         topoHeader += "topo{}\t".format(i+1)
+    topoHeader.rstrip("\t")
     t.close()
     f.write("scaf\tstart\tstop\t{}\n".format(topoHeader))
     for coord in weightsDict.keys():
