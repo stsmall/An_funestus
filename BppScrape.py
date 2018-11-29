@@ -76,7 +76,9 @@ def writeWeights(scaf, weightsDict, topoList):
     t.close()
     f.write(topoHeader + "\n")
     for coord in weightsDict.keys():
+        print(coord)
         start, stop = re.findall(r'\w+', coord)
+        print(start,stop)
         topolist = [0] * topoCount
         for topo in weightsDict[coord]:
             ix = topoSet.index(topo)
