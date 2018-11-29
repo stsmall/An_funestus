@@ -50,9 +50,9 @@ def scrapeBpp(prefix, suffix, chain):
                         else:
                             x = line.split()
                             if chain > 0:
-                                weightsDict[coord][x[-1]] = int(x[1]) * chain
+                                weightsDict[coord][x[-1]] = float(x[1]) * chain
                             else:
-                                weightsDict[coord][x[-1]] = int(x[1])
+                                weightsDict[coord][x[-1]] = float(x[1])
                             topoList.append(x[-1])
                 else:
                     pass
