@@ -79,6 +79,7 @@ def writeWeights(weightsDict, topoList):
     t.close()
     f.write(topoHeader + "\n")
     for coord in weightsDict.keys():
+        import ipdb;ipdb.set_trace()
         scaf, start, stop = re.findall(r'\w+', coord)
         topolist = [0] * topoCount
         for topo in weightsDict[coord]:
