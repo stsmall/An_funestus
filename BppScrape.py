@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu Nov 29 13:05:57 2018
-BppScrape.py -p nCDS. -s .bpp.out -c 100000 --scafs 2L 2R 3L 3R X
+BppScrape.py -p nCDS.bpp. -s .out -c 100000 --scafs 2L 2R 3L 3R X
 returns: Coordinate File, Twisst-style weights file
 @author: scott
 """
