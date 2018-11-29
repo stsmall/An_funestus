@@ -42,7 +42,8 @@ def scrapeBpp(prefix, suffix, chain, scafs):
         fileList = glob.glob("{}{}*{}".format(prefix, s, suffix))
         for bppOut in fileList:
             coord = bppOut.replace(prefix, '').replace(suffix, '')
-            # keycoord = s + ":" + coord
+            scaf, start, stop = re.findall(r'\w+', coord)
+            keycoord = "{}:{}-{}".format(s, start, stop)
             with open(bppOut, 'r') as bpp:
                 for line in bpp:
                     if line.startswith("(A)"):
@@ -53,9 +54,9 @@ def scrapeBpp(prefix, suffix, chain, scafs):
                                 x = line.split()
                                 topo = "".join(x[3:])
                                 if chain > 0:
-                                    weightsDict[coord][topo] = float(x[1]) * chain
+                                    weightsDict[keycoord][topo] = float(x[1]) * chain
                                 else:
-                                    weightsDict[coord][topo] = float(x[1])
+                                    weightsDict[keycoord][topo] = float(x[1])
                                 topoList.append(topo)
                     else:
                         pass
