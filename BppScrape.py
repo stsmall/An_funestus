@@ -23,6 +23,7 @@ parser.add_argument('-p', "--prefix", required=True, help="prefix of input"
                     "file")
 parser.add_argument('-s', "--suffix", required=True, help="suffix of input"
                     "file")
+parser.add_argument("--scaf", required=True, help="scaffold or chromosome")
 parser.add_argument('-c', "--chainLen", default=0, type=int, help="chain"
                     "length, default"
                     "or value of 0 will return proportions")
@@ -85,4 +86,4 @@ def writeWeights(scaf, weightsDict, topoList):
 
 if __name__ == "__main__":
     weightsDict, topoList = scrapeBpp(args.prefix, args.suffix, args.chain)
-    writeWeights(weightsDict, topoList)
+    writeWeights(args.scaf, weightsDict, topoList)
