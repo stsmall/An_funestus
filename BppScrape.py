@@ -43,6 +43,7 @@ def scrapeBpp(prefix, suffix, chain):
         with open(bppOut, 'r') as bpp:
             for line in bpp:
                 if line.startswith("(A)"):
+                    import ipdb;ipdb.set_trace()
                     line = next(bpp)
                     for line in bpp:
                         if line.strip() == "":
@@ -54,7 +55,7 @@ def scrapeBpp(prefix, suffix, chain):
                                 weightsDict[coord][topo] = float(x[1]) * chain
                             else:
                                 weightsDict[coord][topo] = float(x[1])
-                            topoList.append(x[-1])
+                            topoList.append(topo)
                 else:
                     pass
     import ipdb;ipdb.set_trace()
