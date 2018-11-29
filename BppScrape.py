@@ -44,7 +44,6 @@ def scrapeBpp(prefix, suffix, chain):
             for line in bpp:
                 if line.startswith("(A)"):
                     import ipdb;ipdb.set_trace()
-                    line = next(bpp)
                     for line in bpp:
                         if line.strip() == "":
                             break
@@ -58,7 +57,6 @@ def scrapeBpp(prefix, suffix, chain):
                             topoList.append(topo)
                 else:
                     pass
-    import ipdb;ipdb.set_trace()
     return(weightsDict, topoList)
 
 
