@@ -10,14 +10,24 @@ import sys
 import gzip
 
 fastaFile = sys.argv[1]
-
-f = gzip.open("{}.1.fa.gz".format(fastaFile.rstrip(".fa.gz")), 'wb')
-with gzip.open(fastaFile, 'rb') as fasta:
-    line = next(fasta)
-    f.write(line)
-    for line in fasta:
-        if line.startswith(">"):
-            break
-        else:
+with gzip.open("{}.1.fa.gz".format(fastaFile.rstrip(".fa.gz")), 'wb') as f:
+    if "gz" in fastaFile:
+        with gzip.open(fastaFile, 'rb') as fasta:
+            line = next(fasta)
             f.write(line)
-f.close()
+            for line in fasta:
+                if line.startswith(">"):
+                    break
+                else:
+                    f.write(line)
+        f.close()
+    else:
+        with open(fastaFile, 'r') as fasta:
+            line = next(fasta)
+            f.write(line)
+            for line in fasta:
+                if line.startswith(">"):
+                    break
+                else:
+                    f.write(line)
+        f.close()
