@@ -12,11 +12,11 @@ import gzip
 fastaFile = sys.argv[1]
 with gzip.open("{}.1.fa.gz".format(fastaFile.rstrip(".fa.gz")), 'wb') as f:
     if "gz" in fastaFile:
-        with gzip.open(fastaFile, 'r') as fasta:
+        with gzip.open(fastaFile, 'rb') as fasta:
             line = next(fasta)
             f.write(line)
             for line in fasta:
-                if line.startswith(">"):
+                if line.startswith(b">"):
                     break
                 else:
                     f.write(line)
