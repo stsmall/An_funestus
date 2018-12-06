@@ -30,6 +30,7 @@ from __future__ import print_function
 import argparse
 from collections import defaultdict
 import ipdb
+import gzip
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-v1', "--vcfFile", type=str, action="store",
@@ -61,12 +62,20 @@ def headerVCF(vcfRef, outStream):
 
     """
     print("writing header ...")
-    with open(vcfRef, 'r') as vcf:
-        for line in vcf:
-            if line.startswith('##'):
-                outStream.write(line)
-            else:
-                break
+    if "gz" in vcfRef:
+        with gzip.open(vcfRef, 'rb') as vcf:
+            for line in vcf:
+                if line.startswith(b'##'):
+                    outStream.write(line)
+                else:
+                    break
+    else:
+        with open(vcfRef, 'r') as vcf:
+            for line in vcf:
+                if line.startswith('##'):
+                    outStream.write(line)
+                else:
+                    break
     return(outstream)
 
 
@@ -86,26 +95,49 @@ def loadVCF(vcfRef, refBed):
     """
     print("loading ref vcf ...")
     refdict = defaultdict(dict)
-    with open(vcfRef, 'r') as vcf:
-        for line in vcf:
-            if not line.startswith("#"):
-                x = line.split()
-                chrom = x[0]
-                pos = x[1]
-                ra = x[3]
-                aa = x[4]
-                refdict[chrom][pos] = (ra, aa)
+    if "gz" in vcfRef:
+        with gzip.open(vcfRef, 'rb') as vcf:
+            for line in vcf:
+                if not line.startswith(b"#"):
+                    x = line.split()
+                    chrom = x[0]
+                    pos = x[1]
+                    ra = x[3]
+                    aa = x[4]
+                    refdict[chrom][pos] = (ra, aa)
+    else:
+        with open(vcfRef, 'r') as vcf:
+            for line in vcf:
+                if not line.startswith("#"):
+                    x = line.split()
+                    chrom = x[0]
+                    pos = x[1]
+                    ra = x[3]
+                    aa = x[4]
+                    refdict[chrom][pos] = (ra, aa)
     if refBed:
-        with open(refBed, 'r') as bed:
-            for line in bed:
-                x = line.strip().split()
-                chrom = x[0]
-                pos = x[2]
-                ra = x[3]
-                try:
-                    refdict[chrom][pos]
-                except KeyError:
-                    refdict[chrom][pos] = (ra, ".")
+        if "gz" in refBed:
+            with gzip.open(refBed, 'rb') as bed:
+                for line in bed:
+                    x = line.strip().split()
+                    chrom = x[0]
+                    pos = x[2]
+                    ra = x[3]
+                    try:
+                        refdict[chrom][pos]
+                    except KeyError:
+                        refdict[chrom][pos] = (ra, ".")
+        else:
+            with open(refBed, 'r') as bed:
+                for line in bed:
+                    x = line.strip().split()
+                    chrom = x[0]
+                    pos = x[2]
+                    ra = x[3]
+                    try:
+                        refdict[chrom][pos]
+                    except KeyError:
+                        refdict[chrom][pos] = (ra, ".")
     return(refdict)
 
 
@@ -390,12 +422,15 @@ def liftover(vcfFile, transdict, refdict, outStream, tri):
                     newchrom, newpos, orient = transdict[chrom][pos]
                     ref_a, alt_a = refdict[newchrom][newpos]
                     if alt_a == ".":
-                        invariant += 1
+                        invariant += 1  # invariant in ref
                     else:
-                        variant += 1
+                        variant += 1  # variant in ref
                     if orient == "-":
-                        x[3] = reverseComplement(x[3])
-                        x[4] = reverseComplement(x[4])
+                        if x[4] == ".":
+                            x[3] = reverseComplement(x[3])
+                        else:
+                            x[3] = reverseComplement(x[3])
+                            x[4] = reverseComplement(x[4])
                     if x[3] != ref_a:
                         refmismatch += 1
                         forline = "\t".join((x[0], x[1], x[3], x[4], x[9]))
@@ -444,6 +479,7 @@ if __name__ == "__main__":
     outstream = headerVCF(args.vcfRef, outstream)
     refdict = loadVCF(args.vcfRef, args.refBed)
     transdict = loadTransfer(args.transfersFile)
+    ipdb.set_trace()
     outstream = liftover(args.vcfFile, transdict, refdict, outstream,
                          args.triallelic)
     outstream.close()
