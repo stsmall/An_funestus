@@ -80,40 +80,43 @@ def maskCov(bedlist, chromlist, modefx=True):
     """Percentage of Individuals with coverage min and max at the position
 
     """
-    covdict = defaultdict(dict)
-    first_chrom = chromlist[0]
-    chrlendict = {}
-    logging.info('{}\n'.format(bedlist))
-    for bed in bedlist:
-        indvbed = gzip.open(bed, 'r')
-        modelist = []
-        pos = 1
-        chrom = first_chrom
-        for line in indvbed.readlines():
-            x = line.split()
-            if line == "":  # end of file
-                chrlendict[chrom] = pos
-                modearray = np.array(modelist)
-                if modefx:
-                    covdict = modeCount(modearray, chrom, covdict)
-                else:
-                    covdict = avgCount(modearray, chrom, covdict)
-            else:
-                if chrom == x[0]:  # same chrom
-                    modelist.append(int(x[2]))
-                else:  # different chrom
+    try:
+        covdict = defaultdict(dict)
+        first_chrom = chromlist[0]
+        chrlendict = {}
+        logging.info('{}\n'.format(bedlist))
+        for bed in bedlist:
+            indvbed = gzip.open(bed, 'r')
+            modelist = []
+            pos = 1
+            chrom = first_chrom
+            for line in indvbed.readlines():
+                x = line.split()
+                if line == "":  # end of file
                     chrlendict[chrom] = pos
                     modearray = np.array(modelist)
-                    if modearray.size == 0:
-                        import ipdb; ipdb.set_trace()
                     if modefx:
                         covdict = modeCount(modearray, chrom, covdict)
                     else:
                         covdict = avgCount(modearray, chrom, covdict)
-                    modelist = []
-                    modelist.append(int(x[2]))
-                chrom = x[0]  # new chrom
-                pos = int(x[1])
+                else:
+                    if chrom == x[0]:  # same chrom
+                        modelist.append(int(x[2]))
+                    else:  # different chrom
+                        chrlendict[chrom] = pos
+                        modearray = np.array(modelist)
+                        if modearray.size == 0:
+                            import ipdb; ipdb.set_trace()
+                        if modefx:
+                            covdict = modeCount(modearray, chrom, covdict)
+                        else:
+                            covdict = avgCount(modearray, chrom, covdict)
+                        modelist = []
+                        modelist.append(int(x[2]))
+                    chrom = x[0]  # new chrom
+                    pos = int(x[1])
+    except:
+        import ipdb;ipdb.set_trace()
     return(covdict, chrlendict)
 
 
