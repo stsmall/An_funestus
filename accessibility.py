@@ -50,7 +50,7 @@ def modeCount(modearray, chrom, covdict):
             covdict[chrom][pos+1][2] += 1
         except KeyError:
             covdict[chrom][pos+1] = [0, 0, 1, 0, 0]
-    return(covdict)
+    return(covdict, mode)
 
 
 def avgCount(modearray, chrom, covdict):
@@ -73,13 +73,14 @@ def avgCount(modearray, chrom, covdict):
             covdict[chrom][pos][2] += 1
         except KeyError:
             covdict[chrom][pos] = [0, 0, 1, 0, 0]
-    return(covdict)
+    return(covdict, avg)
 
 
 def maskCov(bedlist, chromlist, modefx=True):
     """Percentage of Individuals with coverage min and max at the position
 
     """
+    f = open("modeCov.out", 'w')
     try:
         covdict = defaultdict(dict)
         first_chrom = chromlist[0]
@@ -96,9 +97,11 @@ def maskCov(bedlist, chromlist, modefx=True):
                     chrlendict[chrom] = pos
                     modearray = np.array(modelist)
                     if modefx:
-                        covdict = modeCount(modearray, chrom, covdict)
+                        covdict, mode = modeCount(modearray, chrom, covdict)
+                        f.write("{}\t{}\n".format(bed, mode))
                     else:
-                        covdict = avgCount(modearray, chrom, covdict)
+                        covdict, avg = avgCount(modearray, chrom, covdict)
+                        f.write("{}\t{}\n".format(bed, avg))
                 else:
                     if chrom == x[0]:  # same chrom
                         try:
@@ -111,9 +114,11 @@ def maskCov(bedlist, chromlist, modefx=True):
                         if modearray.size == 0:
                             import ipdb; ipdb.set_trace()
                         if modefx:
-                            covdict = modeCount(modearray, chrom, covdict)
+                            covdict, mode = modeCount(modearray, chrom, covdict)
+                            f.write("{}\t{}\n".format(bed, mode))
                         else:
-                            covdict = avgCount(modearray, chrom, covdict)
+                            covdict, avg = avgCount(modearray, chrom, covdict)
+                            f.write("{}\t{}\n".format(bed, avg))
                         modelist = []
                         try:
                             modelist.append(int(x[2]))
