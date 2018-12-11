@@ -128,6 +128,7 @@ def maskCov(bedlist, chromlist, modefx=True):
                     pos = int(x[1])
     except:
         import ipdb;ipdb.set_trace()
+    f.close()
     return(covdict, chrlendict)
 
 
