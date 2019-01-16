@@ -49,7 +49,10 @@ def stairs2ms(inFile, locLen, rhorat, epochs, discoal):
     tM = theta0M * locLen
     tL = theta0L * locLen
     tU = theta0U * locLen
-    size = ' -en '.join(' '.join(str(x) for x in timestep) for timestep in msmc2ms)
+    if discoal:
+        size = ' -en 0 '.join(' '.join(str(x) for x in timestep) for timestep in msmc2ms)
+    else:
+        size = ' -en 0 '.join(' '.join(str(x) for x in timestep) for timestep in msmc2ms)
     print("-Pt {} {}".format(tL, tU))
     print("-Pr {} {}".format(tL*rhorat, tU*rhorat))
     if discoal:
