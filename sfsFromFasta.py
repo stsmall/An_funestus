@@ -50,9 +50,7 @@ def sfs(fastaFile, ancFile, step=1000):
                 continue
             elif alleles.size == 1:
                 totalbp += 1
-                if bp - thinStart > step:
-                    thinStart = bp
-                    thinbp += 1
+                thinbp += 1
             else:
                 try:
                     ix = list(alcnt[0]).index(anc)
