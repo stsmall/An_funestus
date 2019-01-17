@@ -42,18 +42,21 @@ def sfs(fastaFile, ancFile):
         else:
             alcnt = np.unique(al, return_counts=True)
             alleles = alcnt[0]
-            ix = list(alcnt[0]).index(anc)
             freq = alcnt[1]
             if alleles.size > 2:
                 continue
             elif alleles.size == 1:
                 totalbp += 1
             else:
-                if ix == 0:
-                    sfsarray[freq[1]] += 1
-                else:
-                    sfsarray[freq[0]] += 1
-                totalbp += 1
+                try:
+                    ix = list(alcnt[0]).index(anc)
+                    if ix == 0:
+                        sfsarray[freq[1]] += 1
+                    else:
+                        sfsarray[freq[0]] += 1
+                    totalbp += 1
+                except ValueError:
+                    continue
     print(totalbp)
     return(sfsarray)
 
