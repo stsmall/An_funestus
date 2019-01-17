@@ -46,6 +46,8 @@ def sfs(fastaFile, ancFile):
             freq = alcnt[1]
             if alleles.size > 2:
                 continue
+            elif alleles.size == 1:
+                totalbp += 1
             else:
                 if ix == 0:
                     sfsarray[freq[1]] += 1
