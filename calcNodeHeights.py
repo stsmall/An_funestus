@@ -83,7 +83,6 @@ def cMono(tree, taxon):
 def rogueTree(t, tax):
     """
     """
-    import ipdb; ipdb.set_trace()
     v = t.get_monophyletic(values=tax, target_attr="species")
     m = list(v)
     if len(m) <= 2:
@@ -151,7 +150,6 @@ def pairwiseDistance(treelist, taxon):
                     pwlist.append(t.get_distance(s1, s2))
             distlist.append(np.mean(pwlist))
         pwdistlist.append(distlist)
-    import ipdb;ipdb.set_trace()
     return(pwdistlist, splist)
 
 
@@ -248,6 +246,8 @@ if __name__ == "__main__":
     SupportStats(taxdict, quart)
     root_height, sum_support = FilterTree(treelist)
     distlist, splist = pairwiseDistance(treelist, quart)
+    l = [i[0] for i in distlist]
+    print("{} {}-{}".format(np.mean(l), np.quantile(l,.05),np.quantile(l,.95)))
     if args.windows:
         WindowStats(args.windows, taxdict, quart, root_height, sum_support, splist, distlist)
 
