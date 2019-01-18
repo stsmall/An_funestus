@@ -132,6 +132,7 @@ def AgeAndSupport(treelist, taxon):
 def pairwiseDistance(treelist, taxon):
     """Iterative distance for each individual regardless of monophyly
     """
+    import ipdb;ipdb.set_trace()
     taxon = set([val for sublist in taxon for val in sublist])
     splist = []
     for tax in combinations(taxon, 2):
