@@ -16,11 +16,11 @@ parser.add_argument('-i', "--inFile", type=str, required=True, help="stairway fi
 parser.add_argument('-L', "--LocusLen", type=int, default=1000, help="locus length")
 parser.add_argument('-r', "--rhorat", type=float, help="ratio of mu/rho")
 parser.add_argument('-e', "--epochs", type=int, help="epochs to print")
-parser.add_argument("--discoal",action="store_true")
+parser.add_argument("--subpop",type=int, default=0)
 args = parser.parse_args()
 
 
-def stairs2ms(inFile, locLen, rhorat, epochs, discoal):
+def stairs2ms(inFile, locLen, rhorat, epochs, subpop):
     """
     """
     msmc2ms2 = []
@@ -40,13 +40,12 @@ def stairs2ms(inFile, locLen, rhorat, epochs, discoal):
                     thetaU = float(x[4])
                     gens = float(x[5])
                     Ne = float(x[6])
-                    msmc2ms2.append([gens/(4*Ne0), theta/theta0M])
+                    msmc2ms2.append([gens/(4*Ne0), subpop, theta/theta0M])
     if epochs:
         reducedEpochs = int(len(msmc2ms2)/epochs)
         msmc2ms = msmc2ms2[0::reducedEpochs]
     else:
         msmc2ms = msmc2ms2
-    import ipdb;ipdb.set_trace()
     tM = theta0M * locLen
     tL = theta0L * locLen
     tU = theta0U * locLen
@@ -58,4 +57,4 @@ def stairs2ms(inFile, locLen, rhorat, epochs, discoal):
 
 
 if __name__ == "__main__":
-    stairs2ms(args.inFile, args.LocusLen, args.rhorat, args.epochs, args.discoal)
+    stairs2ms(args.inFile, args.LocusLen, args.rhorat, args.epochs, args.subpop)
