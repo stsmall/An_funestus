@@ -19,6 +19,7 @@ for ms in files:
                 continue
             else:
                 if line.startswith("//"):
+                    import ipdb;ipdb.set_trace()
                     segline = sims.next()
                     posline = sims.next()
                     scount = 0
