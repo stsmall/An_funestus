@@ -29,7 +29,15 @@ for ms in files:
                         try:
                             line = sims.next()
                         except StopIteration:
-                            continue
+                            if scount == samples:
+                                f.write("//\n")
+                                f.write(segline)
+                                f.write(posline)
+                                for h in hapline:
+                                    f.write(h)
+                                f.write("\n")
+                            else:
+                                break
                     if scount == samples:
                         f.write("//\n")
                         f.write(segline)
