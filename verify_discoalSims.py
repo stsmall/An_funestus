@@ -26,7 +26,10 @@ for ms in files:
                     while line.strip():
                         hapline.append(line)
                         scount += 1
-                        line = sims.next()
+                        try:
+                            line = sims.next()
+                        except StopIteration:
+                            continue
                     if scount == samples:
                         f.write("//\n")
                         f.write(segline)
