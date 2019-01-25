@@ -19,7 +19,7 @@ parser.add_argument('-w', "--windows", type=str,
 parser.add_argument('-r', "--reftree", type=str,
                     help="RF distance from a fixed topology")
 parser.add_argument('-o', "--outgroup", type=str,
-                    help="RF distance from a fixed topology")
+                    help="outgroup seq")
 parser.add_argument("--threshold", type=int, default=0,
                     help="trees less than this value are considered the same")
 parser.add_argument("--topology", action="store_true",
@@ -27,9 +27,9 @@ parser.add_argument("--topology", action="store_true",
                     "length information")
 parser.add_argument("--pairwise", action="store_true", help="output a large"
                     "pairwise matrix of Robinson-Foulds distances")
-parser.add_arguement('-g', "--groups", nargs='+', help="list of groups to"
+parser.add_argument('-g', "--groups", nargs='+', help="list of groups to"
                      "check for monophyly in the trees")
-parser.add_arguement("--nodeheights", nargs='+', help="calculate node heights"
+parser.add_argument("--nodeheights", nargs='+', help="calculate node heights"
                      "for a quartet")
 args = parser.parse_args()
 
