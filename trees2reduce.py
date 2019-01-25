@@ -37,7 +37,7 @@ args = parser.parse_args()
 # TODO: calculate node heights for specific topologies
 
 
-def removebl(newick_tree):
+def removebl(treelist):
     """Remove branch length info from set of newick trees. This simplifies the
     comparisons when searching for non-monophyletic trees
 
