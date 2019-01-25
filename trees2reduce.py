@@ -27,7 +27,7 @@ parser.add_argument("--topology", action="store_true",
                     "length information")
 parser.add_argument("--pairwise", action="store_true", help="output a large"
                     "pairwise matrix of Robinson-Foulds distances")
-parser.add_argument('-g', "--groups", nargs='+', help="list of groups to"
+parser.add_argument('-g', "--groups", nargs='+', help="list of groups to "
                      "check for monophyly in the trees")
 parser.add_argument("--nodeheights", nargs='+', help="calculate node heights"
                      "for a quartet")
@@ -186,7 +186,9 @@ def refdistance(trees, reftree, coords, outgroup):
 
     """
     print("getting RF distances from ref")
-    reftree = Tree(reftree)
+    with open(reftree, 'r') as tt:
+        for line in tt:
+            reftree = Tree(line)
     if outgroup:
         reftree.set_outgroup(outgroup)
     rfnorm = []
