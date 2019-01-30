@@ -17,10 +17,11 @@ parser.add_argument('-L', "--LocusLen", type=int, default=1000, help="locus leng
 parser.add_argument('-r', "--rhorat", type=float, help="ratio of mu/rho")
 parser.add_argument('-e', "--epochs", type=int, help="epochs to print")
 parser.add_argument("--subpop",type=int, default=0)
+parser.add_argument("--time",type=int, default=0)
 args = parser.parse_args()
 
 
-def stairs2ms(inFile, locLen, rhorat, epochs, subpop):
+def stairs2ms(inFile, locLen, rhorat, epochs, subpop, time):
     """
     """
     msmc2ms2 = []
@@ -28,6 +29,11 @@ def stairs2ms(inFile, locLen, rhorat, epochs, subpop):
         for line in stair:
             if line.startswith("mutation"):
                 line = next(stair)
+                if time > 0:
+                    gens = float(line.split()[5])
+                    while time > gens:
+                        line = next(stair)
+                        gens = float(line.split()[5])
                 x = line.split()
                 theta0M = float(x[2])
                 theta0L = float(x[3])
@@ -57,4 +63,4 @@ def stairs2ms(inFile, locLen, rhorat, epochs, subpop):
 
 
 if __name__ == "__main__":
-    stairs2ms(args.inFile, args.LocusLen, args.rhorat, args.epochs, args.subpop)
+    stairs2ms(args.inFile, args.LocusLen, args.rhorat, args.epochs, args.subpop, args.time)
