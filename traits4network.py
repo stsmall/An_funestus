@@ -38,7 +38,7 @@ def label(File):
     with open(File, 'r') as co1:
         for line in co1:
             x = line.split()
-            if x[2] == species:
+            if x[4] == species:
                 sp_count += 1
                 species_count = "{}_{}".format(x[2], sp_count)
                 x.append(species_count)
@@ -48,7 +48,7 @@ def label(File):
                 species_count = "{}_{}".format(x[2], sp_count)
                 x.append(species_count)
                 f.write("{}\n".format("\t".join(x)))
-                species = x[2]
+                species = x[4]
     f.close()
     return(None)
 
