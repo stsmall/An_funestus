@@ -40,7 +40,7 @@ def AddLengthsToKey(File, fastafai):
     with open(File, 'r') as co1:
         for line in co1:
             x = line.split()
-            x.append(lendict[x[3]])
+            x.append(lendict[x[0]])
             f.write("{}\n".format("\t".join(x)))
     f.close()
     return(None)
