@@ -132,7 +132,7 @@ def AddGroupsFromClust(File, clustFile):
         for line in group:
             x = line.split()
             for i in x:
-                groupdict[i] = k
+                groupdict[i] = str(k)
             k += 1
     f = open("{}.groups".format(File), 'w')
     with open(File, 'r') as its:
