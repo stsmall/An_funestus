@@ -18,7 +18,7 @@ mafft --auto --quiet --thread -10 --preservecase Ancoustani.IDs.CO1.fa > Ancoust
 ~/programs_that_work/dnaclust_linux_release3/dnaclust -i ITS2_Karama_28SEP18.clean.lab.fa -l -s .964 -a |
 @author: stsmall
 """
-
+from collections import defaultdict
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("--file", type=str, required=True)
@@ -27,6 +27,25 @@ args = parser.parse_args()
 
 
 # Sample %ID LenQ Gen Sp fastaID
+def AddLengthsToKey(File, fastafai):
+    """required samtools faidx fasta
+    """
+    lendict = {}
+    with open(fastafai, 'r') as fai:
+        for line in fai:
+            x = line.split()
+            length = x[1]
+            lendict[x[0]] = length
+    f = open("{}.lengths".format(File), 'w')
+    with open(File, 'r') as co1:
+        for line in co1:
+            x = line.split()
+            x.append(lendict[x[3]])
+            f.write("{}\n".format("\t".join(x)))
+    f.close()
+    return(None)
+
+
 def label(File):
     """
     """
@@ -81,25 +100,6 @@ def replaceFastaHeader(File, fasta):
     return(None)
 
 
-def AddLengthsToKey(File, fastafai):
-    """required samtools faidx fasta
-    """
-    lendict = {}
-    with open(fastafai, 'r') as fai:
-        for line in fai:
-            x = line.split()
-            length = x[1]
-            lendict[x[0]] = length
-    f = open("{}.lengths".format(File), 'w')
-    with open(File, 'r') as co1:
-        for line in co1:
-            x = line.split()
-            x.append(lendict[x[3]])
-            f.write("{}\n".format("\t".join(x)))
-    f.close()
-    return(None)
-
-
 def AddGroupsFromABGD(File, abgdFile):
     """
     """
@@ -148,6 +148,35 @@ def AddGroupsFromClust(File, clustFile):
     return(None)
 
 
+def getFastaFromGroups(File, fasta, sub=3):
+    """
+    """
+    clustdict = defaultdict(list)
+    lengthdict = defaultdict(list)
+    with open(File, 'r') as keys:
+        for line in keys:
+            x = line.split()
+            group = x[-1]
+            header = x[-2]
+            lengths = x[-3]
+            clustdict[group].append(header)
+            lengthdict[group].append(x[lengths])
+    fastalist = []
+    for k in clustdict.keys():
+        sortedlen = sorted(lengthdict[k])
+        six = sortedlen[0:sub+1]
+        for s in six:
+            seqix = lengthdict[k].index(s)
+            header = clustdict[k][seqix]
+            fastalist.append(header)
+    f = open("{}.subset".format(fasta), 'w')
+    for fheader in fastalist:
+        f.write(">{}/n".format(fheader))
+    f.close()
+    print("cat subset | xargs -n 1 samtools faidx ITS2_07JAN18.fa > ITS2.paired.fa")
+    return(None)
+
+
 def AddtraitsForNetwork(File, header):
     """
     cut -f2 CO1_Karama_28SEP18.clean.lab.alignment.long.log > duplist
@@ -184,14 +213,18 @@ def AddtraitsForNetwork(File, header):
 
 if __name__ == "__main__":
     File = args.file
-    if args.fx == 'label':
+
+    if args.fx == 'AddLengthsToKey':
+        fai = raw_input("Add fai file: ")
+        AddLengthsToKey(File, fai)
+    elif args.fx == 'label':
         label(File)
     elif args.fx == 'replaceFastaHeader':
         fa = raw_input("Add Fasta file: ")
         replaceFastaHeader(File, fa)
-    elif args.fx == 'AddLengthsToKey(File, fastafai)':
-        fai = raw_input("Add fai file: ")
-        AddLengthsToKey(File, fai)
+    elif args.fx == 'getFastaFromGroups':
+        fa = raw_input("Add Fasta file: ")
+        getFastaFromGroups(File, fa)
     elif args.fx == 'AddGroupsFromABGD':
         abgd = raw_input("Add ABDG file: ")
         AddGroupsFromABGD(File, abgd)
