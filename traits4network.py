@@ -83,9 +83,16 @@ def replaceFastaHeader(File, fasta):
         for line in co1:
             if line.startswith(">"):
                 x = line.strip()[1:]
-                f.write(">{}\n".format(fastadict[x]))
-            else:
-                f.write(line)
+                try:
+                    f.write(">{}\n".format(fastadict[x]))
+                except KeyError:
+                    continue
+                while not line.startswith(">"):
+                    try:
+                        f.write(line)
+                        line = line.next()
+                    except StopIteration:
+                        break
     f.close()
     return(None)
 
