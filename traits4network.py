@@ -138,7 +138,7 @@ def AddGroupsFromClust(File, clustFile):
                 x.append(groupdict[x[-1]])
                 f.write("{}\n".format("\t".join(x)))
             except KeyError:
-                x.append("NAN")
+                x.append("NA")
                 f.write("{}\n".format("\t".join(x)))
     f.close()
     return(None)
@@ -153,10 +153,13 @@ def getFastaFromGroups(File, fasta, sub=3):
         for line in keys:
             x = line.split()
             group = x[-1]
-            header = x[-2]
-            lengths = x[-3]
-            clustdict[group].append(header)
-            lengthdict[group].append(lengths)
+            if group == "NA":
+                continue
+            else:
+                header = x[-2]
+                lengths = x[-3]
+                clustdict[group].append(header)
+                lengthdict[group].append(lengths)
     fastalist = []
     for k in clustdict.keys():
         sortedlen = sorted(lengthdict[k])
