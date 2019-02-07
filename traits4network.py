@@ -89,7 +89,7 @@ def replaceFastaHeader(File, fasta):
                 try:
                     f.write(">{}\n".format(fastadict[x]))
                     line = next(co1)
-                    f.write(">{}\n".format(fastadict[x]))
+                    f.write(line)
                 except KeyError:
                     continue
     f.close()
