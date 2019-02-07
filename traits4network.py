@@ -34,38 +34,21 @@ def label(File):
     sp_count = 0
     with open(File, 'r') as co1:
         line = next(co1)
-        species = line.split()[4]
+        species = line.split()[5]
     with open(File, 'r') as co1:
         for line in co1:
             x = line.split()
-            if x[4] == species:
+            if x[5] == species:
                 sp_count += 1
-                species_count = "{}_{}".format(x[4], sp_count)
-                x.insert(len(x)-1, species_count)
+                species_count = "{}_{}".format(x[5], sp_count)
+                x.append(species_count)
                 f.write("{}\n".format("\t".join(x)))
             else:
                 sp_count = 1
-                species_count = "{}_{}".format(x[4], sp_count)
-                x.insert(len(x)-1, species_count)
+                species_count = "{}_{}".format(x[5], sp_count)
+                x.append(species_count)
                 f.write("{}\n".format("\t".join(x)))
-                species = x[4]
-    f.close()
-    return(None)
-
-
-def prctIDcutoff(File, cutoff):
-    """
-    """
-    f = open("{}.prctIDcutoff".format(File), 'w')
-    with open(File, 'r') as co1:
-        for line in co1:
-            x = line.split()
-            if float(x[2]) > cutoff:
-                x[3] = x[1]
-                f.write("{}\n".format("\t".join(x)))
-            else:
-                x = line.split()
-                f.write("{}\n".format("\t".join(x)))
+                species = x[5]
     f.close()
     return(None)
 
@@ -177,9 +160,6 @@ if __name__ == "__main__":
     File = args.file
     if args.fx == 'label':
         label(File)
-    elif args.fx == 'prctIDcutoff':
-        co = raw_input("Float for cutoff: ")
-        prctIDcutoff(File, co)
     elif args.fx == 'replaceFastaHeader':
         fa = raw_input("Add Fasta file: ")
         replaceFastaHeader(File, fa)
