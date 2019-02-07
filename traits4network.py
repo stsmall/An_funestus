@@ -134,7 +134,6 @@ def AddGroupsFromClust(File, clustFile):
             for i in x:
                 groupdict[i] = k
             k += 1
-    import ipdb;ipdb.set_trace()
     f = open("{}.groups".format(File), 'w')
     with open(File, 'r') as its:
         for line in its:
@@ -198,7 +197,7 @@ if __name__ == "__main__":
         AddGroupsFromABGD(File, abgd)
     elif args.fx == 'AddGroupsFromClust':
         clust = raw_input("Add Clust file: ")
-        AddGroupsFromABGD(File, clust)
+        AddGroupsFromClust(File, clust)
     elif args.fx == 'AddtraitsForNetwork':
         header = raw_input("Add header as list")
         # make this a list
