@@ -165,7 +165,6 @@ def getFastaFromGroups(File, fasta, sub=3):
             seqix = lengthdict[k].index(s)
             header = clustdict[k][seqix]
             fastalist.append(header)
-    import ipdb;ipdb.set_trace()
     f = open("{}.subset".format(fasta), 'w')
     for fheader in fastalist:
         f.write(">{}\n".format(fheader))
