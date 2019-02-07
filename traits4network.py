@@ -41,12 +41,12 @@ def label(File):
             if x[4] == species:
                 sp_count += 1
                 species_count = "{}_{}".format(x[4], sp_count)
-                x.append(species_count)
+                x.insert(len(x)-1, species_count)
                 f.write("{}\n".format("\t".join(x)))
             else:
                 sp_count = 1
                 species_count = "{}_{}".format(x[4], sp_count)
-                x.append(species_count)
+                x.insert(len(x)-1, species_count)
                 f.write("{}\n".format("\t".join(x)))
                 species = x[4]
     f.close()
