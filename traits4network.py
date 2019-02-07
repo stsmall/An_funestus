@@ -48,6 +48,7 @@ def AddLengthsToKey(File, fastafai):
 
 def label(File):
     """
+    sort by -k6,6
     """
     f = open("{}.label".format(File), 'w')
     sp_count = 0
@@ -87,15 +88,10 @@ def replaceFastaHeader(File, fasta):
                 x = line.strip()[1:]
                 try:
                     f.write(">{}\n".format(fastadict[x]))
+                    line = next(co1)
+                    f.write(">{}\n".format(fastadict[x]))
                 except KeyError:
                     continue
-                line = next(co1)
-                while not line.startswith(">"):
-                    try:
-                        f.write(line)
-                        line = next(co1)
-                    except StopIteration:
-                        break
     f.close()
     return(None)
 
@@ -169,6 +165,7 @@ def getFastaFromGroups(File, fasta, sub=3):
             seqix = lengthdict[k].index(s)
             header = clustdict[k][seqix]
             fastalist.append(header)
+    import ipdb;ipdb.set_trace()
     f = open("{}.subset".format(fasta), 'w')
     for fheader in fastalist:
         f.write(">{}\n".format(fheader))
