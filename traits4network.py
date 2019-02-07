@@ -70,10 +70,11 @@ def replaceFastaHeader(File, fasta):
                     f.write(">{}\n".format(fastadict[x]))
                 except KeyError:
                     continue
+                line = next(co1)
                 while not line.startswith(">"):
                     try:
                         f.write(line)
-                        line = line.next()
+                        line = next(co1)
                     except StopIteration:
                         break
     f.close()
