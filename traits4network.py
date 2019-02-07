@@ -37,16 +37,15 @@ def label(File):
         species = line.split()[4]
     with open(File, 'r') as co1:
         for line in co1:
-            import ipdb;ipdb.set_trace()
             x = line.split()
             if x[4] == species:
                 sp_count += 1
-                species_count = "{}_{}".format(x[2], sp_count)
+                species_count = "{}_{}".format(x[4], sp_count)
                 x.append(species_count)
                 f.write("{}\n".format("\t".join(x)))
             else:
                 sp_count = 1
-                species_count = "{}_{}".format(x[2], sp_count)
+                species_count = "{}_{}".format(x[4], sp_count)
                 x.append(species_count)
                 f.write("{}\n".format("\t".join(x)))
                 species = x[4]
