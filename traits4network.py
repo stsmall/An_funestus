@@ -123,6 +123,31 @@ def AddGroupsFromABGD(File, abgdFile):
     return(None)
 
 
+def AddGroupsFromClust(File, clustFile):
+    """
+    """
+    groupdict = {}
+    k = 1
+    with open(clustFile, 'r') as group:
+        for line in group:
+            x = line.split()
+            for i in x:
+                groupdict[i] = k
+            k += 1
+    f = open("{}.groups".format(File), 'w')
+    with open(File, 'r') as its:
+        for line in its:
+            x = line.split()
+            try:
+                x.append(groupdict[x[-1]])
+                f.write("{}\n".format("\t".join(x)))
+            except KeyError:
+                x.append("NAN")
+                f.write("{}\n".format("\t".join(x)))
+    f.close()
+    return(None)
+
+
 def AddtraitsForNetwork(File, header):
     """
     cut -f2 CO1_Karama_28SEP18.clean.lab.alignment.long.log > duplist
@@ -170,6 +195,9 @@ if __name__ == "__main__":
     elif args.fx == 'AddGroupsFromABGD':
         abgd = raw_input("Add ABDG file: ")
         AddGroupsFromABGD(File, abgd)
+    elif args.fx == 'AddGroupsFromClust':
+        clust = raw_input("Add Clust file: ")
+        AddGroupsFromABGD(File, clust)
     elif args.fx == 'AddtraitsForNetwork':
         header = raw_input("Add header as list")
         # make this a list
