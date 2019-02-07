@@ -160,7 +160,7 @@ def getFastaFromGroups(File, fasta, sub=3):
             header = x[-2]
             lengths = x[-3]
             clustdict[group].append(header)
-            lengthdict[group].append(x[lengths])
+            lengthdict[group].append(lengths)
     fastalist = []
     for k in clustdict.keys():
         sortedlen = sorted(lengthdict[k])
