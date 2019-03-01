@@ -92,6 +92,10 @@ def makeRecombMapBooker(snplist, rholist, chrom):
         mapsize = 63.2
     elif chrom == "2R":
         mapsize = 94.8
+    elif chrom == "2RL":
+        mapsize = 158
+    elif chrom == "3RL":
+        mapsize = 180
     poslist = []
     rhocum = []
     cMlist = []
