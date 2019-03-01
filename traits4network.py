@@ -170,7 +170,7 @@ def getFastaFromGroups(File, fasta, sub=3):
             fastalist.append(header)
     f = open("{}.subset".format(fasta), 'w')
     for fheader in fastalist:
-        f.write(">{}\n".format(fheader))
+        f.write("{}\n".format(fheader))
     f.close()
     print("cat subset | xargs -n 1 samtools faidx ITS2_07JAN18.fa > ITS2.paired.fa")
     return(None)

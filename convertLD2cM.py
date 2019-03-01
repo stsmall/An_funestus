@@ -14,7 +14,28 @@ from math import log
 parser = argparse.ArgumentParser()
 parser.add_argument("--ld", required=True, help="ldjump file")
 parser.add_argument("--chrom", type=str, required=True, help="chrom map size")
+parser.add_argument("--ldhelm", action="store_true", help="file is in ldhelm")
 args = parser.parse_args()
+
+
+def readLDhelmet(LDHelmFile):
+    """
+    """
+    snplist = []
+    rholist = []
+    with open(LDHelmFile) as rhomap:
+        for line in rhomap:
+            if line.split()[0].isdigit():
+                for line in rhomap:
+                    try:
+                        x = line.split()
+                        snp = x[0]
+                        rho = x[2]
+                        snplist.append(int(snp))
+                        rholist.append(float(rho))
+                    except ValueError:
+                        continue
+    return(snplist, rholist)
 
 
 def readLDjump(LDjumpFile):
@@ -36,7 +57,7 @@ def readLDjump(LDjumpFile):
 
 
 def makeRecombMap(snplist, rholist, Ne, size):
-    """Following the conversion method of Booker et al 2017 in genetics
+    """
     """
     poslist = []
     cMMblist = []
@@ -44,7 +65,8 @@ def makeRecombMap(snplist, rholist, Ne, size):
     cM = 0
     # cumRho = 0
     for i, pos in enumerate(snplist):
-        cMMb_avg = 50*log(1/(1-2*(rholist[i]/(4*Ne)))) * 1E6
+        cMMb_avg = ((rholist[i]*100)/(4*Ne)) * 1E6
+        # cMMb_avg = 50*log(1/(1-2*(rholist[i]/4*Ne))) * 1E6
         poslist.append(pos)
         cMMb_rho = rholist[i] * cMMb_avg  # average rate from Chan 2012
         cMMblist.append(cMMb_rho)  # rate between SNPs
@@ -93,7 +115,10 @@ def makeRecombMapBooker(snplist, rholist, chrom):
 
 if __name__ == "__main__":
     chrom = args.chrom
-    s, r = readLDjump(args.ld)
+    if args.ldhelm:
+        s, r = readLDhelmet(args.ld)
+    else:
+        s, r = readLDjump(args.ld)
 #    poslist, cmMblist, cmlist = makeRecombMap(s, r, args.Ne, args.mapsize)
     poslist, cmMblist, cmlist = makeRecombMapBooker(s, r, chrom)
     with open("{}.cMMb.LD.out".format(chrom), 'w') as cm:
