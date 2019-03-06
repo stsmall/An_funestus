@@ -13,7 +13,7 @@ import sys
 import numpy as np
 
 
-def rarefaction(Its2File):
+def rarefaction(Its2File, step=50):
     """samples with replacement from a blast file, depends on header
     """
     specieslist = []
@@ -25,7 +25,7 @@ def rarefaction(Its2File):
             species = line.split()[5]
             specieslist.append(species)
     # resample and count
-    seqs = range(10, len(species), 50)
+    seqs = range(step, len(specieslist), step)
     f = open("rarefaction.out", 'w')
     for s in seqs:
         rare = np.random.choice(specieslist, s)
