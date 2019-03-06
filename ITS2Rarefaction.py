@@ -28,9 +28,11 @@ def rarefaction(Its2File, step=50, reps=10):
     seqs = range(step, len(specieslist), step)
     f = open("rarefaction.out", 'w')
     for s in seqs:
-        for r in reps:
+        r = 0
+        while r < reps:
             rare = np.random.choice(specieslist, s)
             f.write("{}\t{}\n".format(s, len(set(rare))))
+            r += 1
     f.write("{}\t{}\n".format(len(specieslist), len(set(specieslist))))
     f.close()
     return(None)
