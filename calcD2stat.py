@@ -119,6 +119,7 @@ if __name__ == "__main__":
         i = j
         j += step
     f.close()
+    print("D2 ns from 0: C->B\nD2 sig + B->C\nincreasing + w/ dist from speciation")
     print("D2: {}".format(np.mean(dac_ab) - np.mean(dac_bc)))
     i = 0
     step = 100
@@ -130,4 +131,5 @@ if __name__ == "__main__":
         i = j
         j += step
     f.close()
+    print("D1 ns from 0: speciation + introgression\nD1 sig + speciation followed by introgression\nincreasing D1 is more recent introgression")
     print("D1: {}".format(np.mean(dab_ab) - np.mean(dbc_bc)))
