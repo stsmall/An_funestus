@@ -23,7 +23,7 @@ def readcMMb(recomb):
     coordlist = []
     with open(recomb, 'r') as r:
         for line in r:
-            rho, coord = line.split()
+            coord, rho = line.split()
             rholist.append(float(rho))
             coordlist.append(int(coord))
     return(coordlist, rholist)
