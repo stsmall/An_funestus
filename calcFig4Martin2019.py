@@ -35,6 +35,7 @@ def calcAvgRho(fdFile, coordlist, rholist):
     f = open("fdvRho.out", 'w')
     with open(fdFile, 'r') as fd:
         for line in fd:
+            import ipdb;ipdb.set_trace()
             chrm, start, end, fd = line.split()
             start_ix = left(coordlist, int(start))
             end_ix = left(coordlist, int(end))
