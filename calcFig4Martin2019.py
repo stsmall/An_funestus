@@ -35,11 +35,11 @@ def calcAvgRho(fdFile, coordlist, rholist):
     f = open("fdvRho.out", 'w')
     with open(fdFile, 'r') as fd:
         for line in fd:
-            import ipdb;ipdb.set_trace()
             chrm, start, end, fd = line.split()
             start_ix = left(coordlist, int(start))
             end_ix = left(coordlist, int(end))
-            rho = np.mean(rholist[start_ix:end_ix])
+            if end_ix > start_ix:
+                rho = np.mean(rholist[start_ix:end_ix])
             if float(fd) < 0:
                 fd = 0
             f.write("{}\t{}\t{}\n".format(chrm, rho, fd))
