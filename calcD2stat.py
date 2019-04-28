@@ -10,7 +10,6 @@ from __future__ import print_function
 from __future__ import division
 import numpy as np
 from ete3 import PhyloTree
-from itertools import combinations
 import argparse
 
 parser = argparse.ArgumentParser()
@@ -19,13 +18,12 @@ parser.add_argument('-t', "--treefile", type=str, required=True,
 parser.add_argument('-g', "--groups", nargs='+', action='append',
                     required=True, help="quartet of species to calculate,"
                     " assumes form: P1 P2 P3. can be given multiple times")
-parser.add_argument('-w', "--windows", type=str,
-                    help="coordinates for each tree")
 parser.add_argument("--dlm", type=str, default="_",
                     help="delimeter denoting species")
 parser.add_argument("-o", "--outgroup", type=str,
                     help="outgroup species for rooting")
-parser.add_argument("--mono", action="store_true")
+parser.add_argument("--windows", type=int, default=0, help="sliding windows")
+parser.add_argument("--mono", action="store_true", help="enforce monophyly")
 args = parser.parse_args()
 
 
@@ -115,30 +113,42 @@ if __name__ == "__main__":
     quarts = args.groups
     quart = quarts[0]
     taxon = [quart[0], quart[1], quart[2]]
-    treelist = LoadTrees(args.treefile, args.outgroup, args.dlm)
+    if not args.outgroup:
+        outgroup = quart[2]
+    else:
+        outgroup = args.outgroup
+    treelist = LoadTrees(args.treefile, outgroup, args.dlm)
     dac_ab, dac_bc, dab_ab, dbc_bc= DistABC(treelist, taxon, args.mono)
-    # calculate sliding window by 100 trees or such
-    i = 0
-    step = 100
-    j = step
-    f = open("D2_clust.txt", 'w')
-    while j < len(dac_ab):
-        d2 = np.mean(dac_ab[i:j]) - np.mean(dac_bc[i:j])
-        f.write("{}\n".format(d2))
-        i = j
-        j += step
-    f.close()
-    print("D2 ns from 0: C->B\nD2 sig + B->C\nincreasing + w/ dist from speciation")
-    print("D2: {}".format(np.mean(dac_ab) - np.mean(dac_bc)))
-    i = 0
-    step = 100
-    j = step
-    f = open("D1_clust.txt", 'w')
-    while j < len(dab_ab):
-        d1 = np.mean(dab_ab[i:j]) - np.mean(dbc_bc[i:j])
-        f.write("{}\n".format(d1))
-        i = j
-        j += step
-    f.close()
+    
     print("D1 ns from 0: speciation + introgression\nD1 sig + speciation followed by introgression\nincreasing D1 is more recent introgression")
     print("D1: {}".format(np.mean(dab_ab) - np.mean(dbc_bc)))
+
+    print("D2 ns from 0: C->B\nD2 sig + B->C\nincreasing + w/ dist from speciation")
+    print("D2: {}".format(np.mean(dac_ab) - np.mean(dac_bc)))
+    
+    A = quart[0][0]
+    B = quart[1][0]
+    C = quart[2][0]
+    step = args.windows    
+    if step > 0:
+        # D1 sliding windows
+        i = 0
+        j = step
+        f = open("{}{}{}.D1.{}.txt".format(A, B, C, step), 'w')
+        while j < len(dab_ab):
+            d1 = np.mean(dab_ab[i:j]) - np.mean(dbc_bc[i:j])
+            f.write("{}\n".format(d1))
+            i = j
+            j += step
+        f.close()
+    
+        # D2 calculate sliding window by 100 trees or such 
+        i = 0
+        j = step
+        f = open("{}{}{}.D2.{}.txt".format(A, B, C, step), 'w')
+        while j < len(dac_ab):
+            d2 = np.mean(dac_ab[i:j]) - np.mean(dac_bc[i:j])
+            f.write("{}\n".format(d2))
+            i = j
+            j += step
+        f.close()
