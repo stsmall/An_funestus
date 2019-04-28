@@ -21,9 +21,10 @@ parser.add_argument('-g', "--groups", nargs='+', action='append',
 parser.add_argument("--dlm", type=str, default="_",
                     help="delimeter denoting species")
 parser.add_argument("-o", "--outgroup", type=str,
-                    help="outgroup species for rooting")
+                    help="outgroup species for rooting if tree are unrooted")
 parser.add_argument("--windows", type=int, default=0, help="sliding windows")
-parser.add_argument("--mono", action="store_true", help="enforce monophyly")
+parser.add_argument("--mono", action="store_true", help="enforce monophyly for" 
+                    " trees with >1 individual per species")
 args = parser.parse_args()
 
 
@@ -47,7 +48,8 @@ def LoadTrees(treefile, outgroup, dlm):
             if not line.startswith("NA"):
                 t = PhyloTree(line)
                 t.set_species_naming_function(lambda node: node.name.split(dlm)[0])
-                t.set_outgroup( t&outgroup )
+                if outgroup:
+                    t.set_outgroup( t&outgroup )
                 treelist.append(t)
     return(treelist)
 
@@ -113,11 +115,7 @@ if __name__ == "__main__":
     quarts = args.groups
     quart = quarts[0]
     taxon = [quart[0], quart[1], quart[2]]
-    if not args.outgroup:
-        outgroup = quart[2]
-    else:
-        outgroup = args.outgroup
-    treelist = LoadTrees(args.treefile, outgroup, args.dlm)
+    treelist = LoadTrees(args.treefile, args.outgroup, args.dlm)
     dac_ab, dac_bc, dab_ab, dbc_bc= DistABC(treelist, taxon, args.mono)
     
     print("D1 ns from 0: speciation + introgression\nD1 sig + speciation followed by introgression\nincreasing D1 is more recent introgression")
