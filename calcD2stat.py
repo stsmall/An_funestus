@@ -25,7 +25,7 @@ parser.add_argument("--dlm", type=str, default="_",
                     help="delimeter denoting species")
 parser.add_argument("-o", "--outgroup", type=str,
                     help="outgroup species for rooting")
-parser.add_argument("--mono", action="store_false")
+parser.add_argument("--mono", action="store_true")
 args = parser.parse_args()
 
 

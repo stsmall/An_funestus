@@ -10,7 +10,6 @@ from __future__ import print_function
 from __future__ import division
 import numpy as np
 from ete3 import PhyloTree
-from itertools import combinations
 import argparse
 
 parser = argparse.ArgumentParser()
@@ -75,10 +74,10 @@ def AgeAndSupport(treelist, taxon):
     AB_AB = []
     BC_BC = []
     for t in treelist:
-#        ass = t.search_nodes(species=A[0])
-#        bss = t.search_nodes(species=B[0])
-#        css = t.search_nodes(species=C[0])
-#        t.prune(ass+bss+css, preserve_branch_length=True)
+        ass = t.search_nodes(species=A[0])
+        bss = t.search_nodes(species=B[0])
+        css = t.search_nodes(species=C[0])
+        t.prune(ass+bss+css, preserve_branch_length=True)
         distBC = (pairwiseDistance(t, B+C))
         distAC = (pairwiseDistance(t, A+C))
         distAB = (pairwiseDistance(t, A+B))
