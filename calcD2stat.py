@@ -71,7 +71,7 @@ def pairwiseDistance(tree, taxon):
     return(np.nanmean(pwlist))
 
 
-def AgeAndSupport(treelist, taxon):
+def AgeAndSupport(treelist, taxon, mono=True):
     """Calculates the support and node age if groups in taxon are monophyletic
     """
     # only A/C when (A,B) and (B,C)
@@ -87,18 +87,29 @@ def AgeAndSupport(treelist, taxon):
         bss = t.search_nodes(species=B[0])
         css = t.search_nodes(species=C[0])
         t.prune(ass+bss+css, preserve_branch_length=True)
-        if cMono(t, A+B):
-            AC_AB.append(pairwiseDistance(t, A+C))
-            AB_AB.append(pairwiseDistance(t, A+B))
+        distBC = (pairwiseDistance(t, B+C))
+        distAC = (pairwiseDistance(t, A+C))
+        distAB = (pairwiseDistance(t, A+B))
+        distAC = (pairwiseDistance(t, A+C))       
+        if mono:
+            if cMono(t, B+C):              
+                if distBC < distAB and distBC < distAC:
+                    AB_AB.append(distBC)
+                    AC_AB.append(distAC)
+            if cMono(t, A+B):
+                if distAB < distBC and distAB < distAC:
+                    AC_BC.append(distAC)
+                    BC_BC.append(distAB)            
         else:
-            AC_AB.append(0)
-            AB_AB.append(0)
-        if cMono(t, B+C):
-            AC_BC.append(pairwiseDistance(t, A+C))
-            BC_BC.append(pairwiseDistance(t, B+C))
-        else:
-            AC_BC.append(0)
-            BC_BC.append(0)
+            if distBC < distAB and distBC < distAC:
+                AB_AB.append(distBC)
+                AC_AB.append(distAC)
+            if distAB < distBC and distAB < distAC:
+                AC_BC.append(distAC)
+                BC_BC.append(distAB)            
+
+
+
     return(AC_AB, AC_BC, AB_AB, BC_BC)
 
 
