@@ -25,6 +25,7 @@ parser.add_argument("--dlm", type=str, default="_",
                     help="delimeter denoting species")
 parser.add_argument("-o", "--outgroup", type=str,
                     help="outgroup species for rooting")
+parser.add_argument("--mono", action="store_false")
 args = parser.parse_args()
 
 
@@ -71,7 +72,7 @@ def pairwiseDistance(tree, taxon):
     return(np.nanmean(pwlist))
 
 
-def AgeAndSupport(treelist, taxon, mono=True):
+def DistABC(treelist, taxon, mono):
     """Calculates the support and node age if groups in taxon are monophyletic
     """
     # only A/C when (A,B) and (B,C)
@@ -107,9 +108,6 @@ def AgeAndSupport(treelist, taxon, mono=True):
             if distAB < distBC and distAB < distAC:
                 AC_BC.append(distAC)
                 BC_BC.append(distAB)            
-
-
-
     return(AC_AB, AC_BC, AB_AB, BC_BC)
 
 
@@ -118,7 +116,7 @@ if __name__ == "__main__":
     quart = quarts[0]
     taxon = [quart[0], quart[1], quart[2]]
     treelist = LoadTrees(args.treefile, args.outgroup, args.dlm)
-    dac_ab, dac_bc, dab_ab, dbc_bc= AgeAndSupport(treelist, taxon)
+    dac_ab, dac_bc, dab_ab, dbc_bc= DistABC(treelist, taxon, args.mono)
     # calculate sliding window by 100 trees or such
     i = 0
     step = 100
