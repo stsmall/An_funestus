@@ -22,7 +22,7 @@ parser.add_argument("--dlm", type=str, default="_",
                     help="delimeter denoting species")
 parser.add_argument("-o", "--outgroup", type=str,
                     help="outgroup species for rooting if tree are unrooted")
-parser.add_argument("--windows", type=int, default=1000, help="sliding windows")
+parser.add_argument("--windows", type=int, default=100, help="sliding windows")
 parser.add_argument("--mono", action="store_true", help="enforce monophyly for" 
                     " trees with >1 individual per species")
 args = parser.parse_args()
@@ -146,7 +146,7 @@ if __name__ == "__main__":
     se = np.sqrt(sv)
     # print D1
     print("D1 ns from 0: speciation + introgression\nD1 sig +pos speciation followed by introgression\nincreasing D1 is more recent introgression")
-    print("D1: {}, {}".format(d1_m, se))
+    print("D1: {}, {}\n".format(d1_m, se))
 
     # D2
     d2_m = np.mean(dac_ab) - np.mean(dac_bc)
