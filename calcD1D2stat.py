@@ -140,7 +140,7 @@ if __name__ == "__main__":
     # D1 SE
     n = len(d1SE)
     try:
-        sv = ((n - 1) / n) * np.sum((np.array(d1SE) - d1_m) ** 2)
+        sv = ((n - 1) / n) * np.nansum((np.array(d1SE) - d1_m) ** 2)
     except ZeroDivisionError:
         se = 0.0000000001
     se = np.sqrt(sv)
@@ -166,7 +166,7 @@ if __name__ == "__main__":
     # D2 SE
     n = len(d2SE)
     try:
-        sv = ((n - 1) / n) * np.sum((d2SE - d2_m) ** 2)
+        sv = ((n - 1) / n) * np.nansum((d2SE - d2_m) ** 2)
     except ZeroDivisionError:
         se = 0.0000000001
     se = np.sqrt(sv)
