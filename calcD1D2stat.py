@@ -22,7 +22,7 @@ parser.add_argument("--dlm", type=str, default="_",
                     help="delimeter denoting species")
 parser.add_argument("-o", "--outgroup", type=str,
                     help="outgroup species for rooting if tree are unrooted")
-parser.add_argument("--windows", type=int, default=0, help="sliding windows")
+parser.add_argument("--windows", type=int, default=1000, help="sliding windows")
 parser.add_argument("--mono", action="store_true", help="enforce monophyly for" 
                     " trees with >1 individual per species")
 args = parser.parse_args()
@@ -124,54 +124,52 @@ if __name__ == "__main__":
     
     # D1
     d1_m = np.mean(dab_ab) - np.mean(dbc_bc)
-    d1 = np.array(np.array(dab_ab) - np.array(dbc_bc))
+    # windowed D1
+    d1SE = []
+    # D1 sliding windows
+    i = 0
+    j = step
+    f = open("{}{}{}.D1.{}.txt".format(A, B, C, step), 'w')
+    while j < len(dab_ab):
+        d1_win = np.mean(dab_ab[i:j]) - np.mean(dbc_bc[i:j])
+        d1SE.append(d1_win)
+        f.write("{}\n".format(d1_win))
+        i = j
+        j += step
+    f.close()
     # D1 SE
-    n = len(d1)
+    n = len(d1SE)
     try:
-        sv = ((n - 1) / n) * np.sum((d1 - np.mean(d1)) ** 2)
+        sv = ((n - 1) / n) * np.sum((np.array(d1SE) - d1_m) ** 2)
     except ZeroDivisionError:
         se = 0.0000000001
     se = np.sqrt(sv)
-    import ipdb;ipdb.set_trace()
     # print D1
-    print("D1 ns from 0: speciation + introgression\nD1 sig + speciation followed by introgression\nincreasing D1 is more recent introgression")
+    print("D1 ns from 0: speciation + introgression\nD1 sig +pos speciation followed by introgression\nincreasing D1 is more recent introgression")
     print("D1: {}, {}".format(d1_m, se))
-    # windowed D1
-    if step > 0:
-        # D1 sliding windows
-        i = 0
-        j = step
-        f = open("{}{}{}.D1.{}.txt".format(A, B, C, step), 'w')
-        while j < len(dab_ab):
-            d1_win = np.mean(dab_ab[i:j]) - np.mean(dbc_bc[i:j])
-            f.write("{}\n".format(d1_win))
-            i = j
-            j += step
-        f.close()
-    
+
     # D2
     d2_m = np.mean(dac_ab) - np.mean(dac_bc)
-    d2 = np.array(np.array(dac_ab) - np.array(dac_bc))
+    # windowed D2
+    d2SE = []
+    # D2 calculate sliding window by 100 trees or such 
+    i = 0
+    j = step
+    f = open("{}{}{}.D2.{}.txt".format(A, B, C, step), 'w')
+    while j < len(dac_ab):
+        d2_win = np.mean(dac_ab[i:j]) - np.mean(dac_bc[i:j])
+        d2SE.append(d2_win)
+        f.write("{}\n".format(d2_win))
+        i = j
+        j += step
+    f.close()
     # D2 SE
-    n = len(d1)
+    n = len(d2SE)
     try:
-        sv = ((n - 1) / n) * np.sum((d2 - np.mean(d2)) ** 2)
+        sv = ((n - 1) / n) * np.sum((d2SE - d2_m) ** 2)
     except ZeroDivisionError:
         se = 0.0000000001
     se = np.sqrt(sv)
-    import ipdb;ipdb.set_trace()
     # print D2
-    print("D2 ns from 0: C->B\nD2 sig + B->C\nincreasing + w/ dist from speciation")
+    print("D2 ns from 0: C->B\nD2 sig +pos B->C\nincreasing +pos w/ dist from speciation")
     print("D2: {}, {}".format(d2_m, se))
-    # windowed D2
-    if step > 0:
-        # D2 calculate sliding window by 100 trees or such 
-        i = 0
-        j = step
-        f = open("{}{}{}.D2.{}.txt".format(A, B, C, step), 'w')
-        while j < len(dac_ab):
-            d2_win = np.mean(dac_ab[i:j]) - np.mean(dac_bc[i:j])
-            f.write("{}\n".format(d2_win))
-            i = j
-            j += step
-        f.close()
