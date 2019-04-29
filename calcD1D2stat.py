@@ -117,36 +117,61 @@ if __name__ == "__main__":
     taxon = [quart[0], quart[1], quart[2]]
     treelist = LoadTrees(args.treefile, args.outgroup, args.dlm)
     dac_ab, dac_bc, dab_ab, dbc_bc= DistABC(treelist, taxon, args.mono)
-    
-    print("D1 ns from 0: speciation + introgression\nD1 sig + speciation followed by introgression\nincreasing D1 is more recent introgression")
-    print("D1: {}".format(np.mean(dab_ab) - np.mean(dbc_bc)))
-
-    print("D2 ns from 0: C->B\nD2 sig + B->C\nincreasing + w/ dist from speciation")
-    print("D2: {}".format(np.mean(dac_ab) - np.mean(dac_bc)))
-    
     A = quart[0][0]
     B = quart[1][0]
     C = quart[2][0]
-    step = args.windows    
+    step = args.windows 
+    
+    # D1
+    d1_m = np.mean(dab_ab) - np.mean(dbc_bc)
+    d1 = np.array(np.array(dab_ab) - np.array(dbc_bc))
+    # D1 SE
+    n = len(d1)
+    try:
+        sv = ((n - 1) / n) * np.sum((d1 - np.mean(d1)) ** 2)
+    except ZeroDivisionError:
+        se = 0.0000000001
+    se = np.sqrt(sv)
+    import ipdb;ipdb.set_trace()
+    # print D1
+    print("D1 ns from 0: speciation + introgression\nD1 sig + speciation followed by introgression\nincreasing D1 is more recent introgression")
+    print("D1: {}, {}".format(d1_m, se))
+    # windowed D1
     if step > 0:
         # D1 sliding windows
         i = 0
         j = step
         f = open("{}{}{}.D1.{}.txt".format(A, B, C, step), 'w')
         while j < len(dab_ab):
-            d1 = np.mean(dab_ab[i:j]) - np.mean(dbc_bc[i:j])
-            f.write("{}\n".format(d1))
+            d1_win = np.mean(dab_ab[i:j]) - np.mean(dbc_bc[i:j])
+            f.write("{}\n".format(d1_win))
             i = j
             j += step
         f.close()
     
+    # D2
+    d2_m = np.mean(dac_ab) - np.mean(dac_bc)
+    d2 = np.array(np.array(dac_ab) - np.array(dac_bc))
+    # D2 SE
+    n = len(d1)
+    try:
+        sv = ((n - 1) / n) * np.sum((d2 - np.mean(d2)) ** 2)
+    except ZeroDivisionError:
+        se = 0.0000000001
+    se = np.sqrt(sv)
+    import ipdb;ipdb.set_trace()
+    # print D2
+    print("D2 ns from 0: C->B\nD2 sig + B->C\nincreasing + w/ dist from speciation")
+    print("D2: {}, {}".format(d2_m, se))
+    # windowed D2
+    if step > 0:
         # D2 calculate sliding window by 100 trees or such 
         i = 0
         j = step
         f = open("{}{}{}.D2.{}.txt".format(A, B, C, step), 'w')
         while j < len(dac_ab):
-            d2 = np.mean(dac_ab[i:j]) - np.mean(dac_bc[i:j])
-            f.write("{}\n".format(d2))
+            d2_win = np.mean(dac_ab[i:j]) - np.mean(dac_bc[i:j])
+            f.write("{}\n".format(d2_win))
             i = j
             j += step
         f.close()
