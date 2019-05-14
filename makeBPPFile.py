@@ -159,7 +159,7 @@ def bppFormatCDS(CDSdict, fastaFile, clust, exons, chrom, prct, just=10):
                 # print("skipping, too many Ns")
                 skip_gaps += 1
             else:
-                out_file.write("\n{} {}\n\n".format(samples, length))
+                out_file.write("{} {}\n\n".format(samples, length))
                 for head, seq in zip(headerlist, locuslist):
                     out_file.write("^{}{}{}\n".format(head, ' '*(just-len(head)), seq))
                 loci += 1
