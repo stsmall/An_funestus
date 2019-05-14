@@ -122,7 +122,7 @@ def bppFormatCDS(CDSdict, fastaFile, clust, exons, chrom, prct, just=10):
         xlist = CDSdict[k]
         locuslist = []
         headerlist = []
-        if loci > clust:
+        if loci >= clust:
             out_file.close()
             try:
                 s = CDSdict["cds_{}".format(i)][0]
@@ -189,7 +189,7 @@ def bppFormatnCDS(nonCDSdict, fastaFile, clust, chrom, prct, just=10):
         xlist = nonCDSdict[k]
         locuslist = []
         headerlist = []
-        if loci > clust:
+        if loci >= clust:
             out_file.close()
             try:
                 s = nonCDSdict["ncds_{}".format(i)][0]
