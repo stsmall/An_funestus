@@ -18,7 +18,7 @@ parser.add_argument("--distance", type=int, default=2000, help="distance"
 parser.add_argument("--length", type=int, default=1000, help="length for"
                     " non-coding loci")
 parser.add_argument("--fasta", type=str, required=True, help="fasta file")
-parser.add_argument("--clust", type=int, default=100, help="how many loci"
+parser.add_argument("--clust", type=int, default=1, help="how many loci"
                     " to cluster into 1 file")
 parser.add_argument("--prct", type=float, default=0.5)
 parser.add_argument("--exons", action="store_true")
@@ -113,7 +113,7 @@ def bppFormatCDS(CDSdict, fastaFile, clust, exons, chrom, prct, just=10):
     loci = 0
     s = CDSdict["cds_0"][0]
     try:
-        e = CDSdict["cds_{}".format(clust)][1]
+        e = CDSdict["cds_{}".format(clust-1)][1]
     except KeyError:
         e = CDSdict["cds_{}".format(len(CDSdict.keys())-1)][1]
     out_file = open("CDS.bpp.{}.{}-{}.txt".format(chrom, s, e), 'w')
@@ -126,7 +126,7 @@ def bppFormatCDS(CDSdict, fastaFile, clust, exons, chrom, prct, just=10):
             out_file.close()
             try:
                 s = CDSdict["cds_{}".format(i)][0]
-                e = CDSdict["cds_{}".format(i+clust)][1]
+                e = CDSdict["cds_{}".format(i+clust-1)][1]
             except KeyError:
                 e = CDSdict["cds_{}".format(len(CDSdict.keys())-1)][1]
             out_file = open("CDS.bpp.{}.{}-{}.txt".format(chrom, s, e), 'w')
@@ -180,7 +180,7 @@ def bppFormatnCDS(nonCDSdict, fastaFile, clust, chrom, prct, just=10):
     loci = 0
     s = nonCDSdict["ncds_0"][0]
     try:
-        e = nonCDSdict["ncds_{}".format(clust)][1]
+        e = nonCDSdict["ncds_{}".format(clust-1)][1]
     except KeyError:
         e = nonCDSdict["ncds_{}".format(len(nonCDSdict.keys())-1)][1]
     out_file = open("nCDS.bpp.{}.{}-{}.txt".format(chrom, s, e), 'w')
@@ -193,7 +193,7 @@ def bppFormatnCDS(nonCDSdict, fastaFile, clust, chrom, prct, just=10):
             out_file.close()
             try:
                 s = nonCDSdict["ncds_{}".format(i)][0]
-                e = nonCDSdict["ncds_{}".format(i+clust)][1]
+                e = nonCDSdict["ncds_{}".format(i+clust-1)][1]
             except KeyError:
                 s = nonCDSdict["ncds_{}".format(i)][0]
                 e = nonCDSdict["ncds_{}".format(len(nonCDSdict.keys())-1)][1]
