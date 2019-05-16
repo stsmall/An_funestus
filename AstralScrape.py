@@ -34,6 +34,7 @@ def runAstral(treeFile, clust, astralexe, groups):
     step = clust
     end = start + step
     tree_slice = tree_list[start:end]
+    import ipdb;ipdb.set_trace()
     while tree_slice:
         f2 = open("astral_tmp.tre", 'w')
         for t in tree_slice:
@@ -42,6 +43,8 @@ def runAstral(treeFile, clust, astralexe, groups):
         # run astral
         command = "java -jar {} -i astral_tmp.tre -o astral.out -a {}".format(astralexe, groups)
         proc = subprocess.Popen(command, shell=True)
+        proc.wait()
+        print("DONE")
         with open("astral.out", 'r') as astral:
             for line in astral:
                 f.write(line)
