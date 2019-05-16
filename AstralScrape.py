@@ -71,11 +71,11 @@ def makeWindows(coordList, clust, scaf):
     c = True
     while c:
         try:
-            f.write("{}\t{}\{}\n".format(scaf, start_list[s_ix], end_list[e_ix]))
+            f.write("{}\t{}\t{}\n".format(scaf, start_list[s_ix], end_list[e_ix]))
             s_ix = e_ix
             e_ix += step
         except IndexError:
-            f.write("{}\t{}\{}\n".format(scaf, start_list[s_ix], end_list[-1]))
+            f.write("{}\t{}\t{}\n".format(scaf, start_list[s_ix], end_list[-1]))
             c = False
     f.close()
     return(None)
