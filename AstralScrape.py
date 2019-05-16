@@ -18,10 +18,11 @@ parser.add_argument("--clust", type=int, default=100, help="how many loci"
                     " to cluster for astral")
 parser.add_argument("--astral_exe", type=str, help="path to astral exec")
 parser.add_argument("--scafs", type=str, required=True)
+parser.add_argument("--groups", type=str)
 args = parser.parse_args()
 
 
-def runAstral(treeFile, clust, astralexe):
+def runAstral(treeFile, clust, astralexe, groups):
     """
     """
     tree_list = []
@@ -34,12 +35,12 @@ def runAstral(treeFile, clust, astralexe):
     end = start + step
     tree_slice = tree_list[start:end]
     while tree_slice:
-        t = open("astral_tmp.tre", 'w')
+        f2 = open("astral_tmp.tre", 'w')
         for t in tree_slice:
-            t.write("{}\n".format(t))
-        t.close()
+            f2.write("{}\n".format(t))
+        f2.close()
         # run astral
-        command = "java -jar ~/programs_that_work/ASTRAL/Astral/astral.5.6.1.jar -i astral_tmp.tre -o astral.out -a ../astral.groups"
+        command = "java -jar {} -i astral_tmp.tre -o astral.out -a {}".format(astralexe, groups)
         proc = subprocess.Popen(command, shell=True)
         with open("astral.out", 'r') as astral:
             for line in astral:
@@ -79,5 +80,5 @@ def makeWindows(coordList, clust, scaf):
 
 
 if __name__ == "__main__":
-    runAstral(args.trees, args.clust, args.astral_exe)
+    runAstral(args.trees, args.clust, args.astral_exe, args.groups)
     makeWindows(args.coords, args.clust, args.scaf)
