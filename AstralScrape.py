@@ -84,4 +84,4 @@ def makeWindows(coordList, clust, scaf):
 
 if __name__ == "__main__":
     runAstral(args.trees, args.clust, args.astral_exe, args.groups)
-    makeWindows(args.coords, args.clust, args.scaf)
+    makeWindows(args.coords, args.clust, args.scafs)
