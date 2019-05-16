@@ -84,3 +84,6 @@ def makeWindows(coordList, clust, scaf):
 if __name__ == "__main__":
     runAstral(args.trees, args.clust, args.astral_exe, args.groups)
     makeWindows(args.coords, args.clust, args.scafs)
+    command = "~/programs_that_work/newick-utils-1.6/src/nw_reroot astral.tre Out > X.astral.{}.tre".format(args.clust)
+    proc = subprocess.Popen(command, shell=True)
+    proc.wait()
