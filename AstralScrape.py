@@ -19,6 +19,7 @@ parser.add_argument("--clust", type=int, default=100, help="how many loci"
 parser.add_argument("--astral_exe", type=str, help="path to astral exec", required=True)
 parser.add_argument("--scafs", type=str, required=True)
 parser.add_argument("--groups", type=str)
+parser.add_argument("--outgroup", type=str)
 args = parser.parse_args()
 
 
@@ -74,11 +75,11 @@ def makeWindows(coordList, clust, scaf):
     c = True
     while c:
         try:
-            f.write("{}\t{}\t{}\n".format(scaf, start_list[s_ix], end_list[e_ix]))
+            f.write("{}\t{}\t{}".format(scaf, start_list[s_ix], end_list[e_ix]))
             s_ix = e_ix
             e_ix += step
         except IndexError:
-            f.write("{}\t{}\t{}\n".format(scaf, start_list[s_ix], end_list[-1]))
+            f.write("{}\t{}\t{}".format(scaf, start_list[s_ix], end_list[-1]))
             c = False
     f.close()
     return(None)
@@ -88,6 +89,6 @@ if __name__ == "__main__":
     #sed -i "s/\^//g" 3R.lift.trees
     runAstral(args.trees, args.clust, args.astral_exe, args.groups)
     makeWindows(args.coords, args.clust, args.scafs)
-    command = "~/programs_that_work/newick-utils-1.6/src/nw_reroot astral.tre Out > {}.astral.{}.tre".format(args.scafs,args.clust)
+    command = "~/programs_that_work/newick-utils-1.6/src/nw_reroot astral.tre {} > {}.astral.{}.tre".format(args.scafs, args.clust, args.outgroup)
     proc = subprocess.Popen(command, shell=True)
     proc.wait()
