@@ -16,7 +16,7 @@ parser.add_argument("--trees", type=str, required=True, help="trees file")
 parser.add_argument("--coords", type=str, help="list of tree files, same order")
 parser.add_argument("--clust", type=int, default=100, help="how many loci"
                     " to cluster for astral")
-parser.add_argument("--astral_exe", type=str, help="path to astral exec")
+parser.add_argument("--astral_exe", type=str, help="path to astral exec", required=True)
 parser.add_argument("--scafs", type=str, required=True)
 parser.add_argument("--groups", type=str)
 args = parser.parse_args()
@@ -40,7 +40,10 @@ def runAstral(treeFile, clust, astralexe, groups):
             f2.write("{}\n".format(t))
         f2.close()
         # run astral
-        command = "java -jar {} -i astral_tmp.tre -o astral.out -a {}".format(astralexe, groups)
+        if groups:
+            command = "java -jar {} -i astral_tmp.tre -o astral.out -a {}".format(astralexe, groups)
+        else:
+            command = "java -jar {} -i astral_tmp.tre -o astral.out".format(astralexe)
         proc = subprocess.Popen(command, shell=True)
         proc.wait()
         print("DONE")
@@ -82,8 +85,9 @@ def makeWindows(coordList, clust, scaf):
 
 
 if __name__ == "__main__":
+    #sed -i "s/\^//g" 3R.lift.trees
     runAstral(args.trees, args.clust, args.astral_exe, args.groups)
     makeWindows(args.coords, args.clust, args.scafs)
-    command = "~/programs_that_work/newick-utils-1.6/src/nw_reroot astral.tre Out > X.astral.{}.tre".format(args.clust)
+    command = "~/programs_that_work/newick-utils-1.6/src/nw_reroot astral.tre Out > {}.astral.{}.tre".format(args.scafs,args.clust)
     proc = subprocess.Popen(command, shell=True)
     proc.wait()
