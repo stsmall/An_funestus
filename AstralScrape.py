@@ -89,6 +89,12 @@ if __name__ == "__main__":
     #sed -i "s/\^//g" 3R.lift.trees
     runAstral(args.trees, args.clust, args.astral_exe, args.groups)
     makeWindows(args.coords, args.clust, args.scafs)
-    command = "~/programs_that_work/newick-utils-1.6/src/nw_reroot astral.tre {} > {}.astral.{}.tre".format(args.scafs, args.clust, args.outgroup)
-    proc = subprocess.Popen(command, shell=True)
-    proc.wait()
+    if args.outgroup:
+        command = "~/programs_that_work/newick-utils-1.6/src/nw_reroot astral.tre {} > {}.astral.{}.tre".format(args.outgroup, args.scafs, args.clust)
+        proc = subprocess.Popen(command, shell=True)
+        proc.wait()
+    else:
+        command = "mv astral.tre {}.astral.{}.tre".format(args.scafs, args.clust)
+        proc = subprocess.Popen(command, shell=True)
+        proc.wait()
+
