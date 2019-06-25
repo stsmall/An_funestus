@@ -64,9 +64,10 @@ def fillgeno(infile, outfile, fdict, vcfdict, outgroup, dlm="."):
                     header = line.strip().split()
                     samples = header[2:]
                     n_samples = len(samples)
-                    out_iix = []
-                    for o in outgroup:
-                        out_iix = [i for i, x in enumerate(samples) if o == x.split(dlm)[0]]
+                    if outgroup:
+                        out_iix = []
+                        for o in outgroup:
+                            out_iix = [i for i, x in enumerate(samples) if o == x.split(dlm)[0]]
                 else:
                     x = line.strip().split()
                     chrom = x[0]
@@ -98,6 +99,7 @@ def fillgeno(infile, outfile, fdict, vcfdict, outgroup, dlm="."):
                             continue
                         fillposi += 1
                     f.write(line)
+                    fillpos = pos + 1
     print("filled ref position in {}: {}".format(outgroup, refcount))
     return(None)
 
