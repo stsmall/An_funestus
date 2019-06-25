@@ -99,7 +99,7 @@ def fillgeno(infile, outfile, fdict, vcfdict, outgroup, dlm="."):
                             continue
                         fillposi += 1
                     f.write(line)
-                    fillposi = pos + 1
+                    fillposi += 1
     print("filled ref position in {}: {}".format(outgroup, refcount))
     return(None)
 
