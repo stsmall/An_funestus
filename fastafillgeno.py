@@ -98,8 +98,8 @@ def fillgeno(infile, outfile, fdict, vcfdict, outgroup, dlm="."):
                         except KeyError:
                             continue
                         fillposi += 1
-#                    f.write(line)
-#                    fillpos = pos + 1
+                    f.write(line)
+                    fillposi = pos + 1
     print("filled ref position in {}: {}".format(outgroup, refcount))
     return(None)
 
