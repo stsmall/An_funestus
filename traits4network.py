@@ -46,29 +46,30 @@ def AddLengthsToKey(File, fastafai):
     return(None)
 
 
-def label(File):
+def label(File, name):
     """
     sort by -k6,6
     """
     f = open("{}.label".format(File), 'w')
     sp_count = 0
+    spcol = int(name)
     with open(File, 'r') as co1:
         line = next(co1)
-        species = line.split()[5]
+        species = line.split()[spcol]
     with open(File, 'r') as co1:
         for line in co1:
             x = line.split()
-            if x[5] == species:
+            if x[spcol] == species:
                 sp_count += 1
-                species_count = "{}_{}".format(x[5], sp_count)
+                species_count = "{}_{}".format(x[spcol], sp_count)
                 x.append(species_count)
                 f.write("{}\n".format("\t".join(x)))
             else:
                 sp_count = 1
-                species_count = "{}_{}".format(x[5], sp_count)
+                species_count = "{}_{}".format(x[spcol], sp_count)
                 x.append(species_count)
                 f.write("{}\n".format("\t".join(x)))
-                species = x[5]
+                species = x[spcol]
     f.close()
     return(None)
 
@@ -217,7 +218,8 @@ if __name__ == "__main__":
         fai = raw_input("Add fai file: ")
         AddLengthsToKey(File, fai)
     elif args.fx == 'label':
-        label(File)
+        name = raw_input("column of name: ")
+        label(File, name)
     elif args.fx == 'replaceFastaHeader':
         fa = raw_input("Add Fasta file: ")
         replaceFastaHeader(File, fa)
