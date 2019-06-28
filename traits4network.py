@@ -74,14 +74,15 @@ def label(File, name):
     return(None)
 
 
-def replaceFastaHeader(File, fasta):
+def replaceFastaHeader(File, fasta, name):
     """
     """
     fastadict = {}
+    colname = int(name)
     with open(File, 'r') as co1:
         for line in co1:
             x = line.split()
-            fastadict[x[0]] = x[-1]
+            fastadict[x[0]] = x[colname]
     f = open("{}.rename".format(fasta), 'w')
     with open(fasta, 'r') as co1:
         for line in co1:
@@ -222,7 +223,8 @@ if __name__ == "__main__":
         label(File, name)
     elif args.fx == 'replaceFastaHeader':
         fa = raw_input("Add Fasta file: ")
-        replaceFastaHeader(File, fa)
+        name = raw_input("column of name: ")
+        replaceFastaHeader(File, fa, name)
     elif args.fx == 'getFastaFromGroups':
         fa = raw_input("Add Fasta file: ")
         getFastaFromGroups(File, fa)
