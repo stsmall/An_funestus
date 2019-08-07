@@ -92,7 +92,7 @@ def getDivergence(infile, topos, pairs, toposplot, pairsplot):
     """
     div_dict = defaultdict(lambda: defaultdict(list))
     with open(infile,'r') as f:
-        header = f.next().split()
+        header = next(f).split()
         for line in f:
             for i, div in enumerate(line.split()):
                 topo, ind1, ind2 = header[i].split("_")
