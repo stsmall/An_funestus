@@ -143,7 +143,7 @@ def getDivergence(infile, topos, pairs, toposplot, pairsplot):
     return(None)
 
 
-def sumBranchLengths(infile, nodedepthplot, step=10, topos=105, plot):
+def sumBranchLengths(infile, nodedepthplot, step=10, topos=105):
     """
     """
     blen_box = []
@@ -165,7 +165,7 @@ def sumBranchLengths(infile, nodedepthplot, step=10, topos=105, plot):
     # boxplot of node depth
     data = list(zip(*blen_box))
     
-    if plot:
+    if nodedepthplot:
         boxplotB(data)
     
     # output file
