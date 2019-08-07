@@ -24,8 +24,9 @@ parser.add_argument('-p', "--pairs", nargs='+', required=False,
 parser.add_argument("--div", action="store_true", help="a divergence file")
 parser.add_argument("--blen", action="store_true", help="a file of branch"
                     "lengths")
-parser.add_argument("--tplot", action="store_true")
-parser.add_argument("--pplot", action="store_true")
+parser.add_argument("--tplot", action="store_true", help="boxplot of topos")
+parser.add_argument("--pplot", action="store_true", help="boxplot of pairs")
+parser.add_argument("--bplot", action="store_true", help="boxplot of nodeage")
 args = parser.parse_args()
 
 
@@ -142,7 +143,7 @@ def getDivergence(infile, topos, pairs, toposplot, pairsplot):
     return(None)
 
 
-def sumBranchLengths(infile, nodedepthplot, step=10, topos=105):
+def sumBranchLengths(infile, nodedepthplot, step=10, topos=105, plot):
     """
     """
     blen_box = []
@@ -163,7 +164,9 @@ def sumBranchLengths(infile, nodedepthplot, step=10, topos=105):
     
     # boxplot of node depth
     data = list(zip(*blen_box))
-    boxplotB(data)
+    
+    if plot:
+        boxplotB(data)
     
     # output file
     f = open("nodedepth.out", 'w')
@@ -184,4 +187,4 @@ if __name__ == "__main__":
     if args.div:
         getDivergence(infile, topos, pairs, toposplot=args.tplot, pairsplot=args.pplot)
     elif args.blen:
-        sumBranchLengths(infile, nodedepthplot=args.plot)
+        sumBranchLengths(infile, nodedepthplot=args.bplot)
