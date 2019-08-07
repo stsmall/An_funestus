@@ -20,7 +20,7 @@ parser.add_argument('-i', "--infile", type=str, required=True,
 parser.add_argument('-t', "--topos", nargs='+', required=False,
                     help="list of topos e.g., topo82")
 parser.add_argument('-p', "--pairs", nargs='+', required=False,
-                    help="list of interested pairs, e.g. Fun_Lik")
+                    help="list of interested pairs, e.g. Fun-Lik")
 parser.add_argument("--div", action="store_true", help="a divergence file")
 parser.add_argument("--blen", action="store_true", help="a file of branch"
                     "lengths")
@@ -93,7 +93,8 @@ def getDivergence(infile, topos, pairs, toposplot=False, pairsplot=False):
         for line in f:
             for i, div in enumerate(line.split()):
                 topo, ind1, ind2 = header[i].split("_")
-                div_dict[topo][ind1+ind2].append(float(div))
+                pairname = "{}-{}".format(ind1, ind2)
+                div_dict[topo][pairname].append(float(div))
     div_df = pd.DataFrame(div_dict)
     
     # make boxplot
