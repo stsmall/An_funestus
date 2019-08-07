@@ -178,8 +178,9 @@ def getFastaFromGroups(File, fasta, sub=3):
     return(None)
 
 
-def AddtraitsForNetwork(File, header):
+def AddtraitsForNetwork(File, headerL):
     """
+    dos2unix .log
     cut -f2 CO1_Karama_28SEP18.clean.lab.alignment.long.log > duplist
     cut -d" " -f 1 CO1_Karama_28SEP18.clean.lab.alignment.long.phy > list
     grep -wv -f duplist list > singletons
@@ -188,11 +189,12 @@ def AddtraitsForNetwork(File, header):
     #header = ["aconitus", "barbirostris", "nitidus", "peditaeniatus", "maculatus",
      #         "tessellatus", "culicifacies", "vagus", "crawfordi", "unknown"]
     f = open("{}.traits".format(File), 'w')
+    header = headerL.split()
     f.write("{}\n".format(",".join(header)))
     headerlist = [0] * len(header)
     sp = ''
     with open(File, 'r') as log:
-        log.next()  # skip header
+        next(log)  # skip header
         for line in log:
             if line.startswith("\t"):
                 spix = header.index(line.split()[0].split("_")[0])
@@ -216,25 +218,25 @@ if __name__ == "__main__":
     File = args.file
 
     if args.fx == 'AddLengthsToKey':
-        fai = raw_input("Add fai file: ")
+        fai = input("Add fai file: ")
         AddLengthsToKey(File, fai)
     elif args.fx == 'label':
-        name = raw_input("column of name: ")
+        name = input("column of name: ")
         label(File, name)
     elif args.fx == 'replaceFastaHeader':
-        fa = raw_input("Add Fasta file: ")
-        name = raw_input("column of name: ")
+        fa = input("Add Fasta file: ")
+        name = input("column of name: ")
         replaceFastaHeader(File, fa, name)
     elif args.fx == 'getFastaFromGroups':
-        fa = raw_input("Add Fasta file: ")
+        fa = input("Add Fasta file: ")
         getFastaFromGroups(File, fa)
     elif args.fx == 'AddGroupsFromABGD':
-        abgd = raw_input("Add ABDG file: ")
+        abgd = input("Add ABDG file: ")
         AddGroupsFromABGD(File, abgd)
     elif args.fx == 'AddGroupsFromClust':
-        clust = raw_input("Add Clust file: ")
+        clust = input("Add Clust file: ")
         AddGroupsFromClust(File, clust)
     elif args.fx == 'AddtraitsForNetwork':
-        header = raw_input("Add header as list")
+        header = input("Add header as list")
         # make this a list
         AddtraitsForNetwork(File, header)
