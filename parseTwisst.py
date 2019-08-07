@@ -154,7 +154,8 @@ def sumBranchLengths(infile, nodedepthplot, step=10, topos=105):
             else:
                 i = 0
                 j = step
-                blen = map(float, line.split())
+                import ipdb;ipdb.set_trace()
+                blen = list(map(float, line.split()))
                 blen_list = []
                 while j <= len(blen):
                     blen_list.append(sum(blen[i:j]))
