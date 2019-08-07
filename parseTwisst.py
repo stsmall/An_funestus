@@ -42,6 +42,7 @@ def boxplotD(div_df, pair, topo, topoplot, pairsplot):
     fig, ax = plt.subplots(figsize=(4, 4))
     sns.despine(ax=ax, offset=5)
     lw = 1.5
+    import ipdb; ipdb.set_trace()
     box = ax.boxplot(
         x,
         labels=poplist,  patch_artist=True,
