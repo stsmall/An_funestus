@@ -177,7 +177,6 @@ if __name__ == "__main__":
     infile = args.infile
     topos = args.topos
     pairs = args.pairs
-    freq = args.freqMin
     if args.div:
         getDivergence(infile, topos, pairs, toposplot=False, pairsplot=False)
     elif args.blen:
