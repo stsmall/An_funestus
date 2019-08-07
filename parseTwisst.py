@@ -24,7 +24,8 @@ parser.add_argument('-p', "--pairs", nargs='+', required=False,
 parser.add_argument("--div", action="store_true", help="a divergence file")
 parser.add_argument("--blen", action="store_true", help="a file of branch"
                     "lengths")
-parser.add_argument("--plot", action="store_true")
+parser.add_argument("--tplot", action="store_true")
+parser.add_argument("--pplot", action="store_true")
 args = parser.parse_args()
 
 
@@ -42,7 +43,7 @@ def boxplotD(div_df, pair, topo, topoplot, pairsplot):
     fig, ax = plt.subplots(figsize=(4, 4))
     sns.despine(ax=ax, offset=5)
     lw = 1.5
-    import ipdb; ipdb.set_trace()
+    # import ipdb; ipdb.set_trace()
     box = ax.boxplot(
         x,
         labels=poplist,  patch_artist=True,
@@ -181,6 +182,6 @@ if __name__ == "__main__":
     topos = args.topos
     pairs = args.pairs
     if args.div:
-        getDivergence(infile, topos, pairs, toposplot=args.plot, pairsplot=args.plot)
+        getDivergence(infile, topos, pairs, toposplot=args.tplot, pairsplot=args.pplot)
     elif args.blen:
         sumBranchLengths(infile, nodedepthplot=args.plot)
