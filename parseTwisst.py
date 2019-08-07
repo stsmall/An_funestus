@@ -21,8 +21,6 @@ parser.add_argument('-t', "--topos", nargs='+', required=False,
                     help="list of topos e.g., topo82")
 parser.add_argument('-p', "--pairs", nargs='+', required=False,
                     help="list of interested pairs, e.g. Fun_Lik")
-parser.add_argument("--freqMin", type=float, default=0, required=False,
-                    help="minimum freq above which to report topos")
 parser.add_argument("--div", action="store_true", help="a divergence file")
 parser.add_argument("--blen", action="store_true", help="a file of branch"
                     "lengths")
@@ -86,7 +84,7 @@ def boxplotB(data):
     return(None)
 
 
-def getDivergence(infile, topos, pairs, topoplot, pairsplot):
+def getDivergence(infile, topos, pairs, toposplot=False, pairsplot=False):
     """parses out distance file to return a distribution for each species pair
     """
     div_dict = defaultdict(lambda: defaultdict(list))
@@ -99,12 +97,12 @@ def getDivergence(infile, topos, pairs, topoplot, pairsplot):
     div_df = pd.DataFrame(div_dict)
     
     # make boxplot
-    if topoplot:
+    if toposplot:
         for topo in topos:  # for each topo returns all pairwise distances on 1 plot
-            boxplotD(div_df, pairs, topo, topoplot, pairsplot)
+            boxplotD(div_df, pairs, topo, toposplot, pairsplot)
     if pairsplot:
         for pair in pairs:  # for each pair returns a boxplot of distances on each topo
-            boxplotD(div_df, pair, topos, topoplot, pairsplot)
+            boxplotD(div_df, pair, topos, toposplot, pairsplot)
     
     # calculate mean distances
     f = open("meandist.out", 'w')
