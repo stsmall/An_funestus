@@ -24,6 +24,7 @@ parser.add_argument('-p', "--pairs", nargs='+', required=False,
 parser.add_argument("--div", action="store_true", help="a divergence file")
 parser.add_argument("--blen", action="store_true", help="a file of branch"
                     "lengths")
+parser.add_argument("--plot", action="store_true")
 args = parser.parse_args()
 
 
@@ -84,7 +85,7 @@ def boxplotB(data):
     return(None)
 
 
-def getDivergence(infile, topos, pairs, toposplot=False, pairsplot=False):
+def getDivergence(infile, topos, pairs, toposplot, pairsplot):
     """parses out distance file to return a distribution for each species pair
     """
     div_dict = defaultdict(lambda: defaultdict(list))
@@ -179,6 +180,6 @@ if __name__ == "__main__":
     topos = args.topos
     pairs = args.pairs
     if args.div:
-        getDivergence(infile, topos, pairs, toposplot=False, pairsplot=False)
+        getDivergence(infile, topos, pairs, toposplot=args.plot, pairsplot=args.plot)
     elif args.blen:
-        sumBranchLengths(infile, nodedepthplot=False)
+        sumBranchLengths(infile, nodedepthplot=args.plot)
