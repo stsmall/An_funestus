@@ -172,9 +172,10 @@ def sumBranchLengths(infile, nodedepthplot, step=10, topos=105):
     f = open("nodedepth.out", 'w')
     for t in range(1, 106):
         m = np.nanmean(data[t-1])
+        mn = np.nanmedian(data[t-1])
         pl = np.nanpercentile(data[t-1], 2.5)
         pu = np.nanpercentile(data[t-1], 97.5)
-        f.write("topo{}:{} [{}-{}]\n".format(t, m, pl, pu))
+        f.write("topo{}:{} {} [{}-{}]\n".format(t, m, mn, pl, pu))
     f.close()  
     
     return(None)
