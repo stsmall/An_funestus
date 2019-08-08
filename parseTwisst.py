@@ -34,6 +34,7 @@ args = parser.parse_args()
 def boxplotD(div_df, pair, topo, topoplot, pairsplot):
     """
     """
+    import ipdb;ipdb.set_trace()
     if pairsplot:
         label = pair
         x = [l for l in div_df.loc[pair]]
@@ -160,7 +161,7 @@ def sumBranchLengths(infile, minFreq, nodedepthplot, step=10, topos=105):
                 blen = list(map(float, line.split()))
                 blen_list = []
                 while j <= len(blen):
-                    blen_list.append(sum(blen[i+1:j]))
+                    blen_list.append(sum(blen[i+1:j]))  # this skips the first which is outgroup BL
                     i += step
                     j += step
                 blen_box.append(blen_list)
