@@ -173,8 +173,8 @@ def sumBranchLengths(infile, nodedepthplot, minFreq=0.05, step=10, topos=105):
     # output file
     f = open("nodedepth.out", 'w')
     for t in range(1, 106):
-        import ipdb;ipdb.set_trace()
-        if len(data[t-1])/tree_count >= minFreq:
+        nancount = sum(np.isnan(data[t-1]))
+        if (1 - (nancount/tree_count)) >= minFreq:
             m = np.nanmean(data[t-1])
             mn = np.nanmedian(data[t-1])
             pl = np.nanpercentile(data[t-1], 2.5)
