@@ -21,6 +21,7 @@ parser.add_argument('-t', "--topos", nargs='+', required=False,
                     help="list of topos e.g., topo82")
 parser.add_argument('-p', "--pairs", nargs='+', required=False,
                     help="list of interested pairs, e.g. Fun-Lik")
+parser.add_argument('-f', "--minfreq", type=float, default=0.0)
 parser.add_argument("--div", action="store_true", help="a divergence file")
 parser.add_argument("--blen", action="store_true", help="a file of branch"
                     "lengths")
@@ -143,7 +144,7 @@ def getDivergence(infile, topos, pairs, toposplot, pairsplot):
     return(None)
 
 
-def sumBranchLengths(infile, nodedepthplot, minFreq=0.05, step=10, topos=105):
+def sumBranchLengths(infile, nodedepthplot, minFreq, step=10, topos=105):
     """
     """
     blen_box = []
@@ -192,4 +193,4 @@ if __name__ == "__main__":
     if args.div:
         getDivergence(infile, topos, pairs, toposplot=args.tplot, pairsplot=args.pplot)
     elif args.blen:
-        sumBranchLengths(infile, nodedepthplot=args.bplot)
+        sumBranchLengths(infile, args.minfreq, nodedepthplot=args.bplot)
