@@ -193,4 +193,4 @@ if __name__ == "__main__":
     if args.div:
         getDivergence(infile, topos, pairs, toposplot=args.tplot, pairsplot=args.pplot)
     elif args.blen:
-        sumBranchLengths(infile, args.minfreq, nodedepthplot=args.bplot)
+        sumBranchLengths(infile, nodedepthplot=args.bplot, args.minfreq)
