@@ -167,16 +167,19 @@ def sumBranchLengths(infile, minFreq, nodedepthplot, step=10, topos=105):
                 blen = list(map(float, line.split()))
                 blen_list = []
                 while j <= len(blen):
-                    import ipdb;ipdb.set_trace()
                     blen_vals = blen[i+2:j]  # first 2 are outgroup root lengths
-                    topo_key = i//step
-                    blen_topo = topodict["topo{}".format(topo_key+1)]
-                    leaf_ix = [blen_topo.index(bt) for bt in blen_topo if bt.count('_') == 0]  # should return 3 or more
-                    blen_max = max([blen_vals[bl] for bl in leaf_ix])  # get all values for leaf index and max
-                    blen_maxix = blen_topo[blen_vals.index(blen_max)]  #  here is the leaf name 'Fun'
-                    leaf_dist = [blen_vals[blen_topo.index(x)] for x in blen_topo if blen_maxix in x]  # now return all vals with instances of 'Fun' in topo
-                    sum_leaf = sum(leaf_dist)
-                    blen_list.append(sum_leaf)
+                    if np.isnan(blen_vals[0]):
+                        pass
+                    else:
+                        import ipdb;ipdb.set_trace()
+                        topo_key = i//step
+                        blen_topo = topodict["topo{}".format(topo_key+1)]
+                        leaf_ix = [blen_topo.index(bt) for bt in blen_topo if bt.count('_') == 0]  # should return 3 or more
+                        blen_max = max([blen_vals[bl] for bl in leaf_ix])  # get all values for leaf index and max
+                        blen_maxix = blen_topo[blen_vals.index(blen_max)]  #  here is the leaf name 'Fun'
+                        leaf_dist = [blen_vals[blen_topo.index(x1)] for x1 in blen_topo if blen_maxix in x1]  # now return all vals with instances of 'Fun' in topo
+                        leaf_sum = sum(leaf_dist)
+                        blen_list.append(leaf_sum)
                     i += step
                     j += step
                 blen_box.append(blen_list)
