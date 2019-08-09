@@ -100,7 +100,8 @@ def getDivergence(infile, topos, pairs, toposplot, pairsplot):
             for i, div in enumerate(line.split()):
                 topo, ind1, ind2 = header[i].split("_")
                 pairname = "{}-{}".format(ind1, ind2)
-                div_dict[topo][pairname].append(float(div))
+                if div != "nan":  # should remove long list of nan causing issues with boxplot
+                    div_dict[topo][pairname].append(float(div))
     div_df = pd.DataFrame(div_dict)
     
     # make boxplot
@@ -148,12 +149,17 @@ def getDivergence(infile, topos, pairs, toposplot, pairsplot):
 def sumBranchLengths(infile, minFreq, nodedepthplot, step=10, topos=105):
     """
     """
+    
     blen_box = []
     tree_count = 0
+    topodict = {}
     with open(infile, 'r') as f:
         for line in f:
             if line.startswith("#"):
-                pass
+                x = line.split()
+                topo = x[0][1:]
+                leafs = [l.split("--")[1] for l in x[3:]]
+                topodict[topo] = leafs
             else:
                 tree_count += 1
                 i = 0
@@ -161,7 +167,16 @@ def sumBranchLengths(infile, minFreq, nodedepthplot, step=10, topos=105):
                 blen = list(map(float, line.split()))
                 blen_list = []
                 while j <= len(blen):
-                    blen_list.append(sum(blen[i+2:j]))  # this skips the first which is outgroup BL
+                    import ipdb;ipdb.set_trace()
+                    blen_vals = blen[i+2:j]  # first 2 are outgroup root lengths
+                    topo_key = i//step
+                    blen_topo = topodict["topo{}".format(topo_key+1)]
+                    leaf_ix = [blen_topo.index(bt) for bt in blen_topo if bt.count('_') == 0]  # should return 3 or more
+                    blen_max = max([blen_vals[bl] for bl in leaf_ix])  # get all values for leaf index and max
+                    blen_maxix = blen_topo[blen_vals.index(blen_max)]  #  here is the leaf name 'Fun'
+                    leaf_dist = [blen_vals[blen_topo.index(x)] for x in blen_topo if blen_maxix in x]  # now return all vals with instances of 'Fun' in topo
+                    sum_leaf = sum(leaf_dist)
+                    blen_list.append(sum_leaf)
                     i += step
                     j += step
                 blen_box.append(blen_list)
