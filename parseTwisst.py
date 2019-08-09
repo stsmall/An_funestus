@@ -3,7 +3,7 @@
 """
 Created on Tue Aug  6 17:24:58 2019
 parseTwisst.py -i dist.txt -t [topos] -p [pairs]
-
+will parse a divergence and branch length file produced by twisst
 @author: stmall
 """
 import numpy as np
@@ -13,6 +13,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import seaborn as sns
 import argparse
+mpl.rcParams['pdf.fonttype'] = 42
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', "--infile", type=str, required=True,
@@ -21,8 +22,8 @@ parser.add_argument('-t', "--topos", nargs='+', required=False,
                     help="list of topos e.g., topo82")
 parser.add_argument('-p', "--pairs", nargs='+', required=False,
                     help="list of interested pairs, e.g. Fun-Lik")
-parser.add_argument('-f', "--minfreq", type=float, default=0.0)
-parser.add_argument("--div", action="store_true", help="a divergence file")
+parser.add_argument('-f', "--minFreq", type=float, default=0.0)
+parser.add_argument("--dist", action="store_true", help="a divergence file")
 parser.add_argument("--blen", action="store_true", help="a file of branch"
                     "lengths")
 parser.add_argument("--tplot", action="store_true", help="boxplot of topos")
@@ -34,19 +35,23 @@ args = parser.parse_args()
 def boxplotD(div_df, pair, topo, topoplot, pairsplot):
     """
     """
-    import ipdb;ipdb.set_trace()
     if pairsplot:
         label = pair
-        x = [l for l in div_df.loc[pair]]
-        poplist = list(div_df.loc[pair].index.values)
+        if topo:
+            df_list = div_df[topo].loc[pair].sort_index()
+            x = [l for l in df_list]
+            poplist = list(df_list.index.values)
+        else:
+            df_list = div_df.loc[pair].sort_index()
+            x = [l for l in df_list]
+            poplist = list(df_list.index.values)            
     elif topoplot:
         label = topo
         x = [l for l in div_df[topo]]
         poplist = list(div_df[topo].index.values)
-    fig, ax = plt.subplots(figsize=(4, 4))
+    fig, ax = plt.subplots(figsize=(10, 6))
     sns.despine(ax=ax, offset=5)
     lw = 1.5
-    # import ipdb; ipdb.set_trace()
     box = ax.boxplot(
         x,
         labels=poplist,  patch_artist=True,
@@ -55,7 +60,8 @@ def boxplotD(div_df, pair, topo, topoplot, pairsplot):
         capprops={"color": "k"},
         showfliers=False,
         flierprops={"c": "k", "markersize": 2})
-    ax.set_ylabel(r'Divergence', rotation=0, fontsize=16)
+    ax.set_ylabel(r'PwDiv', rotation=90, fontsize=12)
+    ax.set_xticklabels(poplist, rotation=45, fontsize=8)
     # set list of colors
     colornames = list(mpl.colors.cnames.keys())[:len(poplist)]
     for patch, color in zip(box['boxes'], colornames):
@@ -65,22 +71,35 @@ def boxplotD(div_df, pair, topo, topoplot, pairsplot):
     return(None)
 
 
-def boxplotB(data):
+def boxplotB(data, topos):
     """
     """
-    poplist = ["topo{}".format(i) for i in range(1, 106)]
-    fig, ax = plt.subplots(figsize=(4, 4))
+    if topos:
+        poplist = topos
+        topo_ix = [(int(x.strip("topo"))-1) for x in poplist]
+        data_arr = np.array(data)[topo_ix]
+        data_list = [a1[~np.isnan(a1)] for a1 in data_arr]
+    else:
+        poplist = ["topo{}".format(i) for i in range(1, 106)]
+        data_arr = np.array(data)
+        data_list = [a1[~np.isnan(a1)] for a1 in data_arr]
+        good_ix = [i for i,j in enumerate(data_list) if len(j) > 0]
+        poplist = np.array(poplist)[good_ix]
+        data_list = [j for j in data_list if len(j) > 0]
+    fig, ax = plt.subplots(figsize=(10, 6))
     sns.despine(ax=ax, offset=5)
     lw = 1.5
     box = ax.boxplot(
-        data,
-        labels=poplist,  patch_artist=True,
+        data_list,
+        labels=poplist,
+        patch_artist=True,
         medianprops={"color": "k", "linewidth": lw},
         whiskerprops={"color": "k"},
         capprops={"color": "k"},
         showfliers=False,
         flierprops={"c": "k", "markersize": 2})
-    ax.set_ylabel(r'Divergence', rotation=0, fontsize=16)
+    ax.set_ylabel(r'NodeAge', rotation=90, fontsize=12)
+    ax.set_xticklabels(poplist, rotation=45, fontsize=8)
     # set list of colors
     colornames = list(mpl.colors.cnames.keys())[:len(poplist)]
     for patch, color in zip(box['boxes'], colornames):
@@ -90,13 +109,15 @@ def boxplotB(data):
     return(None)
 
 
-def getDivergence(infile, topos, pairs, toposplot, pairsplot):
+def getDivergence(infile, topos, pairs, minFreq, toposplot, pairsplot):
     """parses out distance file to return a distribution for each species pair
     """
     div_dict = defaultdict(lambda: defaultdict(list))
+    tree_count = 0
     with open(infile,'r') as f:
         header = next(f).split()
         for line in f:
+            tree_count += 1
             for i, div in enumerate(line.split()):
                 topo, ind1, ind2 = header[i].split("_")
                 pairname = "{}-{}".format(ind1, ind2)
@@ -146,7 +167,7 @@ def getDivergence(infile, topos, pairs, toposplot, pairsplot):
     return(None)
 
 
-def sumBranchLengths(infile, minFreq, nodedepthplot, step=10, topos=105):
+def sumBranchLengths(infile, topos_subset, minFreq, nodedepthplot, step=10, topos=105):
     """
     """
     
@@ -187,7 +208,7 @@ def sumBranchLengths(infile, minFreq, nodedepthplot, step=10, topos=105):
     data = list(zip(*blen_box))
     
     if nodedepthplot:
-        boxplotB(data)
+        boxplotB(data, topos_subset)
     
     # output file
     f = open("nodedepth.out", 'w')
@@ -208,7 +229,7 @@ if __name__ == "__main__":
     infile = args.infile
     topos = args.topos
     pairs = args.pairs
-    if args.div:
-        getDivergence(infile, topos, pairs, toposplot=args.tplot, pairsplot=args.pplot)
+    if args.dist:
+        getDivergence(infile, topos, pairs, args.minFreq, toposplot=args.tplot, pairsplot=args.pplot)
     elif args.blen:
-        sumBranchLengths(infile, args.minfreq, nodedepthplot=args.bplot)
+        sumBranchLengths(infile, topos, args.minFreq, nodedepthplot=args.bplot)
