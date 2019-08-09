@@ -171,7 +171,6 @@ def sumBranchLengths(infile, minFreq, nodedepthplot, step=10, topos=105):
                     if np.isnan(blen_vals[0]):
                         pass
                     else:
-                        import ipdb;ipdb.set_trace()
                         topo_key = i//step
                         blen_topo = topodict["topo{}".format(topo_key+1)]
                         leaf_ix = [blen_topo.index(bt) for bt in blen_topo if bt.count('_') == 0]  # should return 3 or more
