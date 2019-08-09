@@ -169,7 +169,7 @@ def sumBranchLengths(infile, minFreq, nodedepthplot, step=10, topos=105):
                 while j <= len(blen):
                     blen_vals = blen[i+2:j]  # first 2 are outgroup root lengths
                     if np.isnan(blen_vals[0]):
-                        pass
+                        blen_list.append(np.nan)
                     else:
                         topo_key = i//step
                         blen_topo = topodict["topo{}".format(topo_key+1)]
