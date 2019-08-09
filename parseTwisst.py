@@ -8,6 +8,7 @@ will parse a divergence and branch length file produced by twisst
 """
 import numpy as np
 import pandas as pd
+from os import path
 from collections import defaultdict
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -26,13 +27,14 @@ parser.add_argument('-f', "--minFreq", type=float, default=0.0)
 parser.add_argument("--dist", action="store_true", help="a divergence file")
 parser.add_argument("--blen", action="store_true", help="a file of branch"
                     "lengths")
+parser.add_argument('-c', "--chr", type=str, default='', help="prefix of outfile")
 parser.add_argument("--tplot", action="store_true", help="boxplot of topos")
 parser.add_argument("--pplot", action="store_true", help="boxplot of pairs")
 parser.add_argument("--bplot", action="store_true", help="boxplot of nodeage")
 args = parser.parse_args()
 
 
-def boxplotD(div_df, pair, topo, topoplot, pairsplot):
+def boxplotD(chrm, div_df, pair, topo, topoplot, pairsplot):
     """
     """
     if pairsplot:
@@ -67,25 +69,20 @@ def boxplotD(div_df, pair, topo, topoplot, pairsplot):
     for patch, color in zip(box['boxes'], colornames):
         patch.set_facecolor(color)
         patch.set_linewidth(lw)
-    fig.savefig("{}.pdf".format(label), bbox_inches="tight")
+    fig.savefig("{}.{}.pdf".format(chrm, label), bbox_inches="tight")
     return(None)
 
 
-def boxplotB(data, topos):
+def boxplotB(chrm, data, topos, toposfreq, minLen=1):
     """
     """
     if topos:
         poplist = topos
-        topo_ix = [(int(x.strip("topo"))-1) for x in poplist]
-        data_arr = np.array(data)[topo_ix]
-        data_list = [a1[~np.isnan(a1)] for a1 in data_arr]
     else:
-        poplist = ["topo{}".format(i) for i in range(1, 106)]
-        data_arr = np.array(data)
-        data_list = [a1[~np.isnan(a1)] for a1 in data_arr]
-        good_ix = [i for i,j in enumerate(data_list) if len(j) > 0]
-        poplist = np.array(poplist)[good_ix]
-        data_list = [j for j in data_list if len(j) > 0]
+        poplist = toposfreq
+    topo_ix = [(int(x.strip("topo"))-1) for x in poplist]
+    data_arr = np.array(data)[topo_ix]
+    data_list = [a1[~np.isnan(a1)] for a1 in data_arr]
     fig, ax = plt.subplots(figsize=(10, 6))
     sns.despine(ax=ax, offset=5)
     lw = 1.5
@@ -105,19 +102,17 @@ def boxplotB(data, topos):
     for patch, color in zip(box['boxes'], colornames):
         patch.set_facecolor(color)
         patch.set_linewidth(lw)
-    fig.savefig("NodeDepth.pdf", bbox_inches="tight")
+    fig.savefig("{}.NodeDepth.pdf".format(chrm), bbox_inches="tight")
     return(None)
 
 
-def getDivergence(infile, topos, pairs, minFreq, toposplot, pairsplot):
+def getDivergence(chrm, infile, topos, pairs, minFreq, toposplot, pairsplot):
     """parses out distance file to return a distribution for each species pair
     """
     div_dict = defaultdict(lambda: defaultdict(list))
-    tree_count = 0
     with open(infile,'r') as f:
         header = next(f).split()
         for line in f:
-            tree_count += 1
             for i, div in enumerate(line.split()):
                 topo, ind1, ind2 = header[i].split("_")
                 pairname = "{}-{}".format(ind1, ind2)
@@ -128,13 +123,16 @@ def getDivergence(infile, topos, pairs, minFreq, toposplot, pairsplot):
     # make boxplot
     if toposplot:
         for topo in topos:  # for each topo returns all pairwise distances on 1 plot
-            boxplotD(div_df, pairs, topo, toposplot, pairsplot)
+            boxplotD(chrm, div_df, pairs, topo, toposplot, pairsplot)
     if pairsplot:
         for pair in pairs:  # for each pair returns a boxplot of distances on each topo
-            boxplotD(div_df, pair, topos, toposplot, pairsplot)
+            boxplotD(chrm, div_df, pair, topos, toposplot, pairsplot)
     
     # calculate mean distances
-    f = open("meandist.out", 'w')
+    if path.exists("{}.meandist.out".format(chrm)):
+        f = open("{}.meandist.out".format(chrm), 'a')
+    else:
+        f = open("{}.meandist.out".format(chrm), 'w')
     if topos:  # specific topos
         for t in topos:
             if pairs:  # specific pairs
@@ -167,7 +165,7 @@ def getDivergence(infile, topos, pairs, minFreq, toposplot, pairsplot):
     return(None)
 
 
-def sumBranchLengths(infile, topos_subset, minFreq, nodedepthplot, step=10, topos=105):
+def sumBranchLengths(chrm, infile, topos_subset, minFreq, nodedepthplot, step=10, topos=105):
     """
     """
     
@@ -206,21 +204,24 @@ def sumBranchLengths(infile, topos_subset, minFreq, nodedepthplot, step=10, topo
     
     # boxplot of node depth
     data = list(zip(*blen_box))
-    
-    if nodedepthplot:
-        boxplotB(data, topos_subset)
-    
+       
     # output file
-    f = open("nodedepth.out", 'w')
+    topos_freq = []
+    f = open("{}.nodedepth.out".format(chrm), 'w')
     for t in range(1, 106):
         nancount = sum(np.isnan(data[t-1]))
         if (1 - (nancount/tree_count)) >= minFreq:
+            topos_freq.append("topo{}".format(t))
             m = np.nanmean(data[t-1])
             mn = np.nanmedian(data[t-1])
             pl = np.nanpercentile(data[t-1], 2.5)
             pu = np.nanpercentile(data[t-1], 97.5)
             f.write("topo{}:{} {} [{}-{}]\n".format(t, m, mn, pl, pu))
-    f.close()  
+    f.close()
+    
+    # boxplot
+    if nodedepthplot:
+        boxplotB(chrm, data, topos_subset, topos_freq)
     
     return(None)
 
@@ -230,6 +231,6 @@ if __name__ == "__main__":
     topos = args.topos
     pairs = args.pairs
     if args.dist:
-        getDivergence(infile, topos, pairs, args.minFreq, toposplot=args.tplot, pairsplot=args.pplot)
+        getDivergence(args.chr, infile, topos, pairs, args.minFreq, toposplot=args.tplot, pairsplot=args.pplot)
     elif args.blen:
-        sumBranchLengths(infile, topos, args.minFreq, nodedepthplot=args.bplot)
+        sumBranchLengths(args.chr, infile, topos, args.minFreq, nodedepthplot=args.bplot)
