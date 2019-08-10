@@ -35,7 +35,7 @@ args = parser.parse_args()
 
 
 def boxplotD(chrm, div_df, pair, topo, topoplot, pairsplot):
-    """
+    """plot the divergences
     """
     if pairsplot:
         label = pair
@@ -74,7 +74,7 @@ def boxplotD(chrm, div_df, pair, topo, topoplot, pairsplot):
 
 
 def boxplotB(chrm, data, topos, toposfreq, minLen=1):
-    """
+    """plots the nodeages
     """
     if topos:
         poplist = topos
@@ -107,7 +107,8 @@ def boxplotB(chrm, data, topos, toposfreq, minLen=1):
 
 
 def getDivergence(chrm, infile, topos, pairs, minFreq, toposplot, pairsplot):
-    """parses out distance file to return a distribution for each species pair
+    """parses out distance file from twisst. returns a distribution for each species pair
+    this should be applicable to other species
     """
     div_dict = defaultdict(lambda: defaultdict(list))
     with open(infile,'r') as f:
@@ -165,8 +166,12 @@ def getDivergence(chrm, infile, topos, pairs, minFreq, toposplot, pairsplot):
     return(None)
 
 
-def sumBranchLengths(chrm, infile, topos_subset, minFreq, nodedepthplot, step=10, topos=105):
-    """
+def sumBranchLengths(chrm, infile, topos_subset, minFreq, nodedepthplot, step=10, topos=105, outgroupBlen=2):
+    """calculates the nodeage of the MRCA using a branchlength file produced by twisst
+    to alter this for other species you must:
+        1) change step size
+        2) change topos number
+        3) change outgroup blens
     """
     
     blen_box = []
@@ -186,7 +191,7 @@ def sumBranchLengths(chrm, infile, topos_subset, minFreq, nodedepthplot, step=10
                 blen = list(map(float, line.split()))
                 blen_list = []
                 while j <= len(blen):
-                    blen_vals = blen[i+2:j]  # first 2 are outgroup root lengths
+                    blen_vals = blen[i+outgroupBlen:j]  # first 2 are outgroup root lengths
                     if np.isnan(blen_vals[0]):
                         blen_list.append(np.nan)
                     else:
@@ -222,9 +227,20 @@ def sumBranchLengths(chrm, infile, topos_subset, minFreq, nodedepthplot, step=10
     # boxplot
     if nodedepthplot:
         boxplotB(chrm, data, topos_subset, topos_freq)
-    
     return(None)
 
+
+def summaryTrees():
+    """I wanted to use trees with >1 allele in the D1D2 calculation.
+    D1D2 wants 1 leaf per species. My script calcD1D2stat.py uses the monophylyl
+    condition and pairwise comparisons of distance, but its slow. I thought 
+    maybe reconstructing summary trees from the BL output of twisst would be 
+    simpler
+    """
+    
+    
+    
+    return(None)
 
 if __name__ == "__main__":
     infile = args.infile

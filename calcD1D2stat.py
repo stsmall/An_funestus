@@ -22,7 +22,7 @@ parser.add_argument("--dlm", type=str, default="_",
                     help="delimeter denoting species")
 parser.add_argument("-o", "--outgroup", type=str,
                     help="outgroup species for rooting if tree are unrooted")
-parser.add_argument("--windows", type=int, default=100, help="sliding windows")
+parser.add_argument("--windows", type=int, help="sliding windows")
 parser.add_argument("--mono", action="store_true", help="enforce monophyly for" 
                     " trees with >1 individual per species")
 args = parser.parse_args()
@@ -102,6 +102,7 @@ def DistABC(treelist, taxon, mono):
                     AC_BC.append(distAC)
                     BC_BC.append(distAB)            
         else:
+            # this should produce different trees and just not count the ones that are wrong
             if distBC < distAB and distBC < distAC:
                 AB_AB.append(distBC)
                 AC_AB.append(distAC)
@@ -122,54 +123,60 @@ if __name__ == "__main__":
     C = quart[2][0]
     step = args.windows 
     
-    # D1
+    ### D1
     d1_m = np.mean(dab_ab) - np.mean(dbc_bc)
-    # windowed D1
-    d1SE = []
-    # D1 sliding windows
-    i = 0
-    j = step
-    f = open("{}{}{}.D1.{}.txt".format(A, B, C, step), 'w')
-    while j < len(dab_ab):
-        d1_win = np.mean(dab_ab[i:j]) - np.mean(dbc_bc[i:j])
-        d1SE.append(d1_win)
-        f.write("{}\n".format(d1_win))
-        i = j
-        j += step
-    f.close()
-    # D1 SE
-    n = len(d1SE)
-    try:
-        sv = ((n - 1) / n) * np.nansum((np.array(d1SE) - d1_m) ** 2)
-    except ZeroDivisionError:
-        se = 0.0000000001
-    se = np.sqrt(sv)
+    if step:
+        # windowed D1
+        d1SE = []
+        # D1 sliding windows
+        i = 0
+        j = step
+        f = open("{}{}{}.D1.{}.txt".format(A, B, C, step), 'w')
+        while j < len(dab_ab):
+            d1_win = np.mean(dab_ab[i:j]) - np.mean(dbc_bc[i:j])
+            d1SE.append(d1_win)
+            f.write("{}\n".format(d1_win))
+            i = j
+            j += step
+        f.close()
+        # D1 SE
+        n = len(d1SE)
+        try:
+            sv = ((n - 1) / n) * np.nansum((np.array(d1SE) - d1_m) ** 2)
+        except ZeroDivisionError:
+            se = 0.0000000001
+        se = np.sqrt(sv)
+    else:
+        se = np.nan
     # print D1
     print("D1 ns from 0: speciation + introgression\nD1 sig +pos speciation followed by introgression\nincreasing D1 is more recent introgression")
     print("D1: {}, {}\n".format(d1_m, se))
 
-    # D2
+    ### D2
     d2_m = np.mean(dac_ab) - np.mean(dac_bc)
-    # windowed D2
-    d2SE = []
-    # D2 calculate sliding window by 100 trees or such 
-    i = 0
-    j = step
-    f = open("{}{}{}.D2.{}.txt".format(A, B, C, step), 'w')
-    while j < len(dac_ab):
-        d2_win = np.mean(dac_ab[i:j]) - np.mean(dac_bc[i:j])
-        d2SE.append(d2_win)
-        f.write("{}\n".format(d2_win))
-        i = j
-        j += step
-    f.close()
-    # D2 SE
-    n = len(d2SE)
-    try:
-        sv = ((n - 1) / n) * np.nansum((d2SE - d2_m) ** 2)
-    except ZeroDivisionError:
-        se = 0.0000000001
-    se = np.sqrt(sv)
+    if step:
+        # windowed D2
+        d2SE = []
+        # D2 calculate sliding window by 100 trees or such 
+        i = 0
+        j = step
+        f = open("{}{}{}.D2.{}.txt".format(A, B, C, step), 'w')
+        while j < len(dac_ab):
+            d2_win = np.mean(dac_ab[i:j]) - np.mean(dac_bc[i:j])
+            d2SE.append(d2_win)
+            f.write("{}\n".format(d2_win))
+            i = j
+            j += step
+        f.close()
+        # D2 SE
+        n = len(d2SE)
+        try:
+            sv = ((n - 1) / n) * np.nansum((d2SE - d2_m) ** 2)
+        except ZeroDivisionError:
+            se = 0.0000000001
+        se = np.sqrt(sv)
+    else:
+        se = np.nan
     # print D2
     print("D2 ns from 0: C->B\nD2 sig +pos B->C\nincreasing +pos w/ dist from speciation")
     print("D2: {}, {}".format(d2_m, se))
