@@ -91,7 +91,8 @@ def DistABC(treelist, taxon, mono):
         distBC = (pairwiseDistance(t, B+C))
         distAC = (pairwiseDistance(t, A+C))
         distAB = (pairwiseDistance(t, A+B))
-        distAC = (pairwiseDistance(t, A+C))       
+        distAC = (pairwiseDistance(t, A+C))
+        import ipdb;ipdb.set_trace()
         if mono:
             if cMono(t, B+C):              
                 if distBC < distAB and distBC < distAC:
