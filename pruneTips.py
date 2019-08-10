@@ -69,7 +69,7 @@ def pruneTips(treelist, species, rand, topo=True, ntaxa=1):
                     error = False
                 except:
                     error = True
-    else:  # down to 1 only
+    else:  # if only give a single individual
         for t in treelist:
             t.prune(species, preserve_branch_length=topo)
     return(treelist)
