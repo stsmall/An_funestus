@@ -104,5 +104,6 @@ def WriteTrees(treelist, rand, rename):
 if __name__ == "__main__":
     species = args.groups
     treelist = LoadTrees(args.treefile, args.dlm)
+    import ipdb;ipdb.set_trace()
     pruneTips(treelist, species[0], args.rand)
     WriteTrees(treelist, args.rand, args.rename)

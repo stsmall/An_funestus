@@ -19,11 +19,13 @@ mpl.rcParams['pdf.fonttype'] = 42
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', "--infile", type=str, required=True,
                     help="infile from distmatrix twisst")
+parser.add_argument('-tf', "--topoFile", type=str, help="required for use in summary trees")
 parser.add_argument('-t', "--topos", nargs='+', required=False,
                     help="list of topos e.g., topo82")
 parser.add_argument('-p', "--pairs", nargs='+', required=False,
                     help="list of interested pairs, e.g. Fun-Lik")
 parser.add_argument('-f', "--minFreq", type=float, default=0.0)
+parser.add_argument("--trees", action="store_true", help="a file of summary gene trees")
 parser.add_argument("--dist", action="store_true", help="a divergence file")
 parser.add_argument("--blen", action="store_true", help="a file of branch"
                     "lengths")
@@ -230,15 +232,13 @@ def sumBranchLengths(chrm, infile, topos_subset, minFreq, nodedepthplot, step=10
     return(None)
 
 
-def summaryTrees():
+def summaryTrees(chrm, blens, toposFile):
     """I wanted to use trees with >1 allele in the D1D2 calculation.
     D1D2 wants 1 leaf per species. My script calcD1D2stat.py uses the monophylyl
     condition and pairwise comparisons of distance, but its slow. I thought 
     maybe reconstructing summary trees from the BL output of twisst would be 
     simpler
-    """
-    
-    
+    """  
     
     return(None)
 
@@ -250,3 +250,8 @@ if __name__ == "__main__":
         getDivergence(args.chr, infile, topos, pairs, args.minFreq, toposplot=args.tplot, pairsplot=args.pplot)
     elif args.blen:
         sumBranchLengths(args.chr, infile, topos, args.minFreq, nodedepthplot=args.bplot)
+    elif args.trees:
+        if args.topoFile:
+            summaryTrees(args.chr, infile, args.topoFile)
+        else:
+            assert("summary trees requires topoFile")
