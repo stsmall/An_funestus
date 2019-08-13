@@ -19,13 +19,11 @@ mpl.rcParams['pdf.fonttype'] = 42
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', "--infile", type=str, required=True,
                     help="infile from distmatrix twisst")
-parser.add_argument('-tf', "--topoFile", type=str, help="required for use in summary trees")
 parser.add_argument('-t', "--topos", nargs='+', required=False,
                     help="list of topos e.g., topo82")
 parser.add_argument('-p', "--pairs", nargs='+', required=False,
                     help="list of interested pairs, e.g. Fun-Lik")
 parser.add_argument('-f', "--minFreq", type=float, default=0.0)
-parser.add_argument("--trees", action="store_true", help="a file of summary gene trees")
 parser.add_argument("--dist", action="store_true", help="a divergence file")
 parser.add_argument("--blen", action="store_true", help="a file of branch"
                     "lengths")
