@@ -170,7 +170,7 @@ def getDivergence(chrm, infile, topos, pairs, minFreq, toposplot, pairsplot):
     return(None)
 
 
-def sumBranchLengths(chrm, infile, topos_subset, minFreq, nodedepthplot, step=10, topos=105, outgroupBlen=1):
+def sumBranchLengths(chrm, infile, topos_subset, minFreq, nodedepthplot, step=10, topos=105, outgroupBlen=0):
     """calculates the nodeage of the MRCA using a branchlength file produced by twisst
     to alter this for other species you must:
         1) change step size
