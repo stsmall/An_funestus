@@ -27,7 +27,7 @@ parser.add_argument('-f', "--minFreq", type=float, default=0.0)
 parser.add_argument("--dist", action="store_true", help="a divergence file")
 parser.add_argument("--blen", action="store_true", help="a file of branch"
                     "lengths")
-parser.add_argument('-c', "--chr", type=str, default='', help="prefix of outfile")
+parser.add_argument('-c', "--chr", type=str, default='chr', help="prefix of outfile")
 parser.add_argument("--tplot", action="store_true", help="boxplot of topos")
 parser.add_argument("--pplot", action="store_true", help="boxplot of pairs")
 parser.add_argument("--bplot", action="store_true", help="boxplot of nodeage")
@@ -139,29 +139,33 @@ def getDivergence(chrm, infile, topos, pairs, minFreq, toposplot, pairsplot):
             if pairs:  # specific pairs
                 for p in pairs:
                     pmean = np.nanmean(div_df[t].loc[p])
+                    pmed = np.nanmedian(div_df[t].loc[p])
                     pNF = np.nanpercentile(div_df[t].loc[p], 97.5)
                     pTF = np.nanpercentile(div_df[t].loc[p], 2.5)
-                    f.write("{}:{}:{} [{}-{}]\n".format(t, p, pmean, pTF, pNF))
+                    f.write("{}:{}:{} {} [{}-{}]\n".format(t, p, pmean, pmed, pTF, pNF))
             else:
                 for p in list(div_df.index.values):
                     pmean = np.nanmean(div_df[t].loc[p])
+                    pmed = np.nanmedian(div_df[t].loc[p])
                     pNF = np.nanpercentile(div_df[t].loc[p], 97.5)
                     pTF = np.nanpercentile(div_df[t].loc[p], 2.5)
-                    f.write("{}:{}:{} [{}-{}]\n".format(t, p, pmean, pTF, pNF))
+                    f.write("{}:{}:{} {} [{}-{}]\n".format(t, p, pmean, pmed, pTF, pNF))
     else:
         for t in list(div_df.columns.values):
             if pairs:  # specific pairs
                 for p in pairs:
                     pmean = np.nanmean(div_df[t].loc[p])
+                    pmed = np.nanmedian(div_df[t].loc[p])
                     pNF = np.nanpercentile(div_df[t].loc[p], 97.5)
                     pTF = np.nanpercentile(div_df[t].loc[p], 2.5)
-                    f.write("{}:{}:{} [{}-{}]\n".format(t, p, pmean, pTF, pNF))
+                    f.write("{}:{}:{} {} [{}-{}]\n".format(t, p, pmean, pmed, pTF, pNF))
             else:
                 for p in list(div_df.index.values):
                     pmean = np.nanmean(div_df[t].loc[p])
+                    pmed = np.nanmedian(div_df[t].loc[p])
                     pNF = np.nanpercentile(div_df[t].loc[p], 97.5)
                     pTF = np.nanpercentile(div_df[t].loc[p], 2.5)
-                    f.write("{}:{}:{} [{}-{}]\n".format(t, p, pmean, pTF, pNF))
+                    f.write("{}:{}:{} {} [{}-{}]\n".format(t, p, pmean, pmed, pTF, pNF))
     f.close()
     return(None)
 
