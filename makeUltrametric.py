@@ -12,10 +12,11 @@ from ete3 import Tree
 parser = argparse.ArgumentParser()
 parser.add_argument('-t', "--treefile", type=str, required=True,
                     help="treefile in newick, 1 per line")
+parser.add_argument('-o', "--outgroup", type=str)
 args = parser.parse_args()
 
 
-def makeUltra(treeFile):
+def makeUltra(treeFile, outgroup):
     """Make a tree ultrametric
     """
     print("loading trees...")
@@ -24,16 +25,9 @@ def makeUltra(treeFile):
         for line in newick:
             if not line.startswith("NA"):
                 t = Tree(line)
-                most_distant_leaf, tree_length = t.get_farthest_leaf()
-                current_dist = 0
-                for postorder, node in t.iter_prepostorder():
-                    if postorder:
-                        current_dist -= node.dist
-                    else:
-                        if node.is_leaf():
-                            node.dist += tree_length - (current_dist + node.dist)
-                        elif node.up: # node is internal
-                            current_dist += node.dist
+                if outgroup:
+                    t.set_outgroup("outgroup")
+                t.convert_to_ultrametric()
                 treelist.append(t)
     return(treelist)
 
@@ -58,8 +52,8 @@ def writeTrees(treelist):
 
 
 if __name__ == "__main__":
-    tl = makeUltra(args.treefile)
+    tl = makeUltra(args.treefile, args.outgroup)
     writeTrees(tl)
 #    t=Tree("(rivulorum:0.150148,(((funestuscf:0.007258,funestus:0.001803)"
-#           "1:0.000495,vaneedeni:0.003145)1:0.000816,(longipalpusC:0.001316"
+#          "1:0.000495,vaneedeni:0.003145)1:0.000816,(longipalpusC:0.001316"
 #           ",parensis:0.004594)1:0.008818)1:0.150148);")
