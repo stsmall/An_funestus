@@ -1,4 +1,3 @@
-
 # FASTA processing
 ## accessibility.py
 build accessibility file similar to Malaria gen, 1000 genomes project. Requires pysam
