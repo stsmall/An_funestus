@@ -1,17 +1,14 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on Mon May  7 13:23:11 2018
 pruneTips.py -t TREE.tre -g groups -n 1 -dlm
 @author: scott
 """
-
-from __future__ import print_function
-from __future__ import division
 import numpy as np
 from ete3 import PhyloTree
 import re
-
+import tqdm as tqdm, trange
 import argparse
 
 parser = argparse.ArgumentParser()
@@ -26,6 +23,13 @@ parser.add_argument("--rand", action="store_true", help="choose individual at"
                     "random note you will have to format leaf names")
 parser.add_argument("--rename", action="store_true", help="rename tips")
 args = parser.parse_args()
+
+
+def file_len(fname):
+    with open(fname) as f:
+        for i, l in enumerate(f):
+            pass
+    return(i + 1)
 
 
 def LoadTrees(treeFile, dlm):
@@ -43,8 +47,10 @@ def LoadTrees(treeFile, dlm):
     """
     print("loading trees...")
     treelist = []
+    pbar = tqdm(total=file_len(treeFile))
     with open(treeFile, 'r') as newick:
         for line in newick:
+            pbar.update(1)
             if not line.startswith("NA"):
                 t = PhyloTree(line)
                 t.set_species_naming_function(lambda node: node.name.split(dlm)[0])
@@ -59,7 +65,7 @@ def pruneTips(treelist, species, rand, topo=True, ntaxa=1):
         splist = []
         for tax in species:
             splist.append(treelist[0].search_nodes(species=tax))
-        for t in treelist:
+        for t in trange(treelist):
             error = True
             while error:
                 try:
@@ -70,7 +76,7 @@ def pruneTips(treelist, species, rand, topo=True, ntaxa=1):
                 except:
                     error = True
     else:  # if only give a single individual
-        for t in treelist:
+        for t in trange(treelist):
             t.prune(species, preserve_branch_length=topo)
     return(treelist)
 
@@ -88,7 +94,7 @@ def WriteTrees(treelist, rand, rename):
 
     """
     f = open("trees.rp.nex", 'w')
-    for t in treelist:
+    for t in trange(treelist):
         if rand:
             t2 = re.sub(r'_([0-9]|[A-Z])\w+', '', t.write())
             f.write("{}\n".format(t2))
