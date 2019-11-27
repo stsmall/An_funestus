@@ -8,7 +8,7 @@ pruneTips.py -t TREE.tre -g groups -n 1 -dlm
 import numpy as np
 from ete3 import PhyloTree
 import re
-import tqdm as tqdm, trange
+from tqdm import tqdm, trange
 import argparse
 
 parser = argparse.ArgumentParser()
