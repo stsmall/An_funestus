@@ -55,17 +55,20 @@ def LoadTrees(treeFile, dlm):
                 t = PhyloTree(line)
                 t.set_species_naming_function(lambda node: node.name.split(dlm)[0])
                 treelist.append(t)
+    pbar.close()
     return(treelist)
 
 
 def pruneTips(treelist, species, rand, topo=True, ntaxa=1):
     """Prune trees so only n taxa remain from each of species
     """
+    pbar = tqdm(total=len(treelist))
     if rand:  # keep 1 or more
         splist = []
         for tax in species:
             splist.append(treelist[0].search_nodes(species=tax))
-        for t in trange(treelist):
+        for t in treelist:
+            pbar.update(1)
             error = True
             while error:
                 try:
@@ -76,8 +79,10 @@ def pruneTips(treelist, species, rand, topo=True, ntaxa=1):
                 except:
                     error = True
     else:  # if only give a single individual
-        for t in trange(treelist):
+        for t in treelist:
+            pbar.unpdate(1)
             t.prune(species, preserve_branch_length=topo)
+    pbar.close()
     return(treelist)
 
 
@@ -94,7 +99,7 @@ def WriteTrees(treelist, rand, rename):
 
     """
     f = open("trees.rp.nex", 'w')
-    for t in trange(treelist):
+    for t in treelist:
         if rand:
             t2 = re.sub(r'_([0-9]|[A-Z])\w+', '', t.write())
             f.write("{}\n".format(t2))
