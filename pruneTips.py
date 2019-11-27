@@ -62,6 +62,7 @@ def LoadTrees(treeFile, dlm):
 def pruneTips(treelist, species, rand, topo=True, ntaxa=1):
     """Prune trees so only n taxa remain from each of species
     """
+    print(f"pruning tips ...")
     pbar = tqdm(total=len(treelist))
     if rand:  # keep 1 or more
         splist = []
