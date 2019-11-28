@@ -70,15 +70,10 @@ def pruneTips(treelist, species, rand, topo=True, ntaxa=1):
             splist.append(treelist[0].search_nodes(species=tax))
         for t in treelist:
             pbar.update(1)
-            error = True
-            while error:
-                try:
-                    nodes = [np.random.choice(g, ntaxa) for g in splist]
-                    nds = np.concatenate(nodes).ravel()
-                    t.prune(nds, preserve_branch_length=topo)
-                    error = False
-                except:
-                    error = True
+            import ipdb; ipdb.set_trace()
+            nodes = [np.random.choice(g, ntaxa) for g in splist]
+            nds = np.concatenate(nodes).ravel()
+            t.prune(nds, preserve_branch_length=topo)
     else:  # if only give a single individual
         for t in treelist:
             pbar.update(1)
@@ -105,6 +100,7 @@ def WriteTrees(treelist, rand, rename):
             t2 = re.sub(r'_([0-9]|[A-Z])\w+', '', t.write())
             f.write("{}\n".format(t2))
         elif rename:
+            import ipdb; ipdb.set_trace()
             t2 = re.sub(r'_([0-9]|[A-Z])\w+', '', t.write())
             f.write("{}\n".format(t2))
         else:
