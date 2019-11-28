@@ -53,6 +53,7 @@ def LoadTrees(treeFile, dlm):
             pbar.update(1)
             if not line.startswith("NA"):
                 t = PhyloTree(line)
+                import ipdb; ipdb.set_trace()
                 t.set_species_naming_function(lambda node: node.name.split(dlm)[0])
                 treelist.append(t)
     pbar.close()
@@ -70,7 +71,6 @@ def pruneTips(treelist, species, rand, topo=True, ntaxa=1):
             splist.append(treelist[0].search_nodes(species=tax))
         for t in treelist:
             pbar.update(1)
-            import ipdb; ipdb.set_trace()
             nodes = [np.random.choice(g, ntaxa) for g in splist]
             nds = np.concatenate(nodes).ravel()
             t.prune(nds, preserve_branch_length=topo)
@@ -96,12 +96,8 @@ def WriteTrees(treelist, rand, rename):
     """
     f = open("trees.rp.nex", 'w')
     for t in treelist:
-        if rand:
-            t2 = re.sub(r'_([0-9]|[A-Z])\w+', '', t.write())
-            f.write("{}\n".format(t2))
-        elif rename:
-            import ipdb; ipdb.set_trace()
-            t2 = re.sub(r'_([0-9]|[A-Z])\w+', '', t.write())
+        if rename:
+            t2 = re.sub(r'(\.[A-Z])\w+', '', t.write())
             f.write("{}\n".format(t2))
         else:
             f.write("{}\n".format(t.write()))
