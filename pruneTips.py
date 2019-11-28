@@ -53,7 +53,6 @@ def LoadTrees(treeFile, dlm):
             pbar.update(1)
             if not line.startswith("NA"):
                 t = PhyloTree(line)
-                import ipdb; ipdb.set_trace()
                 t.set_species_naming_function(lambda node: node.name.split(dlm)[0])
                 treelist.append(t)
     pbar.close()
