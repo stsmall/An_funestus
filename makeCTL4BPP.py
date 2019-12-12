@@ -11,7 +11,7 @@ ctl_files = glob.glob("*.txt")
 c = 1
 for ctl in ctl_files:
     coord = ctl.split(".")[2]
-    chrom = ctl.split("."[1])
+    chrom = ctl.split(".")[1]
     cds = ctl.split(".")[0]
     counts = ctl.split(".")[3]
     f = open(f"A01.bpp.{cds}.{chrom}.{coord}.ctl", 'w')
