@@ -58,8 +58,8 @@ d = {"1": "Fun1",
      "48": "Par10"}
 
 f = open("mtDNA.renamed.out", 'w')
-with open(sys.argv[1], 'r') as tre:
-    for line in tre:
+with open(sys.argv[1], 'r') as msout:
+    for tre in msout:
         for k in d.keys():
             p1 = re.compile(fr",({k}):")
             p2 = re.compile(fr"\(({k}):")
@@ -70,3 +70,4 @@ with open(sys.argv[1], 'r') as tre:
             elif len(m2) == 1:
                 tre = re.sub(p2, f"({d[k]}:", tre)
         f.write(tre)
+
