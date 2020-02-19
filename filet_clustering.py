@@ -52,6 +52,8 @@ def clusterIntrogressedRegions(InFile, p1, p2):
                             clustlist.append(float(line.split()[6]))
                             rollmean = np.mean(clustlist)
                             noMigp = float(line.split()[5])
+                        f.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(chrom, start, end, sites, pred, rollmean))
+                        clustlist = []
                     elif pred == '2':
                         clustlist.append(mig21p)
                         line = next(filet)
@@ -66,13 +68,11 @@ def clusterIntrogressedRegions(InFile, p1, p2):
                             clustlist.append(float(line.split()[7]))
                             rollmean = np.mean(clustlist)
                             noMigp = float(line.split()[5])
-                    try:
                         f.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(chrom, start, end, sites, pred, rollmean))
                         clustlist = []
-                    except UnboundLocalError:
-                        breakpoint()
             except StopIteration:
-                f.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(chrom, start, end, sites, pred, rollmean))
+                if len(clustlist) > 0:
+                    f.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(chrom, start, end, sites, pred, rollmean))
                 break
     f.close()
     return(None)
