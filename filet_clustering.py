@@ -22,61 +22,32 @@ def clusterIntrogressedRegions(InFile, p1, p2):
     """
 
     """
-    clustlist = []
-    f = open("{}.bed".format(InFile), 'w')
+    c1 = open("{}.m12.bed".format(InFile), 'w')
+    c2 = open("{}.m21.bed".format(InFile), 'w')
+    c3 = open("{}.m.bed".format(InFile), 'w')
     with open(InFile, 'r') as filet:
         next(filet)
         for line in filet:
-            try:
-                x = line.split()
-                chrom = x[0]
-                start = int(x[1])
-                end = int(x[2])
-                sites = int(x[3])
-                pred = x[4]
-                noMigp = float(x[5])
-                mig12p = float(x[6])
-                mig21p = float(x[7])
-                if noMigp <= p1:
-                    if pred == '1':
-                        clustlist.append(mig12p)
-                        line = next(filet)
-                        clustlist.append(float(line.split()[6]))
-                        rollmean = np.mean(clustlist)
-                        noMigp = float(line.split()[5])
-                        while noMigp <= p1 and rollmean >= p2:
-                            end = int(line.split()[2])
-                            pred += line.split()[4]
-                            sites += int(line.split()[3])
-                            line = next(filet)
-                            clustlist.append(float(line.split()[6]))
-                            rollmean = np.mean(clustlist)
-                            noMigp = float(line.split()[5])
-                        f.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(chrom, start, end, sites, pred, rollmean))
-                        clustlist = []
-                    elif pred == '2':
-                        clustlist.append(mig21p)
-                        line = next(filet)
-                        clustlist.append(float(line.split()[7]))
-                        rollmean = np.mean(clustlist)
-                        noMigp = float(line.split()[5])
-                        while noMigp <= p1 and rollmean >= p2:
-                            end = int(line.split()[2])
-                            pred += line.split()[4]
-                            sites += int(line.split()[3])
-                            line = next(filet)
-                            clustlist.append(float(line.split()[7]))
-                            rollmean = np.mean(clustlist)
-                            noMigp = float(line.split()[5])
-                        f.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(chrom, start, end, sites, pred, rollmean))
-                        clustlist = []
-            except StopIteration:
-                if len(clustlist) > 0:
-                    f.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(chrom, start, end, sites, pred, rollmean))
-                break
-    f.close()
+            x = line.split()
+            chrom = x[0]
+            start = int(x[1])
+            end = int(x[2])
+            sites = int(x[3])
+            pred = x[4]
+            noMigp = float(x[5])
+            mig12p = float(x[6])
+            mig21p = float(x[7])
+            if noMigp <= p1:
+                if pred == '1' and mig12p >= p2:
+                    c1.write(f"{chrom}\t{start}\t{end}\t{sites}\t{pred}\n")
+                elif pred == '2' and mig21p >= p2:
+                    c2.write(f"{chrom}\t{start}\t{end}\t{sites}\t{pred}\n")
+                else:
+                    c3.write(f"{chrom}\t{start}\t{end}\t{sites}\t{pred}\t{noMigp}\t{mig12p}\t{mig21p}\n")
+    c1.close()
+    c2.close()
+    c3.close()
     return(None)
-
 
 if __name__ == "__main__":
     clusterIntrogressedRegions(args.InFile, args.prob1, args.prob2)
