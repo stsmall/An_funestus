@@ -1,0 +1,17 @@
+################make mask file :: bedtools, makeFILETmask.py
+# make mask file, see masking.txt
+cat Van.neg-mask.srt.bed Fun.neg-mask.srt.bed | sort -k1,1 -k2,2n > FV.neg-mask.srt.bed
+
+mergeBed -i FV.neg-mask.srt.bed > FV.neg-mask.srt.merge.bed
+
+for chr in 2L 2R 3L 3R X;do                                                                                                                                                                                    
+maskFastaFromBed -fi ${chr}.FV.fa -bed FV.neg-mask.srt.merge.bed -fo ${chr}.FV.mask.fa
+done
+
+# check options for script
+for chr in 2L 2R 3L 3R X;do                                                                                                                                                                                    
+python ssmall2/An_funestus/makeFILETmask.py -f ${chr}.FV.mask.fa -w 10000 -n 100
+done
+
+# make certain that mask is same length as sims
+awk '/\/\// { found++ } found < 100001 { print}' FV.mask.fa.mask2 > FV.mask
