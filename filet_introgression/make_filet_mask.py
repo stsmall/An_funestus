@@ -148,6 +148,8 @@ def buildMaskFile(infile, window, nLength, skipMask, numb):
                     n_count += 1
                 start += step
                 end += step
+            print(f"number of masks with window size {window} : {n_count}")
+            print(f"resampling {numb-n_count} windows")
             if n_count < numb:
                 rand_coord = np.random.choice(coord_list, numb-n_count+1)
                 for r_coord in rand_coord:
@@ -184,7 +186,7 @@ def makeUnmaskedFrac(mask_file, file=True):
                     frac_mask.append(1-frac)
     if file:
         path, mask_name = os.path.split(mask_file)
-        with open(os.path.join(path, f"{mask_name}-unfracmask"), 'w') as out:
+        with open(os.path.join(path, f"{mask_name}-unmaskfrac"), 'w') as out:
             for frac in frac_mask:
                 out.write(f"{frac}\n")
     return frac_mask
@@ -201,7 +203,7 @@ def parse_args(args_in):
                         help="length of Ns to cosider for masking")
     parser.add_argument('-m', "--skipMasking", type=float, default=0.50,
                         help="skip sites with more that this percent of sites as N")
-    parser.add_argument('-nMask', "--numberMask", type=int,
+    parser.add_argument('-nMask', "--numberMask", type=int, required=True,
                         help="how many mask lines to resample")
     return parser.parse_args(args_in)
 
