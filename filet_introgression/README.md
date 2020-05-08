@@ -1,3 +1,23 @@
+Snakefile
+	1) make masks for data and training 
+		use python makeMaskArmFilesFromQualAndRM.py from github.com/kern-lab/FILET/tree/master/maskingScripts
+		required: gVCF from 2 pops, repeatGFF, reference fasta
+		returns: fasta with masked ('N') sites
+	2) make_filet_mask.py
+	3) data2classify
+		see examples at github.com/kern-lab/FILET/tree/master/maskingScripts
+		required: phased fasta for each pop // arm (masked), anc fasta, bed file of steps
+		returns: obs stat vectors for classification
+Training sims
+	abc_sims.py
+Snakefile
+	1) filet_statsMP.py, requires masks and associated C programs
+	2) split : test/training sets
+	3) training
+	4) classify test sets
+	5) classify data vectors
+
+Previous efforts for this project:
 ################make mask file :: bedtools, makeFILETmask.py
 # make mask file, see masking.txt
 cat Van.neg-mask.srt.bed Fun.neg-mask.srt.bed | sort -k1,1 -k2,2n > FV.neg-mask.srt.bed
