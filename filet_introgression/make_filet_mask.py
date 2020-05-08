@@ -196,7 +196,6 @@ def parse_args(args_in):
                         help="skip sites with more that this percent of sites as N")
     parser.add_argument('-nMask', "--numberMask", type=int,
                         help="how many mask lines to resample")
-    parser.add_argument()
     return parser.parse_args(args_in)
 
 
