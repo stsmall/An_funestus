@@ -74,14 +74,15 @@ def buildMaskFile(infile, window, nLength, skipMask, numb):
     mask_abspath = os.path.abspath(infile)
     mask_path, mask_name = os.path.split(mask_abspath)
     if "mask" in mask_name.split(".")[-1]:
+        base_name = mask_name.strip(".mask")
         # need larger number for masking longer training sims
-        mask_files = glob.glob(f"{os.path.join(mask_path, mask_name)}.*.mask")
+        mask_files = glob.glob(f"{os.path.join(mask_path, base_name)}*.mask")
         if mask_files:
             numb_list = []
             for file in mask_files:
                 numb_list.append(int(file.split(".")[-2]))
             numb_max = max(numb_list)
-            resample_file = f"{mask_name}.{numb_max}.mask"
+            resample_file = f"{base_name}.{numb_max}.mask"
             if numb_max < numb:
                 with open(os.path.join(mask_path, resample_file), 'r') as mask:
                     coord_list = []
@@ -93,7 +94,7 @@ def buildMaskFile(infile, window, nLength, skipMask, numb):
                                     tmp_coord.append(line)
                                     line = next(mask)
                                 coord_list.append(tmp_coord)
-                sample_file = f"{mask_name}.{numb}.mask"
+                sample_file = f"{base_name}.{numb}.mask"
                 with open(os.path.join(mask_path, sample_file), 'w') as mask_renumb:
                     n = 0
                     for coord in coord_list:
@@ -117,8 +118,12 @@ def buildMaskFile(infile, window, nLength, skipMask, numb):
                 if not line.startswith(">"):
                     seq_list.append(line.strip())
             seq = "".join(seq_list)
-        n = 0
-        sample_file = f"{mask_name}.{numb}.mask"
+        n_count = 0
+        if mask_name.endswith(".fasta"):
+            base_name = mask_name.strip(".fasta")
+        else:
+            base_name = mask_name.strip(".fa")
+        sample_file = f"{base_name}.{numb}.mask"
         with open(os.path.join(mask_path, sample_file), 'w') as mask_numb:
             # seqRlist = []
             coord_list = []
@@ -129,23 +134,25 @@ def buildMaskFile(infile, window, nLength, skipMask, numb):
             while end < len(seq):
                 seqR = seq[start:end]
                 if (seqR.count('N') / window) <= skipMask:
-                    coord = [(m.start(), m.end()) for m in re.finditer(rN, seqR)]
+                    tmp = []
+                    coord = [[m.start(), m.end()] for m in re.finditer(rN, seqR)]
                     if coord:
-                        coord_list.append(coord)
                         for i, j in coord:
                             mask_numb.write(f"0 {i/window} {j/window}\n")
+                            tmp.append(f"0 {i/window} {j/window}\n")
+                        coord_list.append(tmp)
                     else:
                         mask_numb.write("0 0 0\n")
-                        coord_list.append([0, 0])
+                        coord_list.append([f"0 0 0\n"])
                     mask_numb.write("\n//\n\n")
-                    # seqRlist.append(seqR)
+                    n_count += 1
                 start += step
                 end += step
-                n += 1
-            if n < numb:
-                for rand_coord in np.random.choice(coord_list, numb-n+1):
-                    for i, j in rand_coord:
-                        mask_numb.write(f"0 {i/window} {j/window}\n")
+            if n_count < numb:
+                rand_coord = np.random.choice(coord_list, numb-n_count+1)
+                for r_coord in rand_coord:
+                    for coord in r_coord:
+                        mask_numb.write(coord)
                     mask_numb.write("\n//\n\n")
     return os.path.join(mask_path, sample_file)
 
