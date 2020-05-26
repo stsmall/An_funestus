@@ -22,6 +22,7 @@ def getStats(inFile, h1, h2, mask):
             x = line.split()
             stat_arr = np.array(x[4:], dtype=np.float)
             if not any(np.isinf(stat_arr)):
+                breakpoint()
                 filt = (stat_arr <= 1)
                 filt_1 = np.ones(len(stat_arr))
                 # tajD
@@ -57,7 +58,7 @@ def sumStats(header, stats_list, mean):
         m = np.nanmean(np.vstack(stats_list), axis=0)
     else:
         m = np.nanmedian(np.vstack(stats_list), axis=0)
-    print("{' '.join(map(str, header))}\n{' '.join(map(str, m))}")
+    print(f"{' '.join(map(str, header))}\n{' '.join(map(str, m))}")
 
 
 def parse_args(args_in):
