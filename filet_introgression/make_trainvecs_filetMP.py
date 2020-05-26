@@ -45,6 +45,10 @@ import sys
 import argparse
 
 
+# read in ms file
+# take: mask file
+
+
 def parse_args(args_in):
     """Parse args."""
     parser = argparse.ArgumentParser(prog=sys.argv[0],
