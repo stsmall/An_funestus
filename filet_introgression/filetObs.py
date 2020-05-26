@@ -12,47 +12,51 @@ import numpy as np
 
 def getStats(inFile, h1, h2, mask):
     stats_list = []
+    header = []
     keep_stats = np.array([True, True, True, True, False, True, False, False,
                            True, True, True, True, True, False, True, False,
                            False, True, True, True, True, True, True, True,
                            True, True, True, True, False, False, False])
     with open(inFile, 'r') as stats:
-        header = np.array(next(stats).split()[4:])
         for line in stats:
-            x = line.split()
-            stat_arr = np.array(x[4:], dtype=np.float)
-            if not any(np.isinf(stat_arr)):
-                breakpoint()
-                filt = (stat_arr <= 1)
-                filt_1 = np.ones(len(stat_arr))
-                # tajD
-                if not filt[5]:
-                    if -5 < stat_arr[5] < 5:
-                        filt[5] = True
-                if not filt[14]:
-                    if -5 < stat_arr[14] < 5:
-                        filt[14] = True
-                # hap counts
-                if stat_arr[7] <= h1:
-                    filt[7] = True
-                if stat_arr[16] <= h2:
-                    filt[16] = True
-                # zx
-                if not filt[23]:
-                    if stat_arr[23] < 5:
-                        filt[23] = True
-                # dd1 dd2 dxy_min
-                if filt[21]:
-                    filt[24] = True
-                    filt[25] = True
-                xfilt = filt * filt_1
-                xfilt[xfilt == 0] = np.nan
-                stats = stat_arr * xfilt
-                if mask:
-                    stats_list.append(stats[keep_stats])
-                else:
-                    stats_list.append(stats)
-    if mask:
+            if line.startswith("chrom"):
+                header = np.array(next(stats).split()[4:])
+            elif line.startswith("pi"):
+                header = np.array(next(stats).split())
+            else:
+                x = line.split()
+                stat_arr = np.array(x[4:], dtype=np.float)
+                if not any(np.isinf(stat_arr)):
+                    filt = (stat_arr <= 1)
+                    filt_1 = np.ones(len(stat_arr))
+                    # tajD
+                    if not filt[5]:
+                        if -5 < stat_arr[5] < 5:
+                            filt[5] = True
+                    if not filt[14]:
+                        if -5 < stat_arr[14] < 5:
+                            filt[14] = True
+                    # hap counts
+                    if stat_arr[7] <= h1:
+                        filt[7] = True
+                    if stat_arr[16] <= h2:
+                        filt[16] = True
+                    # zx
+                    if not filt[23]:
+                        if stat_arr[23] < 5:
+                            filt[23] = True
+                    # dd1 dd2 dxy_min
+                    if filt[21]:
+                        filt[24] = True
+                        filt[25] = True
+                    xfilt = filt * filt_1
+                    xfilt[xfilt == 0] = np.nan
+                    stats = stat_arr * xfilt
+                    if mask:
+                        stats_list.append(stats[keep_stats])
+                    else:
+                        stats_list.append(stats)
+    if mask and header:
         header = header[keep_stats]
     return header, stats_list
 
