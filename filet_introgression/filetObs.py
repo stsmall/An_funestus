@@ -40,7 +40,11 @@ def getStats(inFile, h1, h2, mask):
                 # zx
                 if not filt[23]:
                     if stat_arr[23] < 5:
-                        filt[5] = True
+                        filt[23] = True
+                # dd1 dd2 dxy_min
+                if filt[21]:
+                    filt[24] = True
+                    filt[25] = True
                 xfilt = filt * filt_1
                 xfilt[xfilt == 0] = np.nan
                 stats = stat_arr * xfilt
