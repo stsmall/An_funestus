@@ -155,8 +155,7 @@ def parse_args(args_in):
     parser = argparse.ArgumentParser(prog=sys.argv[0],
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('vcfFile', type=str, help='path to vcf file')
-    parser.add_argument('refFasta', type=str, required=True,
-                        help='path to fasta file')
+    parser.add_argument('refFasta', type=str, help='path to fasta file')
     parser.add_argument('-aaf', '--alt_allele_freq', type=float, default=1.0,
                         help='ALT allele freq above which to consider fixed')
     parser.add_argument('--iupac', action='store_true',
