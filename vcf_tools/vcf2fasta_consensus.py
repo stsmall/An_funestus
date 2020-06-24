@@ -142,10 +142,10 @@ def vcf_to_dict(vcf_file, aaf, iupac, ploidy=2):
 
                 if freq/haps >= aaf:
                     new_allele = alt
+                    vcfdict[chrom][pos] = new_allele
                 elif iupac:
                     new_allele = IUPAC(ref + alt)
-
-            vcfdict[chrom][pos] = new_allele
+                    vcfdict[chrom][pos] = new_allele
 
     return vcfdict
 
