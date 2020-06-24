@@ -79,10 +79,13 @@ def dict_to_fasta(vcfdict, fasta_ref):
             chrom, sequence = fasta.id, str(fasta.seq)
             seq = list(sequence)
             for pos in vcfdict[chrom].keys():
-                new_allele = vcfdict[chrom][pos]
+                new_allele = vcfdict[chrom][pos][1]
+                ref = vcfdict[chrom][pos][0]
                 if seq[pos-1] != "N":
                     if seq[pos-1].islower():
+                        assert seq[pos-1] == ref.lower()
                         new_allele = new_allele.lower()
+                    assert seq[pos-1] == ref
                     seq[pos-1] = new_allele
             out_file.write(f">{chrom}\n{''.join(seq)}\n")
 
@@ -142,10 +145,10 @@ def vcf_to_dict(vcf_file, aaf, iupac, ploidy=2):
 
                 if freq/haps >= aaf:
                     new_allele = alt
-                    vcfdict[chrom][pos] = new_allele
+                    vcfdict[chrom][pos] = ref + new_allele
                 elif iupac:
                     new_allele = IUPAC(ref + alt)
-                    vcfdict[chrom][pos] = new_allele
+                    vcfdict[chrom][pos] = ref + new_allele
 
     return vcfdict
 
