@@ -46,43 +46,41 @@ def AddLengthsToKey(File, fastafai):
     return(None)
 
 
-def label(File, name):
+def label(File):
     """
     sort by -k6,6
     """
     f = open("{}.label".format(File), 'w')
     sp_count = 0
-    spcol = int(name)
     with open(File, 'r') as co1:
         line = next(co1)
-        species = line.split()[spcol]
+        species = line.split()[5]
     with open(File, 'r') as co1:
         for line in co1:
             x = line.split()
-            if x[spcol] == species:
+            if x[5] == species:
                 sp_count += 1
-                species_count = "{}_{}".format(x[spcol], sp_count)
+                species_count = "{}_{}".format(x[5], sp_count)
                 x.append(species_count)
                 f.write("{}\n".format("\t".join(x)))
             else:
                 sp_count = 1
-                species_count = "{}_{}".format(x[spcol], sp_count)
+                species_count = "{}_{}".format(x[5], sp_count)
                 x.append(species_count)
                 f.write("{}\n".format("\t".join(x)))
-                species = x[spcol]
+                species = x[5]
     f.close()
     return(None)
 
 
-def replaceFastaHeader(File, fasta, name):
+def replaceFastaHeader(File, fasta):
     """
     """
     fastadict = {}
-    colname = int(name)
     with open(File, 'r') as co1:
         for line in co1:
             x = line.split()
-            fastadict[x[0]] = x[colname]
+            fastadict[x[0]] = x[-1]
     f = open("{}.rename".format(fasta), 'w')
     with open(fasta, 'r') as co1:
         for line in co1:
@@ -112,7 +110,7 @@ def AddGroupsFromABGD(File, abgdFile):
         for line in co1:
             x = line.split()
             try:
-                x.append(groupdict[x[3]])
+                x.append(groupdict[x[-1]])
                 f.write("{}\n".format("\t".join(x)))
             except KeyError:
                 x.append("NAN")
@@ -172,15 +170,14 @@ def getFastaFromGroups(File, fasta, sub=3):
             fastalist.append(header)
     f = open("{}.subset".format(fasta), 'w')
     for fheader in fastalist:
-        f.write("{}\n".format(fheader))
+        f.write(">{}\n".format(fheader))
     f.close()
     print("cat subset | xargs -n 1 samtools faidx ITS2_07JAN18.fa > ITS2.paired.fa")
     return(None)
 
 
-def AddtraitsForNetwork(File, headerL):
+def AddtraitsForNetwork(File, header):
     """
-    dos2unix .log
     cut -f2 CO1_Karama_28SEP18.clean.lab.alignment.long.log > duplist
     cut -d" " -f 1 CO1_Karama_28SEP18.clean.lab.alignment.long.phy > list
     grep -wv -f duplist list > singletons
@@ -189,12 +186,11 @@ def AddtraitsForNetwork(File, headerL):
     #header = ["aconitus", "barbirostris", "nitidus", "peditaeniatus", "maculatus",
      #         "tessellatus", "culicifacies", "vagus", "crawfordi", "unknown"]
     f = open("{}.traits".format(File), 'w')
-    header = headerL.split()
     f.write("{}\n".format(",".join(header)))
     headerlist = [0] * len(header)
     sp = ''
     with open(File, 'r') as log:
-        next(log)  # skip header
+        log.next()  # skip header
         for line in log:
             if line.startswith("\t"):
                 spix = header.index(line.split()[0].split("_")[0])
@@ -218,25 +214,23 @@ if __name__ == "__main__":
     File = args.file
 
     if args.fx == 'AddLengthsToKey':
-        fai = input("Add fai file: ")
+        fai = raw_input("Add fai file: ")
         AddLengthsToKey(File, fai)
     elif args.fx == 'label':
-        name = input("column of name: ")
-        label(File, name)
+        label(File)
     elif args.fx == 'replaceFastaHeader':
-        fa = input("Add Fasta file: ")
-        name = input("column of name: ")
-        replaceFastaHeader(File, fa, name)
+        fa = raw_input("Add Fasta file: ")
+        replaceFastaHeader(File, fa)
     elif args.fx == 'getFastaFromGroups':
-        fa = input("Add Fasta file: ")
+        fa = raw_input("Add Fasta file: ")
         getFastaFromGroups(File, fa)
     elif args.fx == 'AddGroupsFromABGD':
-        abgd = input("Add ABDG file: ")
+        abgd = raw_input("Add ABDG file: ")
         AddGroupsFromABGD(File, abgd)
     elif args.fx == 'AddGroupsFromClust':
-        clust = input("Add Clust file: ")
+        clust = raw_input("Add Clust file: ")
         AddGroupsFromClust(File, clust)
     elif args.fx == 'AddtraitsForNetwork':
-        header = input("Add header as list")
+        header = raw_input("Add header as list")
         # make this a list
         AddtraitsForNetwork(File, header)

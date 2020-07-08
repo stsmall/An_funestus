@@ -4,6 +4,8 @@ import math
 from math import sqrt
 from optparse import OptionParser
 
+# https://github.com/pontussk/popstats
+
 usage = "usage: %prog [options] arg1 arg2"
 parser = OptionParser(usage=usage)
 parser.add_option("-f", "--tfam", action="store", type="string", dest="tfam",help="tfam_file")
