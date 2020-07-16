@@ -90,6 +90,55 @@ def dict_to_fasta(vcfdict, fasta_ref):
             out_file.write(f">{chrom}\n{''.join(seq)}\n")
 
 
+def freq_to_dict(frq_file, aaf, iupac, ploidy=2):
+    """Read a --freq file from vcftools to a dictionary.
+
+    Parameters
+    ----------
+    frq_file : TYPE
+        DESCRIPTION.
+    aaf : TYPE
+        DESCRIPTION.
+    iupac : TYPE
+        DESCRIPTION.
+    ploidy : TYPE, optional
+        DESCRIPTION. The default is 2.
+
+    Returns
+    -------
+    vcfdict : TYPE
+        DESCRIPTION.
+
+    """
+    frqdict = defaultdict(dict)
+
+    if frq_file.endswith(".gz"):
+        fopen = gzip.open
+    else:
+        fopen = open
+
+    with fopen(frq_file, 'rt') as frq:
+        for line in frq:
+            if line.startswith("CHROM"):
+                header = line.strip().split()
+            else:
+                frqline = line.strip().split()
+                chrom = frqline[0]
+                pos = int(frqline[1])
+                nalleles = frqline[2]
+                nchroms = frqline[3]
+                ref, fref = frqline[4].split(":")
+                alt, falt = frqline[5].split(":")
+                if falt >= aaf:
+                    new_allele = alt
+                    frqdict[chrom][pos] = ref + new_allele
+                elif iupac:
+                    new_allele = IUPAC(ref + alt)
+                    frqdict[chrom][pos] = ref + new_allele
+
+    return frqdict
+
+
 def vcf_to_dict(vcf_file, aaf, iupac, ploidy=2):
     """Read a vcf file and stores info in a dictionary.
 
@@ -157,9 +206,10 @@ def parse_args(args_in):
     """Parse args."""
     parser = argparse.ArgumentParser(prog=sys.argv[0],
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('vcfFile', type=str, help='path to vcf file')
-    parser.add_argument('refFasta', type=str, help='path to fasta file')
-    parser.add_argument('-aaf', '--alt_allele_freq', type=float, default=1.0,
+    parser.add_argument('--vcfFile', type=str, help='path to vcf file')
+    parser.add_argument('--freqFile', type=str, help='path to freq file')
+    parser.add_argument('--refFasta', type=str, help='path to fasta file')
+    parser.add_argument('--alt_allele_freq', type=float, default=1.0,
                         help='ALT allele freq above which to consider fixed')
     parser.add_argument('--iupac', action='store_true',
                         help='add IUPAC base for het')
@@ -173,14 +223,21 @@ def main():
     #  Gather args
     # =========================================================================
     vcf_file = args.vcfFile
+    freq_file = args.freqFile
     fasta_ref = args.refFasta
     aaf = args.alt_allele_freq
     iupac = args.iupac
     # =========================================================================
     #  Main executions
     # =========================================================================
-    vcfdict = vcf_to_dict(vcf_file, aaf, iupac)
-    dict_to_fasta(vcfdict, fasta_ref)
+    if vcf_file:
+        seqdict = vcf_to_dict(vcf_file, aaf, iupac)
+    elif freq_file:
+        seqdict = freq_to_dict(freq_file, aaf, iupac)
+    else:
+        raise Exception("vcf or freq file must be provided!")
+
+    dict_to_fasta(seqdict, fasta_ref)
 
 
 if __name__ == "__main__":
