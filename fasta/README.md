@@ -27,6 +27,6 @@ sequences
 ## reverse_fasta.py
 reverses sections of a fasta file given by coordinates. Useful for correcting small artifact inversions. Some hard-coding.
 
-##sfsFromFasta.py
+## sfsFromFasta.py
 returns the site frequency spectrum from a fasta file
 `sfsFromFasta.py --fasta FOO.fa --ancestral FOO.anc.fa`
