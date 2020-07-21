@@ -1,3 +1,6 @@
+## GapDistFromFasta.pl
+Provides a bed file of location of gaps and hist of the size distribution. Author LinnÃ©a Smeds 19 oct 2010
+
 ## PSL2tln.py
 converts a PSL file from HAL tools to liftover.table file
 
