@@ -41,6 +41,7 @@ normalizes gatk fior merging
 create a bedgraph from a vcf file
 
 ## vcf2fasta_consensus.py
+This program creates a consensus fasta sequence, new reference, that uses information from a population vcf to replace the reference base with fixed or high freq ALT calls
 
 ## vcf2linkSelThin.py
 thin a vcf file to reduce the effects of linked selection.

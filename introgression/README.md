@@ -27,7 +27,7 @@ Normalize the FILET stats vector by number of sites
 
 ## removeNedOutColumnsFromMsFileKeepStars.py
 https://github.com/kr-colab/FILET
-Remove masked columns from ms-type file, but retain "*" with msmove
+Remove masked columns from ms-type file, but retain `*` with msmove
 
 ## twoPopnStats_forML
 https://github.com/kr-colab/FILET
