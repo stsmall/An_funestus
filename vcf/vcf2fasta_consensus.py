@@ -129,7 +129,9 @@ def freq_to_dict(frq_file, aaf, iupac, ploidy=2):
                 nchroms = frqline[3]
                 ref, fref = frqline[4].split(":")
                 alt, falt = frqline[5].split(":")
-                if float(falt) >= aaf:
+                if "nan" in fref or "nan" in falt:
+                    frqdict[chrom][pos] = ref + "N"
+                elif float(falt) >= aaf:
                     new_allele = alt
                     frqdict[chrom][pos] = ref + new_allele
                 elif iupac:
