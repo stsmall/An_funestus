@@ -36,9 +36,9 @@ def clusterIntrogressedRegions(InFile, p1, p2):
             mig12p = float(x[6])
             mig21p = float(x[7])
             if noMigp <= p1:
-                if pred == '1' and mig12p >= p2:
+                if mig12p >= p2:
                     c1.write(f"{chrom}\t{start}\t{end}\t{sites}\t{pred}\n")
-                elif pred == '2' and mig21p >= p2:
+                elif mig21p >= p2:
                     c2.write(f"{chrom}\t{start}\t{end}\t{sites}\t{pred}\n")
                 else:
                     # introgression but not high confidence for direction
