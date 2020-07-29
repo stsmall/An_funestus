@@ -129,32 +129,33 @@ def freq_to_dict(frq_file, aaf, iupac, ploidy=2):
                 nchroms = frqline[3]
                 ref, fref = frqline[4].split(":")
                 alt, falt = frqline[5].split(":")
-                falt = float(falt)
-                if len(frqline) == 7:
-                    alt2, falt2 = frqline[6].split(":")
-                    falt2 = float(falt2)
-                    if falt2 > falt:
-                        alt = alt2
-                        falt = falt2
-                elif len(frqline) == 8:
-                    alt2, falt2 = frqline[6].split(":")
-                    falt2 = float(falt2)
-                    alt3, falt3 = frqline[7].split(":")
-                    falt3 = float(falt3)
-                    if falt3 > falt2 > falt:
-                        alt = alt3
-                        falt = falt3
-                    elif falt2 > falt3 > falt:
-                        alt = alt2
-                        falt = falt2
                 if "nan" in fref or "nan" in falt:
-                    pass
-                elif float(falt) >= aaf:
-                    new_allele = alt
-                    frqdict[chrom][pos] = ref + new_allele
-                elif iupac:
-                    new_allele = IUPAC(ref + alt)
-                    frqdict[chrom][pos] = ref + new_allele
+                    continue
+                else:
+                    falt = float(falt)
+                    if len(frqline) == 7:
+                        alt2, falt2 = frqline[6].split(":")
+                        falt2 = float(falt2)
+                        if falt2 > falt:
+                            alt = alt2
+                            falt = falt2
+                    elif len(frqline) == 8:
+                        alt2, falt2 = frqline[6].split(":")
+                        falt2 = float(falt2)
+                        alt3, falt3 = frqline[7].split(":")
+                        falt3 = float(falt3)
+                        if falt3 > falt2 > falt:
+                            alt = alt3
+                            falt = falt3
+                        elif falt2 > falt3 > falt:
+                            alt = alt2
+                            falt = falt2
+                    if float(falt) >= aaf:
+                        new_allele = alt
+                        frqdict[chrom][pos] = ref + new_allele
+                    elif iupac:
+                        new_allele = IUPAC(ref + alt)
+                        frqdict[chrom][pos] = ref + new_allele
 
     return frqdict
 
