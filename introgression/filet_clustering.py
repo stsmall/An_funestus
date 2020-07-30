@@ -44,7 +44,7 @@ def clusterIntrogressedRegions(InFile, p1, p2):
                     # introgression but not high confidence for direction
                     c3.write(f"{chrom}\t{start}\t{end}\t{sites}\t{pred}\t{noMigp}\t{mig12p}\t{mig21p}\n")
             else:
-                c4.write(f"{chrom}\t{start}\t{end}\t{sites}\t{pred}\n")
+                c4.write(f"{chrom}\t{start}\t{end}\t{sites}\t{pred}\t{noMigp}\n")
     c1.close()
     c2.close()
     c3.close()
