@@ -4,13 +4,53 @@
 Created on Tue May 26 14:20:03 2020
 @author: Scott T. Small
 
+This program calculates a single summary line of mean or median from a file of
+pairwise statistics.
+
+Example
+-------
+
+   $ for c in *.FK.noncoding.stats;do  # pop size 12 and 10
+         grep -v "inf" ${c} | grep -v "nan" > ${c}.2
+         python filetObs.py -i ${c}.2 --h1 12 --h2 10 --mask >> stats.mask.out2
+     done
+
+Notes
+-----
+
+    It was designed specifically to work on the out file from FILET analysis.
+    The obs function inf abc_stats will return a single vector as well
+    so this program is not needed.
+
 """
+
 import sys
 import argparse
 import numpy as np
 
 
 def getStats(inFile, h1, h2, mask):
+    """Check and summarize a file of window-based stats for a pairwise comparison.
+
+    Parameters
+    ----------
+    inFile : TYPE
+        DESCRIPTION.
+    h1 : TYPE
+        DESCRIPTION.
+    h2 : TYPE
+        DESCRIPTION.
+    mask : TYPE
+        DESCRIPTION.
+
+    Returns
+    -------
+    header : TYPE
+        DESCRIPTION.
+    stats_list : TYPE
+        DESCRIPTION.
+
+    """
     stats_list = []
     header = []
     keep_stats = np.array([True, True, True, True, False, True, False, False,
@@ -73,11 +113,17 @@ def parse_args(args_in):
     """Parse args."""
     parser = argparse.ArgumentParser(prog=sys.argv[0],
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('-i', "--inFile", required=True)
-    parser.add_argument('--h1', type=int, required=True)
-    parser.add_argument('--h2', type=int, required=True)
-    parser.add_argument("--mean", action="store_true")
-    parser.add_argument("--mask", action="store_true")
+    parser.add_argument('-i', "--inFile", required=True, help="tab delimted file "
+                        "expects the first 4 columns to be Chrom\tStart\tEnd\tSites")
+    parser.add_argument('--h1', type=int, required=True, help="sample size in haps "
+                        "of first population")
+    parser.add_argument('--h2', type=int, required=True, help="sample size in haps "
+                        "of second population")
+    parser.add_argument("--mean", action="store_true", help="returns the mean instead "
+                        "of the median")
+    parser.add_argument("--mask", action="store_true", help="if added then removes "
+                        "statstistics that are haplotype dependent. expect 22 "
+                        "instead of 31")
     return parser.parse_args(args_in)
 
 
