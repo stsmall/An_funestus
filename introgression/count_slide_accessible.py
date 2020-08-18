@@ -50,29 +50,6 @@ import numpy as np
 from tqdm.contrib import tenumerate
 
 
-def count_aln_N(count_N, records):
-    """Test whether a specific base is an N or n. Return the count for a window.
-
-    Parameters
-    ----------
-    count_N : TYPE
-        DESCRIPTION.
-    fasta1_aln : TYPE
-        DESCRIPTION.
-    fasta2_aln : TYPE
-        DESCRIPTION.
-
-    Returns
-    -------
-    None.
-
-    """
-    for i in range(records.get_alignment_length()):
-        seq = records[:, i]
-        count_N[i] += seq.count("N")
-    return count_N
-
-
 def find_accessible(preds, fasta1, fasta2, miss):
     """Calculate the number of accessible bases for FILET analysis.
 
@@ -92,6 +69,7 @@ def find_accessible(preds, fasta1, fasta2, miss):
     None.
 
     """
+    # build coords list
     coord_list = []
     with open(preds, 'r') as coords:
         for line in coords:
@@ -99,22 +77,35 @@ def find_accessible(preds, fasta1, fasta2, miss):
             chrom = line[0]
             start = int(line[1])
             coord_list.append(start)
-
-    basepairs = 0
+    # load alignments
     fasta1_aln = AlignIO.read(fasta1, 'fasta')
     len_f1 = len(fasta1_aln)
     fasta2_aln = AlignIO.read(fasta2, 'fasta')
     len_f2 = len(fasta2_aln)
     total_aln = len_f1 + len_f2
+    assert fasta1_aln.get_alignment_length() == fasta2_aln.get_alignment_length()
+    # count N's
+    breakpoint()
+    count_N = np.zeros([total_aln, fasta1_aln.get_alignment_length()], dtype=str)
+    i = 0
+    for record in fasta1_aln:
+        count_N[i] = list(record.seq)
+        i += 1
+    for record in fasta2_aln:
+        count_N[i] = list(record.seq)
+        i += 1
+    breakpoint()
+    mask_N = count_N == "N"
+    sum_N = np.sum(mask_N, axis=1)
+    # count N's per window
+    basepairs = 0
     with open(f"{preds}-accessible", 'w') as bed:
         for i, start in tenumerate(coord_list):
             try:
                 end = coord_list[i+1]
                 window_size = end - start
-                count_N = np.zeros(window_size)
-                count_N = count_aln_N(count_N, fasta1_aln[:, start:end])
-                count_N = count_aln_N(count_N, fasta2_aln[:, start:end])
-                miss_sites = len(np.where(count_N/total_aln >= miss)[0])
+                miss_count = sum_N[start:end]
+                miss_sites = len(np.where(miss_count/total_aln >= miss)[0])
                 access_bp = window_size - miss_sites
                 basepairs += access_bp
                 bed.write(f"{chrom}\t{start}\t{end}\t{access_bp}\n")
