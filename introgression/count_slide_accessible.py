@@ -108,7 +108,7 @@ def find_accessible(preds, fasta1, fasta2, miss):
     fasta2_aln = AlignIO.read(fasta2, 'fasta')
     len_f2 = len(fasta2_aln)
     total_aln = len_f1 + len_f2
-    with open(f"{preds}-accessible", 'r') as bed:
+    with open(f"{preds}-accessible", 'w') as bed:
         for i, start in tenumerate(coord_list):
             try:
                 start = coord_list[i]
@@ -134,8 +134,8 @@ def parse_args(args_in):
                         " coordinates")
     parser.add_argument("-f1", "--fasta1", type=str, help="fasta for pop1")
     parser.add_argument("-f2", "--fasta2", type=str, help="fasta for pop2")
-    parser.add_argument("-m", "--siteMissFlt", type=float, help="percent missing "
-                        "to not count site")
+    parser.add_argument("-m", "--siteMissFlt", type=float, default=0.50,
+                        help="percent missing to not count site")
     return(parser.parse_args(args_in))
 
 
