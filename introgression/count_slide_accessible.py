@@ -67,11 +67,9 @@ def count_aln_N(count_N, records):
     None.
 
     """
-    for record in records:
-        for i, seq in enumerate(record):
-            if seq == "N" or seq == "n":
-                count_N[i] += 1
-
+    for i in range(records.get_alignment_length()):
+        seq = records[:, i]
+        count_N[i] += seq.count("N")
     return count_N
 
 
