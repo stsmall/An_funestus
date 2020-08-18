@@ -67,6 +67,7 @@ def count_aln_N(count_N, records):
     None.
 
     """
+    breakpoint()
     for record in records:
         for i, seq in enumerate(record):
             if seq == "N" or seq == "n":
@@ -111,12 +112,11 @@ def find_accessible(preds, fasta1, fasta2, miss):
     with open(f"{preds}-accessible", 'w') as bed:
         for i, start in tenumerate(coord_list):
             try:
-                start = coord_list[i]
                 end = coord_list[i+1]
                 window_size = end - start
                 count_N = np.zeros(window_size)
-                count_N = count_aln_N(count_N, fasta1_aln[start:end])
-                count_N = count_aln_N(count_N, fasta2_aln[start:end])
+                count_N = count_aln_N(count_N, fasta1_aln[:, start:end])
+                count_N = count_aln_N(count_N, fasta2_aln[:, start:end])
                 miss_sites = len(np.where(count_N/total_aln >= miss)[0])
                 access_bp = window_size - miss_sites
                 basepairs += access_bp
