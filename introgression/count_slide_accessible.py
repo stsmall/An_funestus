@@ -67,7 +67,6 @@ def count_aln_N(count_N, records):
     None.
 
     """
-    breakpoint()
     for record in records:
         for i, seq in enumerate(record):
             if seq == "N" or seq == "n":
