@@ -84,19 +84,20 @@ def find_accessible(preds, fasta1, fasta2, miss):
     len_f2 = len(fasta2_aln)
     total_aln = len_f1 + len_f2
     assert fasta1_aln.get_alignment_length() == fasta2_aln.get_alignment_length()
+
     # count N's
-    breakpoint()
-    count_N = np.zeros([total_aln, fasta1_aln.get_alignment_length()], dtype=str)
+    count_N = np.zeros([total_aln, fasta1_aln.get_alignment_length()], dtype=object)
     i = 0
     for record in fasta1_aln:
-        count_N[i] = list(record.seq)
+        count_N[i] = np.array(list(record.seq), dtype=object) == "N"
         i += 1
     for record in fasta2_aln:
-        count_N[i] = list(record.seq)
+        count_N[i] = np.array(list(record.seq), dtype=object) == "N"
         i += 1
     breakpoint()
-    mask_N = count_N == "N"
-    sum_N = np.sum(mask_N, axis=1)
+    # mask_N = count_N == "N"
+    sum_N = np.sum(count_N, axis=1)
+
     # count N's per window
     basepairs = 0
     with open(f"{preds}-accessible", 'w') as bed:
