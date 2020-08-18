@@ -83,6 +83,7 @@ def find_accessible(preds, fasta1, fasta2, miss):
     fasta2_aln = AlignIO.read(fasta2, 'fasta')
     len_f2 = len(fasta2_aln)
     total_aln = len_f1 + len_f2
+<<<<<<< HEAD
     assert fasta1_aln.get_alignment_length() == fasta2_aln.get_alignment_length()
 
     # count N's
@@ -99,6 +100,9 @@ def find_accessible(preds, fasta1, fasta2, miss):
     # count N's per window
     basepairs = 0
     with open(f"{preds}-accessible", 'w') as bed:
+=======
+    with open(f"{preds}-accessible", 'r') as bed:
+>>>>>>> parent of ae0b231... w not r
         for i, start in tenumerate(coord_list):
             try:
                 end = coord_list[i+1]
@@ -121,8 +125,8 @@ def parse_args(args_in):
                         " coordinates")
     parser.add_argument("-f1", "--fasta1", type=str, help="fasta for pop1")
     parser.add_argument("-f2", "--fasta2", type=str, help="fasta for pop2")
-    parser.add_argument("-m", "--siteMissFlt", type=float, default=0.50,
-                        help="percent missing to not count site")
+    parser.add_argument("-m", "--siteMissFlt", type=float, help="percent missing "
+                        "to not count site")
     return(parser.parse_args(args_in))
 
 
