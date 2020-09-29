@@ -14,10 +14,11 @@ parser.add_argument('-p1', "--prob1", type=float, default=0.05,
                     help="reject no-migration class")
 parser.add_argument('-p2', "--prob2", type=float, default=0.90,
                     help="accept migration class")
+parser.add_argument("--slide", action="store_true")
 args = parser.parse_args()
 
 
-def clusterIntrogressedRegions(InFile, p1, p2):
+def clusterIntrogressedRegions(InFile, p1, p2, slide):
     """Split introgressed regions to file."""
     c1 = open(f"{InFile}.m12.bed", 'w')
     c2 = open(f"{InFile}.m21.bed", 'w')
@@ -30,7 +31,10 @@ def clusterIntrogressedRegions(InFile, p1, p2):
             chrom = x[0]
             start = int(x[1])
             end = int(x[2])
-            sites = int(x[3])
+            if slide:
+                sites = x[-1]
+            else:
+                sites = int(x[3])
             pred = x[4]
             noMigp = float(x[5])
             mig12p = float(x[6])
@@ -53,4 +57,4 @@ def clusterIntrogressedRegions(InFile, p1, p2):
 
 
 if __name__ == "__main__":
-    clusterIntrogressedRegions(args.InFile, args.prob1, args.prob2)
+    clusterIntrogressedRegions(args.InFile, args.prob1, args.prob2. args.slide)
