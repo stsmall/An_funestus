@@ -75,6 +75,28 @@ def count_aln_N(count_N, records):
     return count_N
 
 
+def open_fasta(chrom, fasta1, fasta2):
+    fasta1_aln = AlignIO.read(f"{chrom}.fasta1", 'fasta')
+    len_f1 = len(fasta1_aln)
+    fasta2_aln = AlignIO.read(f"{chrom}fasta2", 'fasta')
+    len_f2 = len(fasta2_aln)
+    total_aln = len_f1 + len_f2
+    assert fasta1_aln.get_alignment_length() == fasta2_aln.get_alignment_length()
+
+    return fasta1_aln, fasta2_aln, total_aln
+
+
+def count_accessible(fasta1, fasta2, start, end, total_aln, miss):
+    window_size = end - start
+    count_N = np.zeros(window_size)
+    count_N = count_aln_N(count_N, fasta1[:, start:end])
+    count_N = count_aln_N(count_N, fasta2[:, start:end])
+    miss_sites = len(np.where(count_N/total_aln >= miss)[0])
+    access_bp = window_size - miss_sites
+
+    return access_bp
+
+
 def find_accessible(preds, fasta1, fasta2, miss):
     """Calculate the number of accessible bases for FILET analysis.
 
@@ -94,37 +116,38 @@ def find_accessible(preds, fasta1, fasta2, miss):
     None.
 
     """
-    coord_list = []
-    with open(preds, 'r') as coords:
-        for line in coords:
-            line = line.split()
-            chrom = line[0]
-            start = int(line[1])
-            coord_list.append(start)
+    out = open("accessible.txt", 'w')
+    with open(preds, 'r') as preds:
+        line = preds.readline()
+        chrom, start, end, med, prob = line.split()
 
-    basepairs = 0
-    fasta1_aln = AlignIO.read(fasta1, 'fasta')
-    len_f1 = len(fasta1_aln)
-    fasta2_aln = AlignIO.read(fasta2, 'fasta')
-    len_f2 = len(fasta2_aln)
-    total_aln = len_f1 + len_f2
-    assert fasta1_aln.get_alignment_length() == fasta2_aln.get_alignment_length()
     with open(f"{preds}-accessible", 'w') as bed:
-        for i, start in tenumerate(coord_list):
-            try:
-                end = coord_list[i+1]
-                window_size = end - start
-                count_N = np.zeros(window_size)
-                count_N = count_aln_N(count_N, fasta1_aln[:, start:end])
-                count_N = count_aln_N(count_N, fasta2_aln[:, start:end])
-                miss_sites = len(np.where(count_N/total_aln >= miss)[0])
-                access_bp = window_size - miss_sites
-                basepairs += access_bp
-                bed.write(f"{chrom}\t{start}\t{end}\t{access_bp}\n")
-            except IndexError:
-                break
-    print(f"{chrom}: {basepairs}")
-
+        f1, f2, total_aln = open_fasta(chrom, fasta1, fasta2)
+        with open(preds, 'r') as preds:
+            basepairs = 0
+            for line in preds:
+                new_chrom = line.split()[0]
+                if chrom == new_chrom:
+                    chrom, start, end, med, prob = line.split()
+                    try:
+                        access_bp = count_accessible(int(start), int(end), f1, f2, total_aln, miss)
+                        basepairs += access_bp
+                        bed.write(f"{chrom}\t{start}\t{end}\t{access_bp}\t{prob}\n")
+                    except IndexError:
+                        end = total_aln
+                        access_bp = count_accessible(int(start), end, f1, f2, total_aln, miss)
+                        basepairs += access_bp
+                        bed.write(f"{chrom}\t{start}\t{end}\t{access_bp}\t{prob}\n")
+                else:
+                    out.write(f"{chrom}: {basepairs}")
+                    f1, f2, total_aln = open_fasta(new_chrom, fasta1, fasta2)
+                    basepairs = 0
+                    chrom, start, end, med, prob = line.split()
+                    access_bp = count_accessible(int(start), int(end), f1, f2, total_aln, miss)
+                    basepairs += access_bp
+                    bed.write(f"{chrom}\t{start}\t{end}\t{access_bp}\t{prob}\n")
+    out.close()
+    return None
 
 def parse_args(args_in):
     """Parse args."""
