@@ -122,15 +122,15 @@ def find_accessible(preds, fasta1, fasta2, miss):
 
     """
     out = open("accessible.txt", 'w')
-    with open(preds, 'r') as preds:
-        line = preds.readline()
+    with open(preds, 'r') as coords:
+        line = coords.readline()
         chrom, start, end, med, prob = line.split()
 
     with open(f"{preds}-accessible", 'w') as bed:
         f1, f2, total_aln = open_fasta(chrom, fasta1, fasta2)
-        with open(preds, 'r') as preds:
+        with open(preds, 'r') as coords:
             basepairs = 0
-            for line in preds:
+            for line in coords:
                 new_chrom = line.split()[0]
                 if chrom == new_chrom:
                     chrom, start, end, med, prob = line.split()
