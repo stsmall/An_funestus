@@ -92,7 +92,7 @@ def open_fasta(chrom, fasta1, fasta2):
 
 
 def count_accessible(fasta1, fasta2, start, end, total_aln, miss):
-    breakpoint
+    breakpoint()
     window_size = end - start
     count_N = np.zeros(window_size)
     count_N = count_aln_N(count_N, fasta1[:, start:end])
@@ -127,6 +127,9 @@ def find_accessible(preds, fasta1, fasta2, miss):
     with open(preds, 'r') as coords:
         line = coords.readline()
         chrom, start, end, med, prob = line.split()
+        count_line += 1
+        for line in coords:
+            count_line += 1
 
     with open(f"{preds}-accessible", 'w') as bed:
         f1, f2, total_aln = open_fasta(chrom, fasta1, fasta2)
