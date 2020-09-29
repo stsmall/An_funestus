@@ -78,7 +78,7 @@ def count_aln_N(count_N, records):
 def open_fasta(chrom, fasta1, fasta2):
     fasta1_aln = AlignIO.read(f"{chrom}.fasta1", 'fasta')
     len_f1 = len(fasta1_aln)
-    fasta2_aln = AlignIO.read(f"{chrom}fasta2", 'fasta')
+    fasta2_aln = AlignIO.read(f"{chrom}.fasta2", 'fasta')
     len_f2 = len(fasta2_aln)
     total_aln = len_f1 + len_f2
     assert fasta1_aln.get_alignment_length() == fasta2_aln.get_alignment_length()
