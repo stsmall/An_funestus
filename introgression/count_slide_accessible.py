@@ -25,7 +25,8 @@ Notes
 -----
 	count accessible w/ `*`preds coordinates in fasta
 		>50% of the sites are N, then the site is skipped
-		need to pull in 2 files, take the preds bed for the same file, move site by site only counting those with <50% Ns
+		need to pull in 2 files, take the preds bed for the same file,
+        move site by site only counting those with <50% Ns
 		python slide_accessible.py 2L.preds 2L.van.fa 2L.fun.fa 0.50
 			# preds :: get coords
 			# read in FASTA with biopython
@@ -47,7 +48,7 @@ import sys
 import argparse
 from Bio import AlignIO
 import numpy as np
-from tqdm.contrib import tenumerate
+from os import path
 
 
 def count_aln_N(count_N, records):
@@ -76,9 +77,13 @@ def count_aln_N(count_N, records):
 
 
 def open_fasta(chrom, fasta1, fasta2):
-    fasta1_aln = AlignIO.read(f"{chrom}.fasta1", 'fasta')
+    fasta1_dir, fasta1_base = path.split(fasta1)
+    fasta2_dir, fasta2_base = path.split(fasta2)
+    new_fasta1 = path.join(fasta1_dir, f"{chrom}.{fasta1_base}")
+    new_fasta2 = path.join(fasta2_dir, f"{chrom}.{fasta2_base}")
+    fasta1_aln = AlignIO.read(new_fasta1, 'fasta')
     len_f1 = len(fasta1_aln)
-    fasta2_aln = AlignIO.read(f"{chrom}.fasta2", 'fasta')
+    fasta2_aln = AlignIO.read(new_fasta2, 'fasta')
     len_f2 = len(fasta2_aln)
     total_aln = len_f1 + len_f2
     assert fasta1_aln.get_alignment_length() == fasta2_aln.get_alignment_length()
@@ -139,7 +144,7 @@ def find_accessible(preds, fasta1, fasta2, miss):
                         basepairs += access_bp
                         bed.write(f"{chrom}\t{start}\t{end}\t{access_bp}\t{prob}\n")
                 else:
-                    out.write(f"{chrom}: {basepairs}")
+                    out.write(f"{preds}\t{chrom}\t{basepairs}\n")
                     f1, f2, total_aln = open_fasta(new_chrom, fasta1, fasta2)
                     basepairs = 0
                     chrom, start, end, med, prob = line.split()
@@ -148,6 +153,7 @@ def find_accessible(preds, fasta1, fasta2, miss):
                     bed.write(f"{chrom}\t{start}\t{end}\t{access_bp}\t{prob}\n")
     out.close()
     return None
+
 
 def parse_args(args_in):
     """Parse args."""
