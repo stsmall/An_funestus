@@ -144,12 +144,14 @@ def find_accessible(preds, fasta1, fasta2, miss):
                     try:
                         access_bp = count_accessible(f1, f2, int(start), int(end), total_aln, miss)
                         basepairs += access_bp
-                        bed.write(f"{chrom}\t{start}\t{end}\t{access_bp}\t{prob}\n")
+                        p = "\t".join(prob)
+                        bed.write(f"{chrom}\t{start}\t{end}\t{access_bp}\t{p}\n")
                     except IndexError:
                         end = total_aln
                         access_bp = count_accessible(f1, f2, int(start), int(end), total_aln, miss)
                         basepairs += access_bp
-                        bed.write(f"{chrom}\t{start}\t{end}\t{access_bp}\t{prob}\n")
+                        p = "\t".join(prob)
+                        bed.write(f"{chrom}\t{start}\t{end}\t{access_bp}\t{p}\n")
                 else:
                     out.write(f"{preds}\t{chrom}\t{basepairs}\n")
                     f1, f2, total_aln = open_fasta(new_chrom, fasta1, fasta2)
@@ -158,7 +160,8 @@ def find_accessible(preds, fasta1, fasta2, miss):
                     chrom, start, end, *prob = line.split()
                     access_bp = count_accessible(f1, f2, int(start), int(end), total_aln, miss)
                     basepairs += access_bp
-                    bed.write(f"{chrom}\t{start}\t{end}\t{access_bp}\t{prob}\n")
+                    p = "\t".join(prob)
+                    bed.write(f"{chrom}\t{start}\t{end}\t{access_bp}\t{p}\n")
 
     out.write(f"{preds}\t{chrom}\t{basepairs}\n")
     pbar.close()
