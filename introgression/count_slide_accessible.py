@@ -126,7 +126,7 @@ def find_accessible(preds, fasta1, fasta2, miss):
     count_line = 0
     with open(preds, 'r') as coords:
         line = coords.readline()
-        chrom, start, end, med, prob = line.split()
+        chrom, start, end, med, *prob = line.split()
         count_line += 1
         for line in coords:
             count_line += 1
@@ -140,7 +140,7 @@ def find_accessible(preds, fasta1, fasta2, miss):
                 pbar.update(1)
                 new_chrom = line.split()[0]
                 if chrom == new_chrom:
-                    chrom, start, end, med, prob = line.split()
+                    chrom, start, end, med, *prob = line.split()
                     try:
                         access_bp = count_accessible(f1, f2, int(start), int(end), total_aln, miss)
                         basepairs += access_bp
@@ -155,7 +155,7 @@ def find_accessible(preds, fasta1, fasta2, miss):
                     f1, f2, total_aln = open_fasta(new_chrom, fasta1, fasta2)
                     basepairs = 0
                     # catch that count
-                    chrom, start, end, med, prob = line.split()
+                    chrom, start, end, med, *prob = line.split()
                     access_bp = count_accessible(f1, f2, int(start), int(end), total_aln, miss)
                     basepairs += access_bp
                     bed.write(f"{chrom}\t{start}\t{end}\t{access_bp}\t{prob}\n")
