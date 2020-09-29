@@ -49,6 +49,7 @@ import argparse
 from Bio import AlignIO
 import numpy as np
 from os import path
+from tqdm import tqdm
 
 
 def count_aln_N(count_N, records):
@@ -131,21 +132,23 @@ def find_accessible(preds, fasta1, fasta2, miss):
         for line in coords:
             count_line += 1
 
+    pbar = tqdm(total=count_line)
     with open(f"{preds}-accessible", 'w') as bed:
         f1, f2, total_aln = open_fasta(chrom, fasta1, fasta2)
         with open(preds, 'r') as coords:
             basepairs = 0
             for line in coords:
+                pbar.update(1)
                 new_chrom = line.split()[0]
                 if chrom == new_chrom:
                     chrom, start, end, med, prob = line.split()
                     try:
-                        access_bp = count_accessible(int(start), int(end), f1, f2, total_aln, miss)
+                        access_bp = count_accessible(f1, f2, int(start), int(end), total_aln, miss)
                         basepairs += access_bp
                         bed.write(f"{chrom}\t{start}\t{end}\t{access_bp}\t{prob}\n")
                     except IndexError:
                         end = total_aln
-                        access_bp = count_accessible(int(start), end, f1, f2, total_aln, miss)
+                        access_bp = count_accessible(f1, f2, int(start), int(end), total_aln, miss)
                         basepairs += access_bp
                         bed.write(f"{chrom}\t{start}\t{end}\t{access_bp}\t{prob}\n")
                 else:
@@ -153,9 +156,10 @@ def find_accessible(preds, fasta1, fasta2, miss):
                     f1, f2, total_aln = open_fasta(new_chrom, fasta1, fasta2)
                     basepairs = 0
                     chrom, start, end, med, prob = line.split()
-                    access_bp = count_accessible(int(start), int(end), f1, f2, total_aln, miss)
+                    access_bp = count_accessible(f1, f2, int(start), int(end), total_aln, miss)
                     basepairs += access_bp
                     bed.write(f"{chrom}\t{start}\t{end}\t{access_bp}\t{prob}\n")
+    pbar.close()
     out.close()
     return None
 
